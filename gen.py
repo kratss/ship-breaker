@@ -93,17 +93,21 @@ def plane_gen3(
     return plane
 
 
-def circle_gen(resolution=360, radius=5):
-    angle = np.linspace(0, 2 * np.pi, resolution)
+def circle_gen(resolution=360, radius=5, gap=0, origin=[0, 0, 0]):
+    # Gap is size of the gap in radians
+    origin = np.array(origin)
+    angle = np.linspace(0, 2 * np.pi - gap, resolution)
     x = radius * np.cos(angle)
     y = radius * np.sin(angle)
     z = np.zeros(resolution)
-    print("y is:", y)
-    print("\nx is: ", x)
-    return np.column_stack((x, y, z))
+    plane = np.column_stack((x, y, z))
+    print("plane before:", plane)
+    plane = plane + origin
+    print("plane after:", plane)
+    return plane
 
 
-def disc_gen(resolution=6, radius_inner=2, radius_outer=5, yaw=0.4):
+def disc_gen(resolution=6, radius_inner=2, radius_outer=5, yaw=0):
     radius = np.linspace(radius_inner, radius_outer, resolution)
     print("\nradius[1] is: ", radius[1])
     x = []
@@ -209,110 +213,24 @@ def prism(
     return np.vstack((side))
 
 
-def ibeam_gen(
-    origin=np.array([0, 0, 0]),
-    length=500,
-    height=35,
-    width=15,
-    thickness=5,
-    skip=[False] * 12,
-):
-    l = length
-    w = width
-    h = height
-    t = thickness
-    widths = np.array(
-        [
-            w,
-            t,
-            (w - t) / 2,
-            h - 2 * t,
-            (w - t) / 2,
-            t,
-            w,
-            t,
-            (w - t) / 2,
-            h - 2 * t,
-            (w - t) / 2,
-            t,
-        ]
-    )
-    origins = np.array(
-        [
-            [0, 0, 0],
-            [0, 0, 0],
-            [0, 0, t],
-            [0, (w - t) / 2, t],
-            [0, 0, h - t],
-            [0, 0, h - t],
-            [0, 0, h],
-            [0, w, h - t],
-            [0, (w - t) / 2 + t, h - t],
-            [0, (w - t) / 2 + t, t],
-            [0, (w - t) / 2 + t, t],
-            [0, w, 0],
-        ]
-    )
-    rotations = np.array(
-        [
-            [0, 0, 0],
-            [np.pi / 2, 0, 0],
-            [0, 0, 0],
-            [np.pi / 2, 0, 0],
-            [0, 0, 0],
-            [np.pi / 2, 0, 0],
-            [0, 0, 0],
-            [np.pi / 2, 0, 0],
-            [0, 0, 0],
-            [np.pi / 2, 0, 0],
-            [0, 0, 0],
-            [np.pi / 2, 0, 0],
-            [0, 0, 0],
-        ]
-    )
-    origin = origin[np.newaxis, :]  # origins shape 7,3
-    origins = origins + origin
-    plane = np.empty((1, 3))
-    for i in range(np.shape(origins)[0]):
-        if skip[i] == False:
-            print(i)
-            planet = plane_gen3(
-                origin=origins[i, :],
-                roll=rotations[i, 0],
-                pitch=0,
-                yaw=0,
-                length=length,
-                width=widths[i],
-            )
-            plane = np.concatenate((plane, planet))
-    print("plane: ", plane)
+def cylinder_gen(origin=[0, 0, 0], gap=np.pi / 4, length=5, num_points=500):
+    # Needs to be able to have arbitrary open space
+    origin = np.array([0, 0, 0])
+    z = np.linspace(0, length, num_points / 50)
+    for i in z:
+        circle_gen(origin=[0, 0, i])
+
+    plane = circle_gen(gap=gap)
     return plane
 
 
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd = o3d.t.geometry.PointCloud(
-        ibeam_gen(
-            skip=[
-                False,
-                False,
-                False,
-                False,
-                False,
-                False,
-                True,
-                False,
-                False,
-                False,
-                False,
-                False,
-            ]
-        )
-    )
-    #    pcd2 = o3d.t.geometry.PointCloud(plane_gen3(origin=[4, 4, 4]))
+    pcd = o3d.t.geometry.PointCloud(circle_gen(gap=3 / 4 * np.pi, origin=[5, 3, 8]))
+    pcd2 = o3d.t.geometry.PointCloud(cylinder_gen(gap=1 / 8 * np.pi, origin=[0, 0, 0]))
 
     # display point cloud in browser window (as opposed to locally with draw_geometry)
-    o3d.visualization.draw_plotly([pcd.to_legacy()])
-    # o3d.visualization.draw_plotly([pcd.to_legacy(), pcd2.to_legacy()])
+    #    o3d.visualization.draw_plotly([pcd.to_legacy()])
+    o3d.visualization.draw_plotly([pcd.to_legacy(), pcd2.to_legacy()])
     #
