@@ -57,24 +57,16 @@ def plane(
 
     print("\nGenerating plane...")
     origin = np.array(origin)
-    if uniform == False:
-        x_range = np.array([0, length])
-        y_range = np.array([0, width])
-        z = np.full(num_points, 0)
-        x = np.random.uniform(x_range[0], x_range[1], num_points)
-        y = np.random.uniform(y_range[0], y_range[1], num_points)
-        cloud = np.column_stack([x, y, z])
-    else:
-        Z = 0
-        X = np.linspace(0, length, int(length * density))
-        Y = np.linspace(0, width, int(width * density))
-        cloud = np.array([[0, 0, 0]])
-        for x in X:
-            a = np.full(np.shape(Y), x)
-            b = Y
-            c = np.full(np.shape(Y), Z)
-            cloudt = np.column_stack([a, b, c])
-            cloud = np.concatenate([cloud, cloudt])
+    Z = 0
+    X = np.linspace(0, length, int(length * density))
+    Y = np.linspace(0, width, int(width * density))
+    cloud = np.array([[0, 0, 0]])
+    for x in X:
+        a = np.full(np.shape(Y), x)
+        b = Y
+        c = np.full(np.shape(Y), Z)
+        cloudt = np.column_stack([a, b, c])
+        cloud = np.concatenate([cloud, cloudt])
     R = rot_mat(roll, pitch, yaw)
     # print("plane cloud: \n", cloud)
     cloud = (R @ cloud.T).T
@@ -86,7 +78,7 @@ def plane(
     return cloud
 
 
-def circle(resolution=360, radius=5, gap=0, origin=[0, 0, 0]):
+def circle(origin=[0, 0, 0], resolution=360, radius=5, gap=0):
     # Gap is size of the gap in radians
     print("Generating circle...")
     origin = np.array(origin)
@@ -377,7 +369,6 @@ def bulb_flat(
     pitch=0,
     yaw=0,
     scale=1,
-    length=15,
 ):
     # Generate curved section
     # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
