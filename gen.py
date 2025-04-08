@@ -47,15 +47,15 @@ def plane_gen2(x_range=[0, 5], y_range=[0, 5], num_points=[500], a=1, b=2, c=3, 
 
 
 def plane_gen3(
-    origin=[0, 0, 0], roll=0, pitch=0, yaw=0, width=5, length=5, num_points=500
+    origin=[0, 0, 0], roll=0, pitch=0, yaw=0, length=5, width=20, num_points=500
 ):
     # Origin specifies the location of the southwest corner
     # Roll pitch yaw correspond to phi theta psi by convention and rotate on
     # the x, y, and z axes respectively
 
     # Generate points lying on a plane of the given size
-    x_range = np.array([0, width])
-    y_range = np.array([0, length])
+    x_range = np.array([0, length])
+    y_range = np.array([0, width])
     z = np.full(num_points, 0)
     x = np.random.uniform(x_range[0], x_range[1], num_points)
     y = np.random.uniform(y_range[0], y_range[1], num_points)
@@ -129,70 +129,6 @@ def disc_gen(resolution=6, radius_inner=2, radius_outer=5, yaw=0.4):
     return coordinates
 
 
-def ibeam_gen(
-    length=5, x_range=[0, 5], y_range=[0, 5], num_points=[500], a=0, b=0, c=0, d=0
-):
-    flange1 = plane_gen(
-        x_range=[0 - length, 5],
-        y_range=[0 - length, 5],
-        num_points=[500],
-        a=1,
-        b=2,
-        c=3,
-        d=4,
-    )
-
-    # web
-    flange2 = plane_gen(
-        x_range=[0 + length, 5 + length],
-        y_range=[0 + length, 5 + length],
-        num_points=[500],
-    )
-    print("\n ibeam_gen: \n", np.vstack((flange1, flange2)))
-    return np.vstack((flange1, flange2))
-
-
-def plane_gen2(
-    origin=[0, 0, 0], roll=0, pitch=0, yaw=0, width=5, length=5, num_points=1000
-):
-
-    # a(x-x0) + b(y-y0) + c(z-z0) where abc is the normal to the plane, and x0y0z0 is the "northeast" corner
-    # roll pitch yaw correspond to phi theta psi by convention and rotate on
-    # the x, y, and z axes respectively
-    x_range = np.array([origin[0], origin[0] + width])
-    y_range = np.array([origin[1], origin[1] + length])
-    z = np.full(num_points, origin[2])
-    x = np.random.uniform(x_range[0], x_range[1], num_points)
-    y = np.random.uniform(y_range[0], y_range[1], num_points)
-    R_roll = np.array(
-        [
-            [1, 0, 0],
-            [0, np.cos(roll), -np.sin(roll)],
-            [0, np.sin(roll), np.cos(roll)],
-        ]
-    )
-    R_pitch = np.array(
-        [
-            [np.cos(pitch), 0, np.sin(pitch)],
-            [0, 1, 0],
-            [-np.sin(pitch), 0, np.cos(pitch)],
-        ]
-    )
-
-    R_yaw = np.array(
-        [
-            [np.cos(yaw), -np.sin(yaw), 0],
-            [np.sin(yaw), np.cos(yaw), 0],
-            [0, 0, 1],
-        ]
-    )
-    plane = np.array([x, y, z]).T
-    print("\nplane:\n", np.shape(plane))
-    plane = R_roll @ R_pitch @ R_yaw @ plane.T
-    print("(x,y,z)^T R", np.shape(plane))
-    return plane.T
-
-
 class Plane:
     def __init__(self, p1, p2, p3):
         self.p1 = np.array(p1)
@@ -214,12 +150,71 @@ class Plane:
         return a, b, c, d
 
 
+def prism(
+    origin=[0, 0, 0],
+    length=6,
+    width=12,
+    height=18,
+    x_range=[0, 5],
+    y_range=[0, 5],
+    num_points=2000,
+):
+    prism_x = length
+    prism_y = width
+    prism_z = height
+    edge_pts = int(num_points / 6)
+    print("\nPoints per edge: ", edge_pts)
+    side = np.zeros([6, edge_pts, 3])
+    side[0] = plane_gen3(
+        origin=origin,
+        num_points=edge_pts,
+        length=prism_x,
+        width=prism_y,
+    )
+    side[1] = plane_gen3(
+        origin=(origin + np.array([0, 0, prism_z])),
+        num_points=edge_pts,
+        length=prism_x,
+        width=prism_y,
+    )
+    side[2] = plane_gen3(
+        origin=origin,
+        num_points=edge_pts,
+        pitch=3 * np.pi / 2,
+        length=prism_z,
+        width=prism_y,
+    )
+    side[3] = plane_gen3(
+        origin=(origin + np.array([prism_x, 0, 0])),
+        pitch=3 * np.pi / 2,
+        num_points=edge_pts,
+        length=prism_z,
+        width=prism_y,
+    )
+    side[4] = plane_gen3(
+        origin=origin,
+        num_points=edge_pts,
+        roll=np.pi / 2,
+        length=prism_x,
+        width=prism_z,
+    )
+    side[5] = plane_gen3(
+        origin=(origin + np.array([0, prism_y, 0])),
+        num_points=edge_pts,
+        roll=np.pi / 2,
+        length=prism_x,
+        width=prism_z,
+    )
+    print("\n side shape:\n", np.shape(side))
+    return np.vstack((side))
+
+
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd = o3d.t.geometry.PointCloud(plane_gen2())
-    pcd2 = o3d.t.geometry.PointCloud(plane_gen3(origin=[0, 9, 0], roll=np.pi / 2))
+    pcd = o3d.t.geometry.PointCloud(prism(origin=[0, 0, 0]))
+    #    pcd2 = o3d.t.geometry.PointCloud(plane_gen3(origin=[4, 4, 4]))
 
     # display point cloud in browser window (as opposed to locally with draw_geometry)
-    # o3d.visualization.draw_plotly([pcd.to_legacy()])
-    o3d.visualization.draw_plotly([pcd.to_legacy(), pcd2.to_legacy()])
+    o3d.visualization.draw_plotly([pcd.to_legacy()])
+    # o3d.visualization.draw_plotly([pcd.to_legacy(), pcd2.to_legacy()])
