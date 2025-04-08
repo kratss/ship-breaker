@@ -378,6 +378,34 @@ def tbeam_gen(
     return cloud
 
 
+def stiffener_bulb_flat(a=-2, b=1, c=0, num_points=300, width=5):
+    print("Generating bulb flat stiffener...")
+    # Generate curved section
+    # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
+    z = np.linspace(0, width, int(num_points))
+    cloud = np.empty((1, 3))
+    for i in z:
+        x = np.linspace(0, 1, num_points)
+        y = a * x**2 + b * x + c
+        z = np.full(num_points, i)
+        print("z[", i, "]: ", z)
+        cloudt = np.column_stack([x, y, z])
+        cloud = np.concatenate((cloud, cloudt))
+    print("shape is: ", np.column_stack([x, y, z]).shape)
+    cloudt = plane_gen3(
+        origin=[1, -1, 0],
+        roll=np.pi / 2,
+        pitch=0,
+        yaw=0,
+        length=2,
+        width=width,
+        num_points=500,
+    )
+    cloud = np.concatenate((cloud, cloudt))
+    # print("Bulb flat stiffiner:\n", cloud)
+    return cloud
+
+
 def rot_mat(roll=0, pitch=0, yaw=0):
     # returns appropiate rotation matrix for a roll pitch and yaw
     print("Generating rotation matrix...")
