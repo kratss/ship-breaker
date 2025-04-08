@@ -2,15 +2,20 @@
 import open3d as o3d
 import numpy as np
 
+
 # basic point cloud creation
 # https://www.open3d.org/html/tutorial/t_geometry/pointcloud.html
+
+
+max_value = 1000000
 
 
 def rot_mat(roll=0, pitch=0, yaw=0):
     # Return rotation matrix described by a given roll, pitch, and yaw
     # Roll, pitch, and yaw correspond to phi theta psi by convention
     # Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
-    print("Generating rotation matrix...")
+    print("\nGenerating rotation matrix...")
+    # print("roll: ", roll, "pitch: ", pitch, "yaw: ", yaw)
     R_roll = np.array(
         [
             [1, 0, 0],
@@ -32,7 +37,9 @@ def rot_mat(roll=0, pitch=0, yaw=0):
             [0, 0, 1],
         ]
     )
-    return R_yaw @ R_pitch @ R_roll
+    R = R_yaw @ R_pitch @ R_roll
+    # print("rotation matrix R: ", R)
+    return R
 
 
 def plane(
@@ -42,15 +49,16 @@ def plane(
     yaw=0,
     length=5,
     width=20,
-    num_points=500,
     uniform=True,
-    density=25,
+    num_points=500,
+    density=20,
 ):
     # Generate points lying on a plane of the given size
     # Origin specifies the location of the southwest corner
     # Roll pitch yaw correspond to phi theta psi by convention and rotate on
     # the x, y, and z axes respectively
 
+    print("\nGenerating plane...")
     origin = np.array(origin)
     if uniform == False:
         x_range = np.array([0, length])
@@ -63,10 +71,7 @@ def plane(
         Z = 0
         X = np.linspace(0, length, int(length * density))
         Y = np.linspace(0, width, int(width * density))
-        print("\nShape of X: ", np.shape(X))
-        print("\nShape of Y: ", np.shape(Y))
-        print("\nShape of Z: ", np.shape(Z))
-        cloud = np.empty([1, 3])
+        cloud = np.array([[0, 0, 0]])
         for x in X:
             a = np.full(np.shape(Y), x)
             b = Y
@@ -74,10 +79,16 @@ def plane(
             cloudt = np.column_stack([a, b, c])
             cloud = np.concatenate([cloud, cloudt])
     R = rot_mat(roll, pitch, yaw)
+    # print("plane cloud: \n", cloud)
     cloud = R @ cloud.T
+    # print("plane cloud after rotation: \n", np.round(cloud, decimals=0))
     cloud = cloud.T
+    cloud = np.where(cloud > max_value, 0, cloud)
+    cloud = np.where(cloud < -max_value, 0, cloud)
     cloud = cloud + origin
-    print("\nShape of plane cloud: ", np.shape(cloud))
+
+    largest_val(cloud)
+    # print("Shape of plane cloud: ", np.shape(cloud))
     return cloud
 
 
@@ -130,7 +141,7 @@ def cylinder(
     # Needs to be able to have arbitrary open space
     origin = np.array(origin)
     z = np.linspace(0, length, int(density))
-    cloud = np.empty((1, 3))
+    cloud = np.array([[0, 0, 0]])
     for i in z:
         cloudt = circle(origin=[0, 0, i], gap=gap)
         cloud = np.concatenate((cloud, cloudt))
@@ -261,7 +272,7 @@ def ibeam(
         ]
     )
     origins = origins + origin
-    cloud = np.empty((1, 3))
+    cloud = np.array([[0, 0, 0]])
     for i in range(np.shape(origins)[0]):
         if skip[i] == False:
             cloudt = plane(
@@ -281,11 +292,13 @@ def ibeam(
 def tbeam(
     origin=[0, 0, 0],
     length=10,
-    height=10,
     width=5,
+    height=10,
     thickness=2,
     skip=[False] * 12,
+    density=20,
 ):
+    # Origin is measured from TOP of t-beam as defined by its typical orientation
     print("Generating I-beam...")
     origin = np.array(origin)
     l = length
@@ -297,9 +310,9 @@ def tbeam(
             w,
             t,
             (w - t) / 2,
-            h - 2 * t,
+            h - t,
             t,
-            h - 2 * t,
+            h - t,
             (w - t) / 2,
             t,
         ]
@@ -310,7 +323,7 @@ def tbeam(
             [0, 0, 0],
             [0, 0, t],
             [0, (w - t) / 2, t],
-            [0, (w - t) / 2, h - t],
+            [0, (w - t) / 2, h],
             [0, (w - t) / 2 + t, t],
             [0, (w - t) / 2 + t, t],
             [0, w, 0],
@@ -329,7 +342,7 @@ def tbeam(
             [0, 0, 0],
         ]
     )
-    cloud = np.empty((1, 3))
+    cloud = np.array([[0, 0, 0]])
     for i in range(np.shape(origins)[0]):
         if skip[i] == False:
             cloudt = plane(
@@ -339,10 +352,15 @@ def tbeam(
                 yaw=0,
                 length=length,
                 width=widths[i],
+                density=density,
             )
             cloud = np.concatenate((cloud, cloudt))
+    R = rot_mat(np.pi, 0, 0)
+    cloud = (R @ cloud.T).T
+    # print("shape of tbeam cloud is :", np.shape(cloud))
     cloud = cloud + origin
-    print("T-beam: \n", cloud)
+    # print("T-beam: \n", cloud)
+
     return cloud
 
 
@@ -357,13 +375,16 @@ def bulb_flat(
     pitch=0,
     yaw=0,
     length=15,
+    scale=1,
 ):
     # Generate curved section
     # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
     print("Generating bulb flat stiffener...")
     origin = np.array([origin])
+
+    # Generate bulb
     z = np.linspace(0, width, int(num_points))
-    cloud = np.empty((1, 3))
+    cloud = np.array([[0, 0, 0]])
     for i in z:
         x = np.linspace(0, 1, num_points)
         y = a * x**2 + b * x + c
@@ -372,6 +393,8 @@ def bulb_flat(
         cloudt = np.column_stack([x, y, z])
         cloud = np.concatenate((cloud, cloudt))
     print("shape is: ", np.column_stack([x, y, z]).shape)
+
+    # Generate flat
     cloudt = plane(
         origin=[1, -1, 0],
         roll=np.pi / 2,
@@ -382,6 +405,7 @@ def bulb_flat(
         num_points=500,
     )
     cloud = np.concatenate((cloud, cloudt))
+    cloud = cloud * scale
     R = rot_mat(roll, pitch, yaw)
     cloud = R @ cloud.T
     cloud = cloud.T
@@ -398,7 +422,7 @@ def unkown_name(
     bulb_radius=3,
     radius=4,
 ):
-    cloud = np.empty((1, 3))
+    cloud = np.array([[0, 0, 0]])
 
     # generate stem
     cloudt = plane(length=length, width=stem_height, roll=np.pi / 2)
@@ -430,46 +454,74 @@ def unkown_name(
 
 def curved_wall(
     x_range=[0, 5],
-    a=3,
-    b=4,
-    c=1,
-    width=9,
-    num_points=80,
+    a=1,
+    b=0,
+    c=0,
+    num_points=8,
     origin=[0, 0, 0],
     roll=0,
     pitch=0,
     yaw=0,
+    length=3,
+    width=1,
+    height=42,
+    density=45,
 ):
+    print("\nGenerating curved wall...")
     origin = np.array(origin)
-    x = np.random.uniform(x_range[0], x_range[1], num_points)
-    z = (x * a) ** 2 + (x * b) + c
-    y = np.linspace(0, width, int(num_points))
-    plane = np.column_stack((x, y, z))
-    plane = plane + origin
-    return np.column_stack((x, y, z))
+    Y = np.linspace(0, 1, int(length * density))
+    Z = np.linspace(0, 1, int(height * density))
+    cloud = np.array([[0, 0, 0]])
+    for y in Y:
+        x = np.full(np.shape(Z), (Z * a) ** 2 + (Z * b) + c)
+        y = np.full(np.shape(Z), y)
+        z = Z
+        """
+        print("shape of x", np.shape(x))
+        print("shape of y", np.shape(y))
+        print("shape of z", np.shape(z))
+        print("x: ", x, "y: ", y, "z: ", z)
+        """
+        cloudt = np.column_stack([x, y, z])
+        cloud = np.concatenate([cloud, cloudt])
+    print("cloud shape: ", np.shape(cloud))
+    print("cloud:\n", cloud)
+
+    cloud[:, 2] = np.multiply(cloud[:, 2], height)
+    cloud = cloud + origin
+    cloud = np.where(cloud > max_value, 0, cloud)
+    cloud = np.where(cloud < -max_value, 0, cloud)
+    largest_val(cloud)
+    return cloud
+
+
+def largest_val(cloud):
+    MAX = 200  # define the threshold
+    flat_cloud = cloud.flatten()
+    indices = np.argsort(flat_cloud)[::-1][:5]
+    largest_values = flat_cloud[indices]
+    original_indices = np.unravel_index(indices, cloud.shape)
+
+    mask = largest_values > MAX
+    print("Largest values greater than", MAX, ":")
+    for i, (value, idx) in enumerate(
+        list(zip(largest_values[mask], zip(*original_indices)))
+    ):
+        print(f"Largest value {i+1}: {value} at index {idx}")
 
 
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd1 = o3d.t.geometry.PointCloud(ibeam())
-    pcd2 = o3d.t.geometry.PointCloud(bulb_flat(origin=[0, 10, 0]))
-    pcd3 = o3d.t.geometry.PointCloud(
+    pcd = o3d.t.geometry.PointCloud(
         plane(
             pitch=1.7 * np.pi,
             origin=[0, 15, 0],
         )
     )
-    pcd4 = o3d.t.geometry.PointCloud(tbeam(origin=[0, -10, 0]))
+    pcd += o3d.t.geometry.PointCloud(
+        np.concatenate((plane(), plane(origin=[8, 5, 3], roll=np.pi, length=50)))
+    )
     # display point cloud in browser window (as opposed to locally with draw_geometries) as
     # the opengl backend doesn't work with wayland
-    #    o3d.visualization.draw_geometries([pcd1.to_legacy()])
-    # o3d.visualization.draw_geometries([pcd1.to_legacy(), pcd2.to_legacy()])
-    o3d.visualization.draw_geometries(
-        [
-            pcd1.to_legacy(),
-            pcd2.to_legacy(),
-            pcd3.to_legacy(),
-            pcd4.to_legacy(),
-        ]
-    )
+    o3d.visualization.draw_geometries([pcd.to_legacy()])
