@@ -163,6 +163,7 @@ def prism(
     y_range=[0, 5],
     num_points=3000,
 ):
+
     print("\nGenerating prism at", origin)
     # prism_x is the length of the prism along the x axis
     prism_x = length
@@ -211,6 +212,85 @@ def prism(
         width=prism_z,
     )
     return np.vstack((side))
+
+
+def ibeam_gen(
+    origin=[0, 0, 0],
+    length=500,
+    height=35,
+    width=15,
+    thickness=5,
+    skip=[False] * 12,
+):
+    origin = np.array(origin)
+    l = length
+    w = width
+    h = height
+    t = thickness
+    widths = np.array(
+        [
+            w,
+            t,
+            (w - t) / 2,
+            h - 2 * t,
+            (w - t) / 2,
+            t,
+            w,
+            t,
+            (w - t) / 2,
+            h - 2 * t,
+            (w - t) / 2,
+            t,
+        ]
+    )
+    origins = np.array(
+        [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, t],
+            [0, (w - t) / 2, t],
+            [0, 0, h - t],
+            [0, 0, h - t],
+            [0, 0, h],
+            [0, w, h - t],
+            [0, (w - t) / 2 + t, h - t],
+            [0, (w - t) / 2 + t, t],
+            [0, (w - t) / 2 + t, t],
+            [0, w, 0],
+        ]
+    )
+    rotations = np.array(
+        [
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+        ]
+    )
+    origins = origins + origin
+    plane = np.empty((1, 3))
+    for i in range(np.shape(origins)[0]):
+        if skip[i] == False:
+            planet = plane_gen3(
+                origin=origins[i, :],
+                roll=rotations[i, 0],
+                pitch=0,
+                yaw=0,
+                length=length,
+                width=widths[i],
+            )
+            plane = np.concatenate((plane, planet))
+    print("plane: ", plane)
+    return plane
 
 
 def cylinder_gen(origin=[0, 0, 0], gap=np.pi / 4, length=5, num_points=500):
