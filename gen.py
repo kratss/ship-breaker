@@ -80,9 +80,8 @@ def plane(
             cloud = np.concatenate([cloud, cloudt])
     R = rot_mat(roll, pitch, yaw)
     # print("plane cloud: \n", cloud)
-    cloud = R @ cloud.T
+    cloud = (R @ cloud.T).T
     # print("plane cloud after rotation: \n", np.round(cloud, decimals=0))
-    cloud = cloud.T
     cloud = np.where(cloud > max_value, 0, cloud)
     cloud = np.where(cloud < -max_value, 0, cloud)
     cloud = cloud + origin
@@ -215,6 +214,9 @@ def ibeam(
     width=5,
     thickness=1,
     skip=[False] * 12,
+    roll=0,
+    pitch=0,
+    yaw=0,
 ):
     print("Generating I-beam...")
     origin = np.array(origin)
@@ -271,6 +273,8 @@ def ibeam(
             [0, 0, 0],
         ]
     )
+    R = rot_mat(roll, pitch, yaw)
+    cloud = (R @ cloud.T).T
     origins = origins + origin
     cloud = np.array([[0, 0, 0]])
     for i in range(np.shape(origins)[0]):
@@ -389,11 +393,8 @@ def bulb_flat(
         x = np.linspace(0, 1, num_points)
         y = a * x**2 + b * x + c
         z = np.full(num_points, i)
-        print("z[", i, "]: ", z)
         cloudt = np.column_stack([x, y, z])
         cloud = np.concatenate((cloud, cloudt))
-    print("shape is: ", np.column_stack([x, y, z]).shape)
-
     # Generate flat
     cloudt = plane(
         origin=[1, -1, 0],
@@ -410,7 +411,7 @@ def bulb_flat(
     cloud = R @ cloud.T
     cloud = cloud.T
     cloud = origin + cloud
-    # print("Bulb flat stiffiner:\n", cloud)
+    print("Bulb flat stiffener:\n", cloud)
     return cloud
 
 
@@ -454,7 +455,7 @@ def unkown_name(
 
 def curved_wall(
     x_range=[0, 5],
-    a=1,
+    a=1 / 2,
     b=0,
     c=0,
     num_points=8,
@@ -462,36 +463,28 @@ def curved_wall(
     roll=0,
     pitch=0,
     yaw=0,
-    length=3,
-    width=1,
-    height=42,
-    density=45,
+    length=20,
+    height=50,
+    density=15,
 ):
     print("\nGenerating curved wall...")
     origin = np.array(origin)
-    Y = np.linspace(0, 1, int(length * density))
+    Y = np.linspace(0, length, int(length * density))
     Z = np.linspace(0, 1, int(height * density))
     cloud = np.array([[0, 0, 0]])
     for y in Y:
         x = np.full(np.shape(Z), (Z * a) ** 2 + (Z * b) + c)
         y = np.full(np.shape(Z), y)
         z = Z
-        """
-        print("shape of x", np.shape(x))
-        print("shape of y", np.shape(y))
-        print("shape of z", np.shape(z))
-        print("x: ", x, "y: ", y, "z: ", z)
-        """
         cloudt = np.column_stack([x, y, z])
         cloud = np.concatenate([cloud, cloudt])
+    cloud[:, 2] = np.multiply(cloud[:, 2], height)
+    cloud[:, 0] = np.multiply(cloud[:, 0], height)
+    R = rot_mat(roll, pitch, yaw)
+    cloud = (R @ cloud.T).T
+    cloud = cloud + origin
     print("cloud shape: ", np.shape(cloud))
     print("cloud:\n", cloud)
-
-    cloud[:, 2] = np.multiply(cloud[:, 2], height)
-    cloud = cloud + origin
-    cloud = np.where(cloud > max_value, 0, cloud)
-    cloud = np.where(cloud < -max_value, 0, cloud)
-    largest_val(cloud)
     return cloud
 
 
