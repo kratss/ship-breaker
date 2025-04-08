@@ -47,7 +47,13 @@ def plane_gen2(x_range=[0, 5], y_range=[0, 5], num_points=[500], a=1, b=2, c=3, 
 
 
 def plane_gen3(
-    origin=[0, 0, 0], roll=0, pitch=0, yaw=0, length=5, width=20, num_points=500
+    origin=[0, 0, 0],
+    roll=0,
+    pitch=0,
+    yaw=0,
+    length=5,
+    width=20,
+    num_points=500,
 ):
     # Origin specifies the location of the southwest corner
     # Roll pitch yaw correspond to phi theta psi by convention and rotate on
@@ -91,6 +97,42 @@ def plane_gen3(
     plane[2, :] = plane[2, :] + origin[2]
     plane = plane.T
     return plane
+
+
+def plane_u_gen(
+    origin=[0, 0, 0],
+    roll=0,
+    pitch=0,
+    yaw=0,
+    length=5,
+    width=20,
+    density=5,
+):
+    # Generate points lying on a plane
+    # Origin specifies the location of the southwest corner
+
+    # density is number of points in a 1x1 square
+    print("Generating plane...")
+    origin = np.array(origin)
+    Z = 0
+    X = np.linspace(0, length, length * density)
+    Y = np.linspace(0, width, width * density)
+    print("\nShape of X: ", np.shape(X))
+    print("\nShape of Y: ", np.shape(Y))
+    print("\nShape of Z: ", np.shape(Z))
+    cloud = np.empty([1, 3])
+    for x in X:
+        a = np.full(np.shape(Y), x)
+        b = Y
+        c = np.full(np.shape(Y), Z)
+        cloudt = np.column_stack([a, b, c])
+        cloud = np.concatenate([cloud, cloudt])
+    R = rot_mat(roll, pitch, yaw)
+    cloud = R @ cloud.T
+    cloud = cloud.T
+    cloud = cloud + origin
+    print("\nShape of plane cloud: ", np.shape(cloud))
+    return cloud
 
 
 def circle_gen(resolution=360, radius=5, gap=0, origin=[0, 0, 0]):
@@ -407,7 +449,9 @@ def stiffener_bulb_flat(a=-2, b=1, c=0, num_points=300, width=5):
 
 
 def rot_mat(roll=0, pitch=0, yaw=0):
-    # returns appropiate rotation matrix for a roll pitch and yaw
+    # Return rotation matrix described by a given roll, pitch, and yaw
+    # Roll, pitch, and yaw correspond to phi theta psi by convention
+    # Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
     print("Generating rotation matrix...")
     R_roll = np.array(
         [
@@ -481,9 +525,17 @@ def curved_wall_gen(x_range=[0, 25], a=3, b=4, c=1, width=90, num_points=800):
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd1 = o3d.t.geometry.PointCloud(stiffener_bulb_flat())
-
-    # display point cloud in browser window (as opposed to locally with draw_geometry)
-    o3d.visualization.draw_plotly([pcd1.to_legacy()])
-#    o3d.visualization.draw_geometries([pcd1.to_legacy(), pcd2.to_legacy()])
-#
+    pcd1 = o3d.t.geometry.PointCloud(plane_u_gen())
+    pcd2 = o3d.t.geometry.PointCloud(
+        plane_u_gen(
+            roll=(1.3 * np.pi) / (2 * np.pi), pitch=3.7 * np.pi, yaw=1.7 * np.pi
+        )
+    )
+    pcd3 = o3d.t.geometry.PointCloud(ibeam_gen())
+    # display point cloud in browser window (as opposed to locally with draw_geometries) as
+    # the opengl backend doesn't work with wayland
+    #    o3d.visualization.draw_geometries([pcd1.to_legacy()])
+    #    o3d.visualization.draw_geometries([pcd1.to_legacy(), pcd2.to_legacy()])
+    o3d.visualization.draw_geometries(
+        [pcd1.to_legacy(), pcd2.to_legacy(), pcd3.to_legacy()]
+    )
