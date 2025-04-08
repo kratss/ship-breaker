@@ -3,16 +3,15 @@ import open3d as o3d
 import numpy as np
 
 
-# basic point cloud creation
-# https://www.open3d.org/html/tutorial/t_geometry/pointcloud.html
+# Programmatically generate point clouds
 
 
 def rot_mat(roll=0, pitch=0, yaw=0):
     # Return rotation matrix described by a given roll, pitch, and yaw
-    # Roll, pitch, and yaw correspond to phi theta psi by convention
     # Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
+
     print("\nGenerating rotation matrix...")
-    # print("roll: ", roll, "pitch: ", pitch, "yaw: ", yaw)
+    print("roll: ", round(roll, 2), "pitch: ", round(pitch, 2), "yaw: ", round(yaw, 2))
     R_roll = np.array(
         [
             [1, 0, 0],
@@ -35,7 +34,7 @@ def rot_mat(roll=0, pitch=0, yaw=0):
         ]
     )
     R = R_yaw @ R_pitch @ R_roll
-    # print("rotation matrix R: ", R)
+    print("R: \n", np.round(R, 2))
     return R
 
 
@@ -46,8 +45,6 @@ def plane(
     yaw=0,
     length=5,
     width=20,
-    uniform=True,
-    num_points=500,
     density=20,
 ):
     # Generate points lying on a plane of the given size
@@ -365,10 +362,11 @@ def bulb_flat(
     num_points=300,
     length=15,
     width=5,
+    scale=1,
     roll=0,
     pitch=0,
     yaw=0,
-    scale=1,
+    density=15,
 ):
     # Generate curved section
     # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
@@ -392,7 +390,7 @@ def bulb_flat(
         yaw=0,
         length=length,
         width=width,
-        num_points=500,
+        density=density,
     )
     cloud = np.concatenate((cloud, cloudt))
     cloud = cloud * scale
