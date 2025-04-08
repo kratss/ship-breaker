@@ -147,9 +147,7 @@ def prism(
     length=6,
     width=12,
     height=18,
-    x_range=[0, 5],
-    y_range=[0, 5],
-    num_points=3000,
+    density=15,
 ):
 
     print("\nGenerating prism at", origin)
@@ -157,49 +155,54 @@ def prism(
     prism_x = length
     prism_y = width
     prism_z = height
-    edge_pts = int(num_points / 6)
-    side = np.zeros([6, edge_pts, 3])
-    side[0] = plane(
+    cloud = np.array([[0, 0, 0]])
+    cloudt = plane(
         origin=origin,
-        num_points=edge_pts,
+        density=density,
         length=prism_x,
         width=prism_y,
     )
-    side[1] = plane(
+    cloud = np.concatenate([cloud, cloudt])
+    cloudt = plane(
         origin=(origin + np.array([0, 0, prism_z])),
-        num_points=edge_pts,
+        density=density,
         length=prism_x,
         width=prism_y,
     )
-    side[2] = plane(
+    cloud = np.concatenate([cloud, cloudt])
+    cloudt = plane(
         origin=origin,
-        num_points=edge_pts,
+        density=density,
         pitch=3 * np.pi / 2,
         length=prism_z,
         width=prism_y,
     )
-    side[3] = plane(
+    cloud = np.concatenate([cloud, cloudt])
+    cloudt = plane(
         origin=(origin + np.array([prism_x, 0, 0])),
         pitch=3 * np.pi / 2,
-        num_points=edge_pts,
+        density=density,
         length=prism_z,
         width=prism_y,
     )
-    side[4] = plane(
+    cloud = np.concatenate([cloud, cloudt])
+    cloudt = plane(
         origin=origin,
-        num_points=edge_pts,
+        density=density,
         roll=np.pi / 2,
         length=prism_x,
         width=prism_z,
     )
-    side[5] = plane(
+    cloud = np.concatenate([cloud, cloudt])
+    cloudt = plane(
         origin=(origin + np.array([0, prism_y, 0])),
-        num_points=edge_pts,
+        density=density,
         roll=np.pi / 2,
         length=prism_x,
         width=prism_z,
     )
-    return np.vstack((side))
+    cloud = np.concatenate([cloud, cloudt])
+    return cloud
 
 
 def ibeam(
@@ -208,10 +211,10 @@ def ibeam(
     height=8,
     width=5,
     thickness=1,
-    skip=[False] * 12,
     roll=0,
     pitch=0,
     yaw=0,
+    skip=[False] * 12,
 ):
     print("Generating I-beam...")
     origin = np.array(origin)
@@ -363,17 +366,18 @@ def tbeam(
 
 
 def bulb_flat(
+    origin=[0, 0, 0],
     a=-2,
     b=1,
     c=0,
     num_points=300,
+    length=15,
     width=5,
-    origin=[0, 0, 0],
     roll=0,
     pitch=0,
     yaw=0,
-    length=15,
     scale=1,
+    length=15,
 ):
     # Generate curved section
     # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
@@ -409,7 +413,7 @@ def bulb_flat(
     return cloud
 
 
-def unkown_name(
+def experimental(
     origin=[0, 0, 0],
     length=15,
     stem_width=3,
@@ -452,7 +456,6 @@ def curved_wall(
     a=1 / 2,
     b=0,
     c=0,
-    num_points=8,
     origin=[0, 0, 0],
     roll=0,
     pitch=0,
@@ -506,9 +509,7 @@ if __name__ == "__main__":
             origin=[0, 15, 0],
         )
     )
-    pcd += o3d.t.geometry.PointCloud(
-        np.concatenate((plane(), plane(origin=[8, 5, 3], roll=np.pi, length=50)))
-    )
+    pcd += o3d.t.geometry.PointCloud(np.concatenate((plane(), prism())))
     # display point cloud in browser window (as opposed to locally with draw_geometries) as
     # the opengl backend doesn't work with wayland
     o3d.visualization.draw_geometries([pcd.to_legacy()])
