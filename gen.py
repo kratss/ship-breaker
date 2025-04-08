@@ -2,71 +2,15 @@
 import open3d as o3d
 import numpy as np
 
-
 # basic point cloud creation
 # https://www.open3d.org/html/tutorial/t_geometry/pointcloud.html
 
 
-def plane_gen1(x_range=[0, 5], y_range=[0, 5], num_points=[500], a=0, b=0, c=0, d=0):
-    # Wall
-
-    # returns a point cloud lying on the defined plane
-    # ax + by + cz + d = 0
-    # a, b, c are given by plane defintion
-    # plug in any x and y to generate a valid z
-    y_range = [0, 5]
-    x_range = [0, 5]
-    num_points = 1000
-    x = np.random.uniform(x_range[0], x_range[1], num_points)
-    y = np.random.uniform(y_range[0], y_range[1], num_points)
-    z = -1 * (a * x + b * y + d) / c
-    plane = np.column_stack((x, y, z))
-    print("\nplane: ", np.shape(plane))
-    return plane
-
-
-def plane_gen2(x_range=[0, 5], y_range=[0, 5], num_points=[500], a=1, b=2, c=3, d=4):
-    # Wall
-
-    # returns a point cloud lying on the defined plane
-    # ax + by + cz + d = 0
-    # a, b, c are given by plane defintion
-    # plug in any x and y to generate a valid z
-    y_range = [0, 5]
-    x_range = [0, 5]
-    num_points = 1000
-    x = np.random.uniform(x_range[0], x_range[1], num_points)
-    y = np.random.uniform(y_range[0], y_range[1], num_points)
-    b = 3
-    c = 1
-    d = 2
-    z = -1 * (a * x + b * y + d) / c
-    plane = np.column_stack((x, y, z))
-    print("\nplane: ", np.shape(plane))
-    return plane
-
-
-def plane_gen3(
-    origin=[0, 0, 0],
-    roll=0,
-    pitch=0,
-    yaw=0,
-    length=5,
-    width=20,
-    num_points=500,
-):
-    # Origin specifies the location of the southwest corner
-    # Roll pitch yaw correspond to phi theta psi by convention and rotate on
-    # the x, y, and z axes respectively
-
-    # Generate points lying on a plane of the given size
-    x_range = np.array([0, length])
-    y_range = np.array([0, width])
-    z = np.full(num_points, 0)
-    x = np.random.uniform(x_range[0], x_range[1], num_points)
-    y = np.random.uniform(y_range[0], y_range[1], num_points)
-
-    # Rotate the plane
+def rot_mat(roll=0, pitch=0, yaw=0):
+    # Return rotation matrix described by a given roll, pitch, and yaw
+    # Roll, pitch, and yaw correspond to phi theta psi by convention
+    # Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
+    print("Generating rotation matrix...")
     R_roll = np.array(
         [
             [1, 0, 0],
@@ -88,45 +32,47 @@ def plane_gen3(
             [0, 0, 1],
         ]
     )
-    plane = np.array([x, y, z]).T
-    plane = R_roll @ R_pitch @ R_yaw @ plane.T
-
-    # Translate plane to specified origin
-    plane[0, :] = plane[0, :] + origin[0]
-    plane[1, :] = plane[1, :] + origin[1]
-    plane[2, :] = plane[2, :] + origin[2]
-    plane = plane.T
-    return plane
+    return R_yaw @ R_pitch @ R_roll
 
 
-def plane_u_gen(
+def plane(
     origin=[0, 0, 0],
     roll=0,
     pitch=0,
     yaw=0,
     length=5,
     width=20,
-    density=5,
+    num_points=500,
+    uniform=True,
+    density=25,
 ):
-    # Generate points lying on a plane
+    # Generate points lying on a plane of the given size
     # Origin specifies the location of the southwest corner
+    # Roll pitch yaw correspond to phi theta psi by convention and rotate on
+    # the x, y, and z axes respectively
 
-    # density is number of points in a 1x1 square
-    print("Generating plane...")
     origin = np.array(origin)
-    Z = 0
-    X = np.linspace(0, length, length * density)
-    Y = np.linspace(0, width, width * density)
-    print("\nShape of X: ", np.shape(X))
-    print("\nShape of Y: ", np.shape(Y))
-    print("\nShape of Z: ", np.shape(Z))
-    cloud = np.empty([1, 3])
-    for x in X:
-        a = np.full(np.shape(Y), x)
-        b = Y
-        c = np.full(np.shape(Y), Z)
-        cloudt = np.column_stack([a, b, c])
-        cloud = np.concatenate([cloud, cloudt])
+    if uniform == False:
+        x_range = np.array([0, length])
+        y_range = np.array([0, width])
+        z = np.full(num_points, 0)
+        x = np.random.uniform(x_range[0], x_range[1], num_points)
+        y = np.random.uniform(y_range[0], y_range[1], num_points)
+        cloud = np.column_stack([x, y, z])
+    else:
+        Z = 0
+        X = np.linspace(0, length, int(length * density))
+        Y = np.linspace(0, width, int(width * density))
+        print("\nShape of X: ", np.shape(X))
+        print("\nShape of Y: ", np.shape(Y))
+        print("\nShape of Z: ", np.shape(Z))
+        cloud = np.empty([1, 3])
+        for x in X:
+            a = np.full(np.shape(Y), x)
+            b = Y
+            c = np.full(np.shape(Y), Z)
+            cloudt = np.column_stack([a, b, c])
+            cloud = np.concatenate([cloud, cloudt])
     R = rot_mat(roll, pitch, yaw)
     cloud = R @ cloud.T
     cloud = cloud.T
@@ -135,7 +81,7 @@ def plane_u_gen(
     return cloud
 
 
-def circle_gen(resolution=360, radius=5, gap=0, origin=[0, 0, 0]):
+def circle(resolution=360, radius=5, gap=0, origin=[0, 0, 0]):
     # Gap is size of the gap in radians
     print("Generating circle...")
     origin = np.array(origin)
@@ -148,7 +94,7 @@ def circle_gen(resolution=360, radius=5, gap=0, origin=[0, 0, 0]):
     return plane
 
 
-def disc_gen(resolution=6, radius_inner=2, radius_outer=5, yaw=0):
+def disc(resolution=6, radius_inner=2, radius_outer=5, yaw=0):
     radius = np.linspace(radius_inner, radius_outer, resolution)
     print("\nradius[1] is: ", radius[1])
     x = []
@@ -174,25 +120,21 @@ def disc_gen(resolution=6, radius_inner=2, radius_outer=5, yaw=0):
     return coordinates
 
 
-class Plane:
-    def __init__(self, p1, p2, p3):
-        self.p1 = np.array(p1)
-        self.p2 = np.array(p2)
-        self.p3 = np.array(p3)
-        self.normal = self.get_normal()
-        self.plane_def = self.get_plane_def()
-
-    def get_normal(self):
-        vectors = np.array([self.p2 - self.p1, self.p3 - self.p1])
-        normal = np.cross(vectors[0], vectors[1])
-        return normal
-
-    def get_plane_def(self):
-        print("self.normal", self.normal)
-        a = b = c = 0
-        x0, y0, z0 = self.p1
-        d = -a * x0 - b * y0 - c * z0
-        return a, b, c, d
+def cylinder(
+    origin=[0, 0, 0],
+    gap=np.pi / 4,
+    length=5,
+    density=50,
+    radius=20,
+):
+    # Needs to be able to have arbitrary open space
+    origin = np.array(origin)
+    z = np.linspace(0, length, int(density))
+    cloud = np.empty((1, 3))
+    for i in z:
+        cloudt = circle(origin=[0, 0, i], gap=gap)
+        cloud = np.concatenate((cloud, cloudt))
+    return cloud
 
 
 def prism(
@@ -212,40 +154,40 @@ def prism(
     prism_z = height
     edge_pts = int(num_points / 6)
     side = np.zeros([6, edge_pts, 3])
-    side[0] = plane_gen3(
+    side[0] = plane(
         origin=origin,
         num_points=edge_pts,
         length=prism_x,
         width=prism_y,
     )
-    side[1] = plane_gen3(
+    side[1] = plane(
         origin=(origin + np.array([0, 0, prism_z])),
         num_points=edge_pts,
         length=prism_x,
         width=prism_y,
     )
-    side[2] = plane_gen3(
+    side[2] = plane(
         origin=origin,
         num_points=edge_pts,
         pitch=3 * np.pi / 2,
         length=prism_z,
         width=prism_y,
     )
-    side[3] = plane_gen3(
+    side[3] = plane(
         origin=(origin + np.array([prism_x, 0, 0])),
         pitch=3 * np.pi / 2,
         num_points=edge_pts,
         length=prism_z,
         width=prism_y,
     )
-    side[4] = plane_gen3(
+    side[4] = plane(
         origin=origin,
         num_points=edge_pts,
         roll=np.pi / 2,
         length=prism_x,
         width=prism_z,
     )
-    side[5] = plane_gen3(
+    side[5] = plane(
         origin=(origin + np.array([0, prism_y, 0])),
         num_points=edge_pts,
         roll=np.pi / 2,
@@ -255,12 +197,12 @@ def prism(
     return np.vstack((side))
 
 
-def ibeam_gen(
+def ibeam(
     origin=[0, 0, 0],
-    length=500,
-    height=35,
-    width=15,
-    thickness=5,
+    length=10,
+    height=8,
+    width=5,
+    thickness=1,
     skip=[False] * 12,
 ):
     print("Generating I-beam...")
@@ -322,7 +264,7 @@ def ibeam_gen(
     cloud = np.empty((1, 3))
     for i in range(np.shape(origins)[0]):
         if skip[i] == False:
-            cloudt = plane_gen3(
+            cloudt = plane(
                 origin=origins[i, :],
                 roll=rotations[i, 0],
                 pitch=0,
@@ -331,33 +273,17 @@ def ibeam_gen(
                 width=widths[i],
             )
             cloud = np.concatenate((cloud, cloudt))
+    cloud[1] = np.array([0, 0, 0])
     print("I-beam: ", cloud)
     return cloud
 
 
-def cylinder_gen(
+def tbeam(
     origin=[0, 0, 0],
-    gap=np.pi / 4,
-    length=5,
-    density=50,
-    radius=20,
-):
-    # Needs to be able to have arbitrary open space
-    origin = np.array(origin)
-    z = np.linspace(0, length, int(density))
-    cloud = np.empty((1, 3))
-    for i in z:
-        cloudt = circle_gen(origin=[0, 0, i], gap=gap)
-        cloud = np.concatenate((cloud, cloudt))
-    return cloud
-
-
-def tbeam_gen(
-    origin=[0, 0, 0],
-    length=500,
-    height=35,
-    width=15,
-    thickness=5,
+    length=10,
+    height=10,
+    width=5,
+    thickness=2,
     skip=[False] * 12,
 ):
     print("Generating I-beam...")
@@ -372,7 +298,7 @@ def tbeam_gen(
             t,
             (w - t) / 2,
             h - 2 * t,
-            (w - t) / 2,
+            t,
             h - 2 * t,
             (w - t) / 2,
             t,
@@ -403,11 +329,10 @@ def tbeam_gen(
             [0, 0, 0],
         ]
     )
-    origins = origins + origin
     cloud = np.empty((1, 3))
     for i in range(np.shape(origins)[0]):
         if skip[i] == False:
-            cloudt = plane_gen3(
+            cloudt = plane(
                 origin=origins[i, :],
                 roll=rotations[i, 0],
                 pitch=0,
@@ -416,14 +341,27 @@ def tbeam_gen(
                 width=widths[i],
             )
             cloud = np.concatenate((cloud, cloudt))
+    cloud = cloud + origin
     print("T-beam: \n", cloud)
     return cloud
 
 
-def stiffener_bulb_flat(a=-2, b=1, c=0, num_points=300, width=5):
-    print("Generating bulb flat stiffener...")
+def bulb_flat(
+    a=-2,
+    b=1,
+    c=0,
+    num_points=300,
+    width=5,
+    origin=[0, 0, 0],
+    roll=0,
+    pitch=0,
+    yaw=0,
+    length=15,
+):
     # Generate curved section
     # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
+    print("Generating bulb flat stiffener...")
+    origin = np.array([origin])
     z = np.linspace(0, width, int(num_points))
     cloud = np.empty((1, 3))
     for i in z:
@@ -434,50 +372,25 @@ def stiffener_bulb_flat(a=-2, b=1, c=0, num_points=300, width=5):
         cloudt = np.column_stack([x, y, z])
         cloud = np.concatenate((cloud, cloudt))
     print("shape is: ", np.column_stack([x, y, z]).shape)
-    cloudt = plane_gen3(
+    cloudt = plane(
         origin=[1, -1, 0],
         roll=np.pi / 2,
         pitch=0,
         yaw=0,
-        length=2,
+        length=length,
         width=width,
         num_points=500,
     )
     cloud = np.concatenate((cloud, cloudt))
+    R = rot_mat(roll, pitch, yaw)
+    cloud = R @ cloud.T
+    cloud = cloud.T
+    cloud = origin + cloud
     # print("Bulb flat stiffiner:\n", cloud)
     return cloud
 
 
-def rot_mat(roll=0, pitch=0, yaw=0):
-    # Return rotation matrix described by a given roll, pitch, and yaw
-    # Roll, pitch, and yaw correspond to phi theta psi by convention
-    # Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
-    print("Generating rotation matrix...")
-    R_roll = np.array(
-        [
-            [1, 0, 0],
-            [0, np.cos(roll), -np.sin(roll)],
-            [0, np.sin(roll), np.cos(roll)],
-        ]
-    )
-    R_pitch = np.array(
-        [
-            [np.cos(pitch), 0, np.sin(pitch)],
-            [0, 1, 0],
-            [-np.sin(pitch), 0, np.cos(pitch)],
-        ]
-    )
-    R_yaw = np.array(
-        [
-            [np.cos(yaw), -np.sin(yaw), 0],
-            [np.sin(yaw), np.cos(yaw), 0],
-            [0, 0, 1],
-        ]
-    )
-    return R_yaw @ R_pitch @ R_roll
-
-
-def stiffener_unkown_name_gen(
+def unkown_name(
     origin=[0, 0, 0],
     length=15,
     stem_width=3,
@@ -488,11 +401,11 @@ def stiffener_unkown_name_gen(
     cloud = np.empty((1, 3))
 
     # generate stem
-    cloudt = plane_gen3(length=length, width=stem_height, roll=np.pi / 2)
+    cloudt = plane(length=length, width=stem_height, roll=np.pi / 2)
     cloud = np.concatenate((cloud, cloudt))
-    cloudt = plane_gen3(length=length, width=stem_width)
+    cloudt = plane(length=length, width=stem_width)
     cloud = np.concatenate((cloud, cloudt))
-    cloudt = plane_gen3(
+    cloudt = plane(
         length=length,
         width=stem_height,
         roll=np.pi / 2,
@@ -501,7 +414,7 @@ def stiffener_unkown_name_gen(
     cloud = np.concatenate((cloud, cloudt))
 
     # generate bulb
-    cloudt = cylinder_gen(
+    cloudt = cylinder(
         origin=[0, 0, 0],
         gap=stem_width / bulb_radius,
         length=length,
@@ -515,27 +428,48 @@ def stiffener_unkown_name_gen(
     return cloud
 
 
-def curved_wall_gen(x_range=[0, 25], a=3, b=4, c=1, width=90, num_points=800):
+def curved_wall(
+    x_range=[0, 5],
+    a=3,
+    b=4,
+    c=1,
+    width=9,
+    num_points=80,
+    origin=[0, 0, 0],
+    roll=0,
+    pitch=0,
+    yaw=0,
+):
+    origin = np.array(origin)
     x = np.random.uniform(x_range[0], x_range[1], num_points)
     z = (x * a) ** 2 + (x * b) + c
     y = np.linspace(0, width, int(num_points))
+    plane = np.column_stack((x, y, z))
+    plane = plane + origin
     return np.column_stack((x, y, z))
 
 
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd1 = o3d.t.geometry.PointCloud(plane_u_gen())
-    pcd2 = o3d.t.geometry.PointCloud(
-        plane_u_gen(
-            roll=(1.3 * np.pi) / (2 * np.pi), pitch=3.7 * np.pi, yaw=1.7 * np.pi
+    pcd1 = o3d.t.geometry.PointCloud(ibeam())
+    pcd2 = o3d.t.geometry.PointCloud(bulb_flat(origin=[0, 10, 0]))
+    pcd3 = o3d.t.geometry.PointCloud(
+        plane(
+            pitch=1.7 * np.pi,
+            origin=[0, 15, 0],
         )
     )
-    pcd3 = o3d.t.geometry.PointCloud(ibeam_gen())
+    pcd4 = o3d.t.geometry.PointCloud(tbeam(origin=[0, -10, 0]))
     # display point cloud in browser window (as opposed to locally with draw_geometries) as
     # the opengl backend doesn't work with wayland
     #    o3d.visualization.draw_geometries([pcd1.to_legacy()])
-    #    o3d.visualization.draw_geometries([pcd1.to_legacy(), pcd2.to_legacy()])
+    # o3d.visualization.draw_geometries([pcd1.to_legacy(), pcd2.to_legacy()])
     o3d.visualization.draw_geometries(
-        [pcd1.to_legacy(), pcd2.to_legacy(), pcd3.to_legacy()]
+        [
+            pcd1.to_legacy(),
+            pcd2.to_legacy(),
+            pcd3.to_legacy(),
+            pcd4.to_legacy(),
+        ]
     )
