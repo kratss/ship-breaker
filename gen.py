@@ -7,9 +7,6 @@ import numpy as np
 # https://www.open3d.org/html/tutorial/t_geometry/pointcloud.html
 
 
-max_value = 1000000
-
-
 def rot_mat(roll=0, pitch=0, yaw=0):
     # Return rotation matrix described by a given roll, pitch, and yaw
     # Roll, pitch, and yaw correspond to phi theta psi by convention
@@ -82,8 +79,6 @@ def plane(
     # print("plane cloud: \n", cloud)
     cloud = (R @ cloud.T).T
     # print("plane cloud after rotation: \n", np.round(cloud, decimals=0))
-    cloud = np.where(cloud > max_value, 0, cloud)
-    cloud = np.where(cloud < -max_value, 0, cloud)
     cloud = cloud + origin
 
     largest_val(cloud)
@@ -273,9 +268,6 @@ def ibeam(
             [0, 0, 0],
         ]
     )
-    R = rot_mat(roll, pitch, yaw)
-    cloud = (R @ cloud.T).T
-    origins = origins + origin
     cloud = np.array([[0, 0, 0]])
     for i in range(np.shape(origins)[0]):
         if skip[i] == False:
@@ -288,7 +280,9 @@ def ibeam(
                 width=widths[i],
             )
             cloud = np.concatenate((cloud, cloudt))
-    cloud[1] = np.array([0, 0, 0])
+    R = rot_mat(roll, pitch, yaw)
+    cloud = (R @ cloud.T).T
+    origins = origins + origin
     print("I-beam: ", cloud)
     return cloud
 
