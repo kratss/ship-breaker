@@ -157,13 +157,14 @@ def prism(
     height=18,
     x_range=[0, 5],
     y_range=[0, 5],
-    num_points=2000,
+    num_points=3000,
 ):
+    print("\nGenerating prism at", origin)
+    # prism_x is the length of the prism along the x axis
     prism_x = length
     prism_y = width
     prism_z = height
     edge_pts = int(num_points / 6)
-    print("\nPoints per edge: ", edge_pts)
     side = np.zeros([6, edge_pts, 3])
     side[0] = plane_gen3(
         origin=origin,
@@ -205,16 +206,115 @@ def prism(
         length=prism_x,
         width=prism_z,
     )
-    print("\n side shape:\n", np.shape(side))
     return np.vstack((side))
+
+
+def ibeam_gen(origin=[0, 0, 0], length=50, height=15, width=9, thickness=50):
+    oneb_w = width - thickness
+    onec_w = width
+    oned_w = thickness
+    twoc_w = height - 2 * thickness
+    twob_w = oneb_w
+    threec_w = onec_w
+    threed_w = thickness
+
+    # origin
+    oneb = origin + np.array([0, 0, thickness])
+    onec = origin
+    oned = origin
+    twoc = origin + np.array([0, oneb_w, thickness])
+    twob = origin + np.array([0, 0, twoc_w + thickness])
+    threed = origin + np.array([0, 0, thickness + twoc_w])
+    threec = origin + np.array([0, 0, thickness + twoc_w])
+    print("\norigin oneb: ", oneb)
+    print("\norigin onec: ", onec)
+    oneb_p = plane_gen3(
+        origin=oneb,
+        roll=0,
+        pitch=0,
+        yaw=0,
+        length=length,
+        width=oneb_w,
+    )
+
+    onec_p = plane_gen3(
+        origin=onec,
+        roll=0,
+        pitch=0,
+        yaw=0,
+        length=length,
+        width=onec_w,
+    )
+    plane = np.vstack([oneb_p, onec_p])
+    return plane
+
+
+def ibeam_gen2(
+    origin=np.array([0, 0, 0]), length=500, height=35, width=15, thickness=5
+):
+    l = length
+    w = width
+    h = height
+    t = thickness
+    widths = np.array(
+        [
+            w,
+            t,
+            (w - t) / 2,
+            h - 2 * t,
+            (w - t) / 2,
+            t,
+            w,
+        ]
+    )
+    origins = np.array(
+        [
+            [0, 0, 0],
+            [0, 0, 0],
+            [0, 0, t],
+            [0, (w - t) / 2, t],
+            [0, 0, h - t],
+            [0, 0, h - t],
+            [0, 0, h],
+        ]
+    )
+    rotations = np.array(
+        [
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+            [np.pi / 2, 0, 0],
+            [0, 0, 0],
+        ]
+    )
+    # origins shape 7,3
+    origin = origin[np.newaxis, :]
+    origins = origins + origin
+
+    plane = np.empty((1, 3))
+    for i in range(7):
+        planet = plane_gen3(
+            origin=origins[i, :],
+            roll=rotations[i, 0],
+            pitch=0,
+            yaw=0,
+            length=length,
+            width=widths[i],
+        )
+        plane = np.concatenate((plane, planet))
+    print("plane: ", plane)
+    return plane
 
 
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd = o3d.t.geometry.PointCloud(prism(origin=[0, 0, 0]))
+    pcd = o3d.t.geometry.PointCloud(ibeam_gen2())
     #    pcd2 = o3d.t.geometry.PointCloud(plane_gen3(origin=[4, 4, 4]))
 
     # display point cloud in browser window (as opposed to locally with draw_geometry)
     o3d.visualization.draw_plotly([pcd.to_legacy()])
     # o3d.visualization.draw_plotly([pcd.to_legacy(), pcd2.to_legacy()])
+    #
