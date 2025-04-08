@@ -277,10 +277,10 @@ def ibeam_gen(
         ]
     )
     origins = origins + origin
-    plane = np.empty((1, 3))
+    cloud = np.empty((1, 3))
     for i in range(np.shape(origins)[0]):
         if skip[i] == False:
-            planet = plane_gen3(
+            cloudt = plane_gen3(
                 origin=origins[i, :],
                 roll=rotations[i, 0],
                 pitch=0,
@@ -288,20 +288,20 @@ def ibeam_gen(
                 length=length,
                 width=widths[i],
             )
-            plane = np.concatenate((plane, planet))
-    print("plane: ", plane)
-    return plane
+            cloud = np.concatenate((cloud, cloudt))
+    print("cloud: ", cloud)
+    return cloud
 
 
-def cylinder_gen(origin=[0, 0, 0], gap=np.pi / 4, length=5, num_points=500):
+def cylinder_gen(origin=[0, 0, 0], gap=np.pi / 4, length=5, density=50):
     # Needs to be able to have arbitrary open space
-    origin = np.array([0, 0, 0])
-    z = np.linspace(0, length, num_points / 50)
+    origin = np.array(origin)
+    z = np.linspace(0, length, int(density))
+    cloud = np.empty((1, 3))
     for i in z:
-        circle_gen(origin=[0, 0, i])
-
-    plane = circle_gen(gap=gap)
-    return plane
+        cloudt = circle_gen(origin=[0, 0, i], gap=gap)
+        cloud = np.concatenate((cloud, cloudt))
+    return cloud
 
 
 if __name__ == "__main__":
