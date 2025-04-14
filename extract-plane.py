@@ -1,90 +1,90 @@
 #!/usr/bin/env python
-# %% Cell 1
+# %% imports
 import open3d as o3d
+import open3d.t as o3dt
 import numpy as np
 import open3d.core as o3c
+import gen
+import matplotlib.pyplot as plt
 
-
-# Load data
-environment = o3d.data.PLYPointCloud()
-environment_pcd = o3d.io.read_point_cloud(environment.path)
-plane = np.loadtxt("assets/plane.xyz")
-plane_pcd = o3d.geometry.PointCloud()
-plane_pcd.points = o3d.utility.Vector3dVector(plane)
-
-# %% Cell 2
-# Remove points not intersecting with plane
-dists = environment_pcd.compute_point_cloud_distance(plane_pcd)
-dists = np.asarray(dists)
-ind = np.where(dists < 0.01)[0]
-environment_plane_intersection = environment_pcd.select_by_index(ind)
-
-# %% Cell 3
-# Compute the normal to the plane
-# TODO: take the cutting plane as input to define this
-# point on the plane. With this plus the normal we have a plane definition
-normal = np.array([0, 0, 1])
-point_on_plane = np.array([0, 0, 0])
-
-print("ms100")
-distances = np.dot(environment_plane_intersection.points - point_on_plane, normal)
-
-# Translate the points along the normal vector of the plane
-translated_points = environment_plane_intersection.points - distances[
-    :, np.newaxis
-] * normal / np.linalg.norm(normal)
-
-# Create a new point cloud with the translated points
-projected_pcd = o3d.geometry.PointCloud()
-projected_pcd.points = o3d.utility.Vector3dVector(translated_points)
-
-
-### Nearest neighbors stuff
-# create a kdtree of the pcd to facilitate knn ops
-kdtree = o3d.geometry.KDTreeFlann(projected_pcd)
-dist = []
-idx = []
-# get a list of the 1 nearest point to each of the first 50 points in projected_pcd
-for i in range(50):
-    point = projected_pcd.points[i]
-    [d, i_idx, _] = kdtree.search_hybrid_vector_3d(point, 0.1, 1)
-    dist.append(d)
-    idx.append(i_idx)
-
-for i in range(5):
-    point = projected_pcd.points[i]
-    nearest_neighbor_idx = idx
-    nearest_neighbor = np.asarray(projected_pcd.points)[nearest_neighbor_idx]
-    print(f"Point {i}: {point}")
-    print(f"nearest_neighbor_idx: {nearest_neighbor_idx}")
-    print(f"Nearest Neighbor: {nearest_neighbor}")
-    print(f"Distance: {dist[i]}")
-    print("--------------------")
-
-
-# %% Cell 2
-### Draw a line
-# lineset is a collection of lines
-print("=================")
-projected_pcd_points = np.asarray(projected_pcd.points[0:10])
-nearest_neighbor = np.asarray(nearest_neighbor[0:10])
-nearest_neighbor = np.squeeze(nearest_neighbor)
-print(projected_pcd_points.shape)
-print(nearest_neighbor.shape)
-points = np.vstack([projected_pcd.points[0:10], nearest_neighbor[0:10]])
-
-print("\npoints", points)
-print("\n points shape: ", points.shape)
-lines = np.array([[i, i + 10] for i in range(10)])
-lines = np.array([[0, 1]])
-line_set = o3d.geometry.LineSet()
-line_set.points = o3d.utility.Vector3dVector(points)
-# lines here indexes the points in line_set.points, telling it which lines to
-# form a point from
-line_set.lines = o3d.utility.Vector2iVector(lines)
-
-# %% Cell 3
-o3d.visualization.draw_geometries([environment_pcd, plane_pcd])
-o3d.visualization.draw_geometries(
-    [environment_plane_intersection, projected_pcd, line_set]
+minmax = np.zeros([3, 2])
+# %% setup
+density = 5
+ship = np.concatenate(
+    (
+        gen.plane(origin=[5, 5, 5], length=10, width=2, density=density),
+        gen.plane(
+            origin=[5, 5, 5], length=10, width=2, roll=np.pi / 2, density=density
+        ),
+        gen.plane(
+            origin=[5, 5, 5], length=10, width=2, pitch=np.pi / 2, density=density
+        ),
+        gen.plane(origin=[0, 10, 30], length=110, width=90, density=density),
+        gen.tbeam(origin=[0, 30, 30], length=90, density=density),
+        gen.tbeam(origin=[0, 60, 30], length=90, density=density),
+        gen.tbeam(origin=[0, 90, 30], length=90, density=density),
+        gen.curved_wall(
+            origin=[110, 5, 0],
+            length=110,
+            height=30,
+            yaw=np.pi / 2,
+        ),
+        gen.bulb_flat(origin=[0, 10, 30], roll=np.pi / 2, yaw=np.pi / 2),
+        gen.plane(origin=[0, 0, 0], length=110, width=90, density=density),
+        gen.ibeam(origin=[20, 20, 5], roll=np.pi / 2),
+    )
 )
+print("shape of pcd: \n", ship.shape)
+plane = 3  # plane perpendiculat to the y axis at 3 along it
+dist = 1.4
+slice = ship[np.abs(ship[:, 0] - plane) < dist]
+slice[:, 0] = 0
+# projecter = np.array([[0, 1, 0], [0, 0, 1]])
+# slice = np.dot(ship_plane_intersection, projecter.T).T
+
+# %% voxelize
+print("slice.max is ", slice[:, 0].max())
+print("slice.max is ", slice[:, 1].max())
+print("slice.max is ", slice[:, 2].max())
+
+
+min_y = slice[:, 1].min()
+min_z = slice[:, 2].min()
+max_y = slice[:, 1].max()
+max_z = slice[:, 2].max()
+
+res = 5
+grid_y = int((max_y - min_y) * res)
+grid_z = int((max_z - min_z) * res)
+grid = np.zeros([grid_y, grid_z])
+grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * res))
+grid_idx_z = np.linspace(min_z, max_z, int((max_z - min_z) * res))
+for point in slice:
+    # put point in closest grid point
+    # when a grid point has a pcd point, we set that grid pixel to 1
+    idx_y = np.argmin(np.abs(point[1] - grid_idx_y))
+    idx_z = np.argmin(np.abs(point[2] - grid_idx_z))
+    grid[idx_y, idx_z] = 1
+    print("changing grid at", idx_z, ", ", idx_y, " to 1")
+print("grid:\n", grid)
+print("shape of grid:\n", np.shape(grid))
+print("slice[2]: ", slice[2])
+plt.pcolor(grid, cmap="binary", edgecolors="r")
+plt.show()
+"""
+for point in slice:
+    idx_x = np.argmin(np.abs(grid_x - point[0]))
+    idx_y = np.argmin(np.abs(grid_y - point[1]))
+    grid[idx_x, idx_y] = 255
+    cv2.circle(grid, (x, y), 1, 255, -1)
+"""
+
+slice_pcd = o3d.geometry.PointCloud()
+slice_pcd.points = o3d.utility.Vector3dVector(slice)
+slice_voxel = o3d.geometry.VoxelGrid.create_from_point_cloud(slice_pcd, 0.3)
+
+# df  = x +
+print("shape of pcd: \n", slice.shape)
+pcd = o3d.t.geometry.PointCloud(slice)
+pcd2 = o3d.t.geometry.PointCloud(ship)
+o3d.visualization.draw_geometries([slice_voxel])
