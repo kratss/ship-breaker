@@ -7,7 +7,27 @@ import open3d.core as o3c
 import gen
 import matplotlib.pyplot as plt
 
-minmax = np.zeros([3, 2])
+
+def extract_plane(scene, plane=3, dist=0.1):
+    """
+    Extract the portion of the scene point cloud that is near the
+        cutting plane
+
+    Args:
+        scene (numpy array): numpy array of describing a point cloud of the scene
+        plane (double): location of cutting plane along y axis. The plane is perpendicular to the y axis
+        dist (double): perpendicular distance between the plane and scene points.
+        Scene points may not fall exactly on the plane, and this sensitivity
+        must be tuned by the user
+
+    Returns:
+        numpy array: narrow cross section of the scene
+    """
+
+    print("shape of scene pcd: \n", ship.shape)
+    slice = ship[np.abs(ship[:, 0] - plane) < dist]
+
+
 # %% setup
 density = 5
 ship = np.concatenate(
@@ -39,8 +59,6 @@ plane = 3  # plane perpendiculat to the y axis at 3 along it
 dist = 1.4
 slice = ship[np.abs(ship[:, 0] - plane) < dist]
 slice[:, 0] = 0
-# projecter = np.array([[0, 1, 0], [0, 0, 1]])
-# slice = np.dot(ship_plane_intersection, projecter.T).T
 
 # %% voxelize
 print("slice.max is ", slice[:, 0].max())
@@ -69,15 +87,8 @@ for point in slice:
 print("grid:\n", grid)
 print("shape of grid:\n", np.shape(grid))
 print("slice[2]: ", slice[2])
-plt.pcolor(grid, cmap="binary", edgecolors="r")
+plt.pcolor(grid.T, cmap="binary", edgecolors="r")
 plt.show()
-"""
-for point in slice:
-    idx_x = np.argmin(np.abs(grid_x - point[0]))
-    idx_y = np.argmin(np.abs(grid_y - point[1]))
-    grid[idx_x, idx_y] = 255
-    cv2.circle(grid, (x, y), 1, 255, -1)
-"""
 
 slice_pcd = o3d.geometry.PointCloud()
 slice_pcd.points = o3d.utility.Vector3dVector(slice)
