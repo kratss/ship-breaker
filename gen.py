@@ -7,9 +7,21 @@ import numpy as np
 
 
 def rot_mat(roll=0, pitch=0, yaw=0):
-    # Return rotation matrix described by a given roll, pitch, and yaw
-    # Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
+    """Returns rotation matrix
+    Return rotation matrix described by a given roll, pitch, and yaw
+    to rotate a point cloud about the x, y, and z axes by matrix
+    multiplying it by the array coordinates
 
+    Roll, pitch, and yaw are rotations about the x, y, and z axes respectively
+
+    Args:
+        roll: rotation about x axis in radians
+        pitch: rotation about y axis in radians
+        yaw: rotation about z axis in radians
+
+    Returns:
+        A numpy array of shape (3,3) representing a rotation matrix
+    """
     print("\nGenerating rotation matrix...")
     print("roll: ", round(roll, 2), "pitch: ", round(pitch, 2), "yaw: ", round(yaw, 2))
     R_roll = np.array(
