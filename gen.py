@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
+"""Programmatically generate point clouds"""
+
 import open3d as o3d
 import numpy as np
-
-
-# Programmatically generate point clouds
 
 
 def rot_mat(roll=0, pitch=0, yaw=0):
@@ -411,44 +410,6 @@ def bulb_flat(
     cloud = cloud.T
     cloud = origin + cloud
     print("Bulb flat stiffener:\n", cloud)
-    return cloud
-
-
-def experimental(
-    origin=[0, 0, 0],
-    length=15,
-    stem_width=3,
-    stem_height=9,
-    bulb_radius=3,
-    radius=4,
-):
-    cloud = np.array([[0, 0, 0]])
-
-    # generate stem
-    cloudt = plane(length=length, width=stem_height, roll=np.pi / 2)
-    cloud = np.concatenate((cloud, cloudt))
-    cloudt = plane(length=length, width=stem_width)
-    cloud = np.concatenate((cloud, cloudt))
-    cloudt = plane(
-        length=length,
-        width=stem_height,
-        roll=np.pi / 2,
-        origin=[0, stem_width, 0],
-    )
-    cloud = np.concatenate((cloud, cloudt))
-
-    # generate bulb
-    cloudt = cylinder(
-        origin=[0, 0, 0],
-        gap=stem_width / bulb_radius,
-        length=length,
-        density=50,
-        radius=bulb_radius,
-    )
-    R = rot_mat(pitch=np.pi / 2)
-    cloudt = cloudt @ R.T
-    cloudt = cloudt + np.array([0, stem_width / 2, stem_height + radius])
-    cloud = np.concatenate((cloud, cloudt))
     return cloud
 
 
