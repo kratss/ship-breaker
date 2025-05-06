@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # %% imports
-import open3d as o3d
-import open3d.t as o3dt
-import numpy as np
-import open3d.core as o3c
 import gen
 import matplotlib.pyplot as plt
+import numpy as np
+import open3d as o3d
+import open3d.t as o3dt
+import open3d.core as o3c
 
 
 # %% setup
@@ -26,7 +26,7 @@ def extract_plane(scene, plane=3, dist=0.1):
     """
 
     print("shape of scene pcd: \n", scene.shape)
-    slice = scene[np.abs(ship[:, 0] - plane) < dist]
+    slice = scene[np.abs(scene[:, 0] - plane) < dist]
     slice[:, 0] = 0
     return slice
 
@@ -57,7 +57,7 @@ def voxelize(slice, res=5):
         idx_y = np.argmin(np.abs(point[1] - grid_idx_y))
         idx_z = np.argmin(np.abs(point[2] - grid_idx_z))
         grid[idx_y, idx_z] = 1
-        print("changing grid at", idx_z, ", ", idx_y, " to 1")
+        # print("changing grid at", idx_z, ", ", idx_y, " to 1")
     return grid
 
 
@@ -89,15 +89,18 @@ if __name__ == "__main__":
         )
     )
     slice = extract_plane(ship)
+    print("shape of pcd: \n", slice.shape)
+    slice_pcd = o3d.geometry.PointCloud()
+    slice_pcd.points = o3d.utility.Vector3dVector(slice)
+    o3d.visualization.draw_geometries([slice_pcd])
     grid = voxelize(slice)
     plt.pcolor(grid.T, cmap="binary", edgecolors="r")
     plt.show()
 
-    slice_pcd = o3d.geometry.PointCloud()
-    slice_pcd.points = o3d.utility.Vector3dVector(slice)
+    # Delete later
+    """
     slice_voxel = o3d.geometry.VoxelGrid.create_from_point_cloud(slice_pcd, 0.3)
-
-    print("shape of pcd: \n", slice.shape)
     pcd = o3d.t.geometry.PointCloud(slice)
     pcd2 = o3d.t.geometry.PointCloud(ship)
     o3d.visualization.draw_geometries([slice_voxel])
+    """
