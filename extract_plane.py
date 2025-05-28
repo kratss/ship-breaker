@@ -1,37 +1,38 @@
 #!/usr/bin/env python
-# %% imports
 import gen
 import matplotlib.pyplot as plt
 import numpy as np
 import open3d as o3d
 import open3d.t as o3dt
 import open3d.core as o3c
+from icecream import ic
 
 
-# %% setup
 def extract_plane(scene, plane=3, dist=0.1):
     """
     Extract the portion of the scene point cloud that is near the
         cutting plane
 
     Args:
-        scene (numpy array): numpy array of describing a point cloud of the scene
-        plane (double): location of cutting plane along y axis. The plane is perpendicular to the y axis
-        dist (double): perpendicular distance between the plane and scene points.
-        Scene points may not fall exactly on the plane, and this sensitivity
-        must be tuned by the user
+        scene: Array of x,y,z points describing point cloud of the
+            scene
+        plane: Location of cutting plane along z axis. The plane is
+            perpendicular to the z axis
+        dist: perpendicular distance between the plane and scene points.
+            Scene points may not fall exactly on the plane, so this
+            sensitivity must be tuned by the user
 
     Returns:
         numpy array: narrow cross section of the scene
     """
 
     print("shape of scene pcd: \n", scene.shape)
-    slice = scene[np.abs(scene[:, 0] - plane) < dist]
-    slice[:, 0] = 0
+    slice = scene[np.abs(scene[:, 2] - plane) < dist]
+    slice[:, 2] = 0
     return slice
 
 
-def voxelize(slice, res=5):
+def voxelize(slice, res=1):
     """
     Voxelize a two dimensional point cloud projection to create a binary image
     Assumes projected cloud lies on a yz plane
@@ -43,25 +44,47 @@ def voxelize(slice, res=5):
     Returns:
         grid (numpy array): two dimensional binary image
     """
-
+    min_x = slice[:, 0].min()
     min_y = slice[:, 1].min()
-    min_z = slice[:, 2].min()
+    max_x = slice[:, 0].max()
     max_y = slice[:, 1].max()
-    max_z = slice[:, 2].max()
-    grid_y = int((max_y - min_y) * res)
-    grid_z = int((max_z - min_z) * res)
-    grid = np.zeros([grid_y, grid_z])
+    grid_x = max(0, int((max_x - min_x) * res))
+    grid_y = max(1, int((max_y - min_y) * res))
+    x_points = max(2, int((max_x - min_x) * res))
+    y_points = max(2, int((max_y - min_y) * res))
+    grid = np.zeros([grid_x, grid_y])
+    grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * res))
     grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * res))
-    grid_idx_z = np.linspace(min_z, max_z, int((max_z - min_z) * res))
+
+    # Edge case logic
+    if min_x == max_x:
+        grid_idx_x = np.array([min_x])
+    else:
+        grid_idx_x = np.linspace(min_x, max_x, x_points)
+
+    if min_y == max_y:
+        grid_idx_y = np.array([min_y])
+    else:
+        grid_idx_y = np.linspace(min_y, max_y, y_points)
+
+    # Check if either dimension is empty
+    if len(grid_idx_y) == 0 or len(grid_idx_y) == 0:
+        return np.zeros([1, 1])  # Return minimal grid if dimensions are empty
+
     for point in slice:
-        idx_y = np.argmin(np.abs(point[1] - grid_idx_y))
-        idx_z = np.argmin(np.abs(point[2] - grid_idx_z))
-        grid[idx_y, idx_z] = 1
-        # print("changing grid at", idx_z, ", ", idx_y, " to 1")
+        idx_x = np.argmin(np.abs(point[1] - grid_idx_x))
+        idx_y = np.argmin(np.abs(point[2] - grid_idx_y))
+        grid[idx_x, idx_y] = 1
     return grid
 
 
-# %% main
+def cloud_to_grid(cloud):
+    cloud = gen.noise(cloud)
+    slice = extract_plane(cloud)
+    grid = voxelize(slice)
+    return grid
+
+
 if __name__ == "__main__":
     density = 3
     ship = np.concatenate(
