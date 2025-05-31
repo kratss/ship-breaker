@@ -1,145 +1,199 @@
 #!/usr/bin/env python
+import cv2
+import extract_plane as ep
+from icecream import ic
+import matplotlib
+import model
 import numpy as np
+from skimage.morphology import skeletonize
 
 
-def hough(image):
-    # image means EDGE image
-    rho_max = int(np.ceil(np.sqrt(image.shape[0] ** 2 + image.shape[1] ** 2)))
-    rho_min = -rho_max
-    theta = np.linspace(-np.pi, np.pi, 180)
-    rho = np.linspace(rho_min, rho_max, int(rho_max) * 2)
-    accumulator = np.zeros([rho.shape[0], theta.shape[0]])
-    for x, y in zip(*np.where(image == 1)):
-        # remember this asterisk trick
-        if image[x, y] == 1:
-            for t_idx in range(theta.shape[0]):
-                r = x * np.cos(theta[t_idx]) + y * np.sin(theta[t_idx])
-                r_idx = np.argmin(np.abs(r - rho))
-                accumulator[r_idx, t_idx] += 1
-    plt.figure(figsize=(10, 8))
-    plt.imshow(accumulator, cmap="viridis", norm=None)
-    plt.colorbar()
-    plt.title("Hough Space - Raw Values")
-    plt.show()
-    return accumulator
+def get_contours(img):
+    img = np.uint8(img)
+    _, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
+    img_cntrs, hrrchy = cv2.findContours(
+        img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
+    return img_cntrs
 
 
-def threshold(hough_space):
-    print("sadg")
+def thinning(img):
+    """
+    Thin out thick lines
+    """
+    skeleton = skeletonize(img > 0).astype(np.uint8) * 255
+    return skeleton
 
 
-def gen_cloud():
-    density = 5
-    ship = np.concatenate(
-        [
-            gen.tbeam(origin=[0, 30, 30], length=90, density=density),
-            gen.tbeam(origin=[0, 80, 30], length=90, density=density),
+def denoise(img):
+    """
+    Simple noise removal images.
+    """
+    if img.dtype != np.uint8:
+        img = (img * 255).astype(np.uint8)
+    # Median filter is excellent for salt-and-pepper noise
+    denoised = cv2.medianBlur(img, 3)
+    # Small opening to remove remaining specs
+    kernel = np.ones((2, 2), np.uint8)
+    cleaned = cv2.morphologyEx(denoised, cv2.MORPH_OPEN, kernel)
+
+    return cleaned
+
+
+class Component:
+    def __init__(self, id, cntr, grid_size):
+        self.id = id
+        self.cntr = cntr  # 2D slice represented as an image
+        self.grid_size = grid_size
+        self.first_point = self.get_first_point()
+        self.last_point = self.get_last_point()
+
+    def get_info(self):
+        return f"Component is a {self.name}"
+
+    def get_contours(self):
+        grid = self.grid
+        grid = np.uint8(self.grid)
+        _, grid = cv2.threshold(grid, 0, 255, cv2.THRESH_BINARY)
+        cntrs, hrrchy = cv2.findContours(
+            grid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        return cntrs
+
+    def get_first_point(self):
+        cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
+        if cntr.ndim == 1:
+            cntr = cntr.reshape(1, -1)  # ensure array is 2D
+        max_y = np.max(cntr[:, 1])
+        max_y_points = cntr[cntr[:, 1] == max_y]
+        min_x_idx = np.argmin(max_y_points[:, 0])
+        return max_y_points[min_x_idx]
+
+    def get_last_point(self):
+        cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
+        if cntr.ndim == 1:
+            cntr = cntr.reshape(1, -1)  # ensure array is 2D
+        max_y = np.max(cntr[:, 1])
+        max_y_points = cntr[cntr[:, 1] == max_y]
+        max_x_idx = np.argmax(max_y_points[:, 0])
+        return max_y_points[max_x_idx]
+
+    def visualize(self):
+        ic("Visualizing...")
+        cntr = self.cntr.squeeze()
+        w = grid_size[0]
+        h = grid_size[1]
+        viz = np.zeros((w, h))
+        for point in cntr:
+            x, y = point[0], point[1]
+            viz[y, x] = 1
+        plt.figure(figsize=(8, 6))
+        plt.imshow(viz, cmap="binary")
+        plt.colorbar()
+        plt.tight_layout()
+        plt.show()
+
+    def get_closest(self, components):
+        # Searches for the component closest to the current component
+        dists = [
+            (
+                component,
+                (
+                    (self.last_point[0] - component.first_point[0]) ** 2
+                    + (self.last_point[1] - component.first_point[1]) ** 2
+                )
+                ** 0.5,
+            )
+            for component in components
         ]
-    )
-    slice = ep.extract_plane(ship)
-    grid = ep.voxelize(slice)
-    return grid
-
-
-def contour(image):
-    # Error checks
-    if image.dtype != np.uint8:  # Convert to uint8 if not already
-        image = image.astype(np.uint8)
-    if image.max() == 1:  # Ensure values are 0 or 255
-        image = image * 255
-
-    contours, hierarchy = cv2.findContours(
-        image,
-        cv2.RETR_EXTERNAL,
-        cv2.CHAIN_APPROX_SIMPLE,
-    )
-
-    image_contoured = np.zeros_like(image)
-    image_contoured = cv2.cvtColor(image_contoured, cv2.COLOR_GRAY2RGB)
-    cv2.drawContours(image_contoured, contours, -1, (0, 0, 255), 1)
-
-    total_points = sum(len(contour) for contour in contours)
-    all_points = np.zeros((total_points, 2), dtype=np.float32)
-    idx = 0
-    for contour in contours:
-        points = contour.reshape(-1, 2)
-        n_points = len(points)
-        all_points[idx : idx + n_points] = points
-        idx += n_points
-
-    return all_points, image_contoured
-
-
-def prob_hough(binary_img):
-    if binary_img is None or binary_img.size == 0:
-        print("Error: Image is empty or not loaded properly")
-        return  # Exit the function # Convert to uint8 if not already (required by OpenCV)
-    if binary_img.dtype != np.uint8:
-        binary_img = binary_img.astype(np.uint8)
-
-    # If your binary image has values other than 0 and 255, normalize it
-    if binary_img.max() == 1:
-        binary_img = binary_img * 255
-
-    # Apply Probabilistic Hough Transform
-    lines = cv2.HoughLinesP(
-        binary_img,
-        rho=1,  # Distance resolution in pixels
-        theta=np.pi / 180,  # Angle resolution in radians
-        threshold=9,  # Minimum number of votes
-        minLineLength=5,  # Minimum line length
-        maxLineGap=28,  # Maximum allowed gap between line segments
-    )
-
-    # Create a color image to draw lines on
-    # Convert grayscale to RGB if needed
-    if len(binary_img.shape) == 2:
-        display_img = cv2.cvtColor(binary_img, cv2.COLOR_GRAY2RGB)
-    else:
-        display_img = binary_img.copy()
-
-    # Draw the detected line segments
-    if lines is not None:
-        for line in lines:
-            x1, y1, x2, y2 = line[0]
-            cv2.line(display_img, (x1, y1), (x2, y2), (0, 0, 255), 1)
-
-    # Display the result
-    plt.figure(figsize=(10, 8))
-    plt.imshow(cv2.cvtColor(display_img, cv2.COLOR_BGR2RGB))
-    plt.title(f"{len(lines) if lines is not None else 0} Line Segments Detected")
-    plt.axis("off")
-    plt.show()
+        return min(dists, key=lambda x: x[1])[0]
 
 
 if __name__ == "__main__":
-    import cv2
     import matplotlib.pyplot as plt
     import gen
     import extract_plane as ep
 
-    image = gen_cloud()
-    contours, out_image = contour(image)
-    lines_v = np.zeros([1, 2])
-    lines_h = np.zeros([1, 2])
+    density = 55
+    noise_std = 0.11
 
-    for i in range(np.shape(contours)[0] - 1):
-        slope = (contours[i + 1, 1] - contours[i, 1]) / (
-            contours[i + 1, 0] - contours[i, 0] + 0.0001
-        )
-        print("slope: \n", slope)
-        slope_angle = np.arctan(slope)
-        if slope_angle < np.pi / 4:
-            lines_v = np.vstack((contours[i], contours[i + 1], lines_v))
-        else:
-            lines_h = np.vstack((contours[i], contours[i + 1], lines_h))
+    cloud_curved_walls = model.gen_planes(density, noise_std=noise_std)
+    cloud_ibeams = model.gen_planes(density, noise_std=noise_std)
+    cloud_planes = model.gen_planes(density, noise_std=noise_std)
+    cloud_tbeams = model.gen_planes(density, noise_std=noise_std)
 
-    print("vertical lines:\n", lines_v, "\nhorizontal lines:\n", lines_h)
-    print("contours are:\n", contours)
+    clouds = ["curved_walls":cloud_curved_walls, "ibeams":cloud_ibeams, "planes":cloud_planes, "tbeams":cloud_tbeams]
 
-    top_idx = np.argmax(contours[:, 1])
-    lines_h = np.delete(lines_h, top_idx, axis=0)
+    grids[name]=["curved_walls":None, "ibeams":None, "planes":None, "tbeams":None]
+    for name in clouds:
+    grid_curved_walls = np.empty([])
+    grid_ibeams = np.empty([])
+    grid_planes = ep.cloud_to_grid(model.gen_planes(density, noise_std=noise_std))
+    grid_tbeams = ep.cloud_to_grid(model.gen_tbeams(density, noise_std=noise_std))
+    grids = {
+        "curved_walls": grid_curved_walls,
+        "ibeams": grid_ibeams,
+        "planes": grid_planes,
+        "tbeams": grid_tbeams,
+    }
+    # get size of overall grid
 
-    blank = np.zeros((50, 50, 3))
-    plt.imshow(cv2.cvtColor(blank, contours, cv2.COLOR_BGR2RGB))
+    if grid_tbeams.size > 1:
+        grid_size = np.array((grid_tbeams.shape))
+        cntrs_tbeams = get_contours(denoise(grid_tbeams))
+    if grid_planes.size > 1:
+        cntrs_planes = get_contours(grid_planes)
+        grid_size = np.maximum(grid_size, grid_planes.shape)
+    if grid_curved_walls.size > 1:
+        cntrs_curved_walls = get_contours(grid_curved_walls)
+        grid_size = np.maximum(grid_size, grid_curved_walls.shape)
+    if grid_ibeams.size > 1:
+        cntrs_ibeams = get_contours(grid_ibeams)
+        grid_size = np.maximum(grid_size, grid_ibeams.shape)
+
+    cntrs = []
+    for name in grids:
+        if grids[name].size > 1:
+            ic(name)
+            ic(grids[name].size)
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Original image
+    axes[0].imshow(grid_tbeams, cmap="gray")
+    axes[0].set_title("Original Binary Image")
+    axes[0].axis("off")
+
+    # Denoised image
+    denoised_img = denoise(grid_tbeams)
+    denoised_img = thinning(denoised_img)
+    axes[1].imshow(denoised_img, cmap="gray")
+    axes[1].set_title("Denoised Image")
+    axes[1].axis("off")
+
+    plt.tight_layout()
     plt.show()
+
+    tbeams = []
+    for i in range(len(cntrs_tbeams)):
+        tbeams.append(Component(f"tbeam{i}", cntrs_tbeams[i], grid_size))
+    planes = []
+    if grid_planes.size > 1:
+        for i in range(len(cntrs_planes)):
+            planes.append(Component(f"planes{i}", cntrs_planes[i], grid_size))
+
+    curved_walls = []
+    if grid_curved_walls.size > 1:
+        for i in range(len(cntrs_curved_walls)):
+            curved_walls.append(
+                Component(f"curved_wall{i}", cntrs_curved_walls[i], grid_size)
+            )
+
+    ibeams = []
+    if grid_ibeams.size > 1:
+        for i in range(len(cntrs_ibeams)):
+            ibeams.append(Component(f"ibeam{i}", cntrs_ibeams[i], grid_size))
+
+    # make sure not to include the current component
+    components = tbeams + planes[1:] + ibeams + curved_walls
+    tbeams[0].visualize()
