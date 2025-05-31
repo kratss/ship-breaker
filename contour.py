@@ -40,9 +40,21 @@ def denoise(img):
     return cleaned
 
 
+class ComponentGroup:
+    def __init__(self, name, cloud, plane):
+        """
+        plane: location of the cutting plane along the z axis
+        """
+        self.name = name
+        self.cloud = cloud
+        self.plane = plane
+        self.grid = denoise(ep.cloud_to_grid(self.cloud, self.plane))
+        self.cntrs = get_contours(self.grid)
+
+
 class Component:
-    def __init__(self, id, cntr, grid_size):
-        self.id = id
+    def __init__(self, name, cntr, grid_size):
+        self.name = name
         self.cntr = cntr  # 2D slice represented as an image
         self.grid_size = grid_size
         self.first_point = self.get_first_point()
@@ -114,58 +126,38 @@ if __name__ == "__main__":
     import gen
     import extract_plane as ep
 
-    density = 55
-    noise_std = 0.11
+    density = 15
+    noise_std = 0.06
+    plane = 3
 
-    cloud_curved_walls = model.gen_planes(density, noise_std=noise_std)
-    cloud_ibeams = model.gen_planes(density, noise_std=noise_std)
-    cloud_planes = model.gen_planes(density, noise_std=noise_std)
-    cloud_tbeams = model.gen_planes(density, noise_std=noise_std)
+    curved_walls = ComponentGroup(
+        "curved_walls", model.gen_planes(density, noise_std=noise_std), plane
+    )
+    planes = ComponentGroup(
+        "planes", model.gen_planes(density, noise_std=noise_std), plane
+    )
+    tbeams = ComponentGroup(
+        "tbeams", model.gen_tbeams(density, noise_std=noise_std), plane
+    )
 
-    clouds = ["curved_walls":cloud_curved_walls, "ibeams":cloud_ibeams, "planes":cloud_planes, "tbeams":cloud_tbeams]
+    # list of NON-EMPTY component groups
+    component_groups = [curved_walls, planes, tbeams]
 
-    grids[name]=["curved_walls":None, "ibeams":None, "planes":None, "tbeams":None]
-    for name in clouds:
-    grid_curved_walls = np.empty([])
-    grid_ibeams = np.empty([])
-    grid_planes = ep.cloud_to_grid(model.gen_planes(density, noise_std=noise_std))
-    grid_tbeams = ep.cloud_to_grid(model.gen_tbeams(density, noise_std=noise_std))
-    grids = {
-        "curved_walls": grid_curved_walls,
-        "ibeams": grid_ibeams,
-        "planes": grid_planes,
-        "tbeams": grid_tbeams,
-    }
-    # get size of overall grid
+    components = []
+    for group in component_groups:
+        for cntr in group.cntrs:
+            components.append(Component(group.name[:-1], cntr, [20, 20]))
 
-    if grid_tbeams.size > 1:
-        grid_size = np.array((grid_tbeams.shape))
-        cntrs_tbeams = get_contours(denoise(grid_tbeams))
-    if grid_planes.size > 1:
-        cntrs_planes = get_contours(grid_planes)
-        grid_size = np.maximum(grid_size, grid_planes.shape)
-    if grid_curved_walls.size > 1:
-        cntrs_curved_walls = get_contours(grid_curved_walls)
-        grid_size = np.maximum(grid_size, grid_curved_walls.shape)
-    if grid_ibeams.size > 1:
-        cntrs_ibeams = get_contours(grid_ibeams)
-        grid_size = np.maximum(grid_size, grid_ibeams.shape)
-
-    cntrs = []
-    for name in grids:
-        if grids[name].size > 1:
-            ic(name)
-            ic(grids[name].size)
-
+    # VISUALIZE
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
     # Original image
-    axes[0].imshow(grid_tbeams, cmap="gray")
+    axes[0].imshow(tbeams.grid, cmap="gray")
     axes[0].set_title("Original Binary Image")
     axes[0].axis("off")
 
     # Denoised image
-    denoised_img = denoise(grid_tbeams)
+    denoised_img = denoise(tbeams.grid)
     denoised_img = thinning(denoised_img)
     axes[1].imshow(denoised_img, cmap="gray")
     axes[1].set_title("Denoised Image")
@@ -173,27 +165,3 @@ if __name__ == "__main__":
 
     plt.tight_layout()
     plt.show()
-
-    tbeams = []
-    for i in range(len(cntrs_tbeams)):
-        tbeams.append(Component(f"tbeam{i}", cntrs_tbeams[i], grid_size))
-    planes = []
-    if grid_planes.size > 1:
-        for i in range(len(cntrs_planes)):
-            planes.append(Component(f"planes{i}", cntrs_planes[i], grid_size))
-
-    curved_walls = []
-    if grid_curved_walls.size > 1:
-        for i in range(len(cntrs_curved_walls)):
-            curved_walls.append(
-                Component(f"curved_wall{i}", cntrs_curved_walls[i], grid_size)
-            )
-
-    ibeams = []
-    if grid_ibeams.size > 1:
-        for i in range(len(cntrs_ibeams)):
-            ibeams.append(Component(f"ibeam{i}", cntrs_ibeams[i], grid_size))
-
-    # make sure not to include the current component
-    components = tbeams + planes[1:] + ibeams + curved_walls
-    tbeams[0].visualize()
