@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Find the path the robot must follow
+"""
 import cv2
 import extract_plane as ep
 import gen
@@ -10,12 +13,15 @@ from skimage.morphology import skeletonize
 
 
 class ComponentGroup:
-    def __init__(self, name, cloud, plane, grid_res):
+    def __init__(self, name, cloud, plane, grid_res, tolerance):
         self.name = name
         self.cloud = cloud
         self.plane = plane
+        self.tolerance = tolerance
         self.grid_res = grid_res
-        self.grid_noisy = ep.cloud_to_grid(self.cloud, self.grid_res, self.plane)
+        self.grid_noisy = ep.cloud_to_grid(
+            self.cloud, self.grid_res, self.plane, self.tolerance
+        )
         self.grid_denoised = self.denoise()
         self.grid_thinned = self.thin()
         self.grid = self.grid_thinned
@@ -47,6 +53,10 @@ class ComponentGroup:
 
 
 class Component:
+    """
+    An individual structural component. E.g. I-beam
+    """
+
     def __init__(self, name, cntr, grid_size):
         self.name = name
         self.cntr_fixed = self.fix_contour(cntr)
@@ -60,7 +70,7 @@ class Component:
 
     def fix_contour(self, cntr):
         """
-        Squeeze out extra dimension that cv.contours produces
+        Squeeze out the extra dimension that cv.contours produces.
         Ensure cntrs containing only one point are still 2D
         """
         cntr = np.squeeze(cntr)
@@ -140,61 +150,56 @@ if __name__ == "__main__":
     # Generated data
     DENSITY = 35
     NOISE_STD = 0.05
-    Z_PLANE = 1
+    Z_PLANE = 5
     GRID_RES = 5
+    TOLERANCE = 1
     curved_walls = ComponentGroup(
-        "curved_walls", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES
+        "curved_walls",
+        model.gen_curved_walls(DENSITY, NOISE_STD),
+        Z_PLANE,
+        GRID_RES,
+        TOLERANCE,
     )
     planes = ComponentGroup(
-        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES
+        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
     )
     tbeams = ComponentGroup(
-        "tbeams", model.gen_tbeams(NOISE_STD, DENSITY), Z_PLANE, GRID_RES
+        "tbeams", model.gen_tbeams(NOISE_STD, DENSITY), Z_PLANE, GRID_RES, TOLERANCE
     )
 
     # List of NON-EMPTY component groups
     component_groups = [tbeams, planes]
 
-    # Sort tagged point cloud into individual objects
-    ## Find the size of the image grid
+    ### Sort tagged point cloud into individual objects
+    # Find the size of the image grid
     max_grid = [0, 0]
     for group in component_groups:
         if group.grid.shape[0] > max_grid[0]:
             max_grid[0] = group.grid.shape[0]
         if group.grid.shape[1] > max_grid[1]:
             max_grid[1] = group.grid.shape[1]
-    ### TEMP ###
-    """
-    grid_slice = np.zeros(max_grid)
-    ic(tbeams.cntrs)
-    ic("noisy")
-    plt.imshow(tbeams.grid_denoised)
-    plt.show()
-    ic("thinned")
-    plt.imshow(tbeams.grid_thinned, cmap="gray")
-    plt.show()
-    ic("====")
-        """
-    ### #### ###
-
     components = []
     for group in component_groups:
         for i, cntr in enumerate(group.cntrs):
             components.append(Component(group.name[:-1] + str(i), cntr, max_grid))
 
+    ### Choose the order of the components
     components_ordered = []
-    remaining = components.copy
-    current_component = remaining.pop(0)
-    components_ordred.append(current_component)
+    remaining = components.copy()
+    current_component = remaining[0]
+    del remaining[0]
+    components_ordered.append(current_component)
     while remaining:
-      distances = [
+        distances = [
             (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
             for idx, comp in enumerate(remaining)
         ]
-        nearest_idex = min(distances, key=lambda x: x[1])[0]
-        current_component = remaining.pop(nearest_idx)
+        nearest_idx = min(distances, key=lambda x: x[1])[0]
+        current_component = remaining[nearest_idx]
+        del remaining[nearest_idx]
         components_ordered.append(current_component)
 
+    ### Visualize and print info
     component_instances = [
         name for name, obj in globals().items() if isinstance(obj, Component)
     ]
@@ -202,8 +207,8 @@ if __name__ == "__main__":
     for comp in components_ordered:
         ic(comp.name)
     grid_slice = np.zeros(max_grid)
-    grid_slice[components[1].cntr[0:2, 1], components[1].cntr[0:2, 0]] = 1
-    plt.imshow(grid_cntr, cmap="gray")
-    # plt.imshow(tbeams.grid_denoised, cmap="gray")
-    # plt.imshow(grid_cntrs, cmap="gray")
+
+    ic(components_ordered[0].name)
+    ic(components_ordered[0].cntr)
+    # grid_slice[components[1].cntr[0:2, 1], components[1].cntr[0:2, 0]] = 1
     plt.show()

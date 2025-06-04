@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Programmatically generate point clouds"""
-
 import open3d as o3d
 import numpy as np
+from icecream import ic
 
 
 def rot_mat(roll=0, pitch=0, yaw=0):
@@ -21,8 +21,16 @@ def rot_mat(roll=0, pitch=0, yaw=0):
     Returns:
         A numpy array of shape (3,3) representing a rotation matrix
     """
+
     print("\nGenerating rotation matrix...")
-    print("roll: ", round(roll, 2), "pitch: ", round(pitch, 2), "yaw: ", round(yaw, 2))
+    print(
+        "roll:  ",
+        round(roll, 2),
+        "\npitch: ",
+        round(pitch, 2),
+        "\nyaw:   ",
+        round(yaw, 2),
+    )
     R_roll = np.array(
         [
             [1, 0, 0],
@@ -49,6 +57,12 @@ def rot_mat(roll=0, pitch=0, yaw=0):
     return R
 
 
+def noise(cloud, std=0.01):
+    print("Adding noise...")
+    cloud_noisy = np.random.normal(cloud, std)
+    return cloud_noisy
+
+
 def plane(
     origin=[0, 0, 0],
     roll=0,
@@ -58,11 +72,12 @@ def plane(
     width=20,
     density=20,
 ):
-    # Generate points lying on a plane of the given size
-    # Origin specifies the location of the southwest corner
-    # Roll pitch yaw correspond to phi theta psi by convention and rotate on
-    # the x, y, and z axes respectively
-
+    """
+    Generate points lying on a plane of the given size
+    Origin specifies the location of the southwest corner
+    Roll pitch yaw correspond to phi theta psi by convention and rotate on
+    the x, y, and z axes respectively
+    """
     print("\nGenerating plane...")
     origin = np.array(origin)
     Z = 0
@@ -81,7 +96,6 @@ def plane(
     # print("plane cloud after rotation: \n", np.round(cloud, decimals=0))
     cloud = cloud + origin
 
-    largest_val(cloud)
     # print("Shape of plane cloud: ", np.shape(cloud))
     return cloud
 
@@ -296,6 +310,9 @@ def tbeam(
     width=5,
     height=10,
     thickness=2,
+    roll=0,
+    pitch=0,
+    yaw=0,
     skip=[False] * 12,
     density=20,
 ):
@@ -357,6 +374,8 @@ def tbeam(
             )
             cloud = np.concatenate((cloud, cloudt))
     R = rot_mat(np.pi, 0, 0)
+    cloud = (R @ cloud.T).T
+    R = rot_mat(roll, pitch, yaw)
     cloud = (R @ cloud.T).T
     # print("shape of tbeam cloud is :", np.shape(cloud))
     cloud = cloud + origin
@@ -427,6 +446,7 @@ def curved_wall(
     density=15,
 ):
     print("\nGenerating curved wall...")
+    ic(origin)
     origin = np.array(origin)
     Y = np.linspace(0, length, int(length * density))
     Z = np.linspace(0, 1, int(height * density))
@@ -447,31 +467,106 @@ def curved_wall(
     return cloud
 
 
-def largest_val(cloud):
-    MAX = 200  # define the threshold
-    flat_cloud = cloud.flatten()
-    indices = np.argsort(flat_cloud)[::-1][:5]
-    largest_values = flat_cloud[indices]
-    original_indices = np.unravel_index(indices, cloud.shape)
+def draw_axes(size=1.0, origin=[0, 0, 0]):
+    """
+    Draw and color-code the origin
+    X axis is red
+    Y axis is green
+    Z axis is blue
 
-    mask = largest_values > MAX
-    print("Largest values greater than", MAX, ":")
-    for i, (value, idx) in enumerate(
-        list(zip(largest_values[mask], zip(*original_indices)))
-    ):
-        print(f"Largest value {i+1}: {value} at index {idx}")
+    Arguments:
+        size: int representing length of axis lines
+    """
+
+    points = [
+        origin,  # Origin
+        [origin[0] + size, origin[1], origin[2]],  # X-axis end
+        [origin[0], origin[1] + size, origin[2]],  # Y-axis end
+        [origin[0], origin[1], origin[2] + size],  # Z-axis end
+    ]
+
+    lines = [[0, 1], [0, 2], [0, 3]]  # X-axis  # Y-axis  # Z-axis
+
+    colors = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]  # Red for X  # Green for Y  # Blue for Z
+
+    line_set = o3d.geometry.LineSet()
+    line_set.points = o3d.utility.Vector3dVector(points)
+    line_set.lines = o3d.utility.Vector2iVector(lines)
+    line_set.colors = o3d.utility.Vector3dVector(colors)
+
+    return line_set
+
+
+def ship():
+    """
+    Generates a pre configured point cloud representing a ship
+
+    Args:
+        None
+
+    Returns:
+        Numpy array representing X,Y,Z coordinates of point cloud
+        points
+    """
+    return noise(
+        np.concatenate(
+            (
+                plane(origin=[0, 30, 0], length=10, width=10, roll=np.pi / 2),
+                tbeam(
+                    origin=[10, 30, 10],
+                    length=10,
+                    width=5,
+                    roll=-np.pi / 2,
+                    pitch=np.pi / 2,
+                    skip=[
+                        True,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                    ],
+                ),
+                plane(origin=[15, 30, 0], length=10, width=10, roll=np.pi / 2),
+                tbeam(
+                    origin=[25, 30, 10],
+                    length=10,
+                    width=5,
+                    roll=-np.pi / 2,
+                    pitch=np.pi / 2,
+                    skip=[
+                        True,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                        False,
+                    ],
+                ),
+            )
+        )
+    )
+
+
+# display point cloud in browser window (as opposed to locally with draw_geometries) as
 
 
 if __name__ == "__main__":
     # note that the new tensor .t is required. legacy version will break this
     # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    pcd = o3d.t.geometry.PointCloud(
-        plane(
-            pitch=1.7 * np.pi,
-            origin=[0, 15, 0],
-        )
-    )
-    pcd += o3d.t.geometry.PointCloud(np.concatenate((plane(), prism())))
-    # display point cloud in browser window (as opposed to locally with draw_geometries) as
     # the opengl backend doesn't work with wayland
-    o3d.visualization.draw_geometries([pcd.to_legacy()])
+    pcd = o3d.t.geometry.PointCloud(ship())
+    axes = draw_axes()
+    o3d.visualization.draw_geometries([pcd.to_legacy(), axes])

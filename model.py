@@ -73,7 +73,14 @@ def gen_ship():
     )
 
 
-def gen_planes(density=5, noise_std=0.01):
+def gen_curved_walls(density, noise_std):
+    origin = [5, 0, 20]
+    cloud = gen.curved_wall(origin=origin, roll=np.pi / 2, pitch=np.pi, yaw=np.pi)
+    cloud = gen.noise(cloud, std=noise_std)
+    return cloud
+
+
+def gen_planes(density=5, noise_std=0.00):
     cloud = np.concatenate(
         (
             gen.plane(origin=[15, 10, 0], length=10, width=10, roll=np.pi / 2),
@@ -85,7 +92,7 @@ def gen_planes(density=5, noise_std=0.01):
     return cloud
 
 
-def gen_tbeams(density=5, noise_std=0.01):
+def gen_tbeams(density=5, noise_std=0):
     cloud = np.concatenate(
         (
             gen.tbeam(
@@ -140,6 +147,8 @@ def gen_tbeams(density=5, noise_std=0.01):
 
 if __name__ == "__main__":
     density = 15
-    pcd = o3d.t.geometry.PointCloud(gen_tbeams(density=5))
+    pcd = o3d.t.geometry.PointCloud(
+        np.concatenate([gen_tbeams(density=5), gen_curved_walls()])
+    )
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries([pcd.to_legacy(), axes])
