@@ -9,34 +9,31 @@ import numpy as np
 from skimage.morphology import skeletonize
 
 
-def get_contours(img):
-    img = np.uint8(img)
-    _, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
-    img_cntrs, hrrchy = cv2.findContours(
-        img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-    )
-    return img_cntrs
-
-
 class ComponentGroup:
-    def __init__(self, name, cloud, plane):
-        """
-        plane: location of the cutting plane along the z axis
-        """
+    def __init__(self, name, cloud, plane, grid_res):
         self.name = name
         self.cloud = cloud
         self.plane = plane
-        self.grid_noisy = ep.cloud_to_grid(self.cloud, self.plane)
+        self.grid_res = grid_res
+        self.grid_noisy = ep.cloud_to_grid(self.cloud, self.grid_res, self.plane)
         self.grid_denoised = self.denoise()
         self.grid_thinned = self.thin()
         self.grid = self.grid_thinned
-        self.cntrs = get_contours(self.grid)
+        self.cntrs = self.get_contours(self.grid)
 
     def get_contours(self, img):
-        img = np.uint8(img)
-        _, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY)
-        img_cntrs, hrrchy = cv2.findContours(
+        if img.dtype == bool:
+            img = img.astype(np.uint8) * 255
+        else:
+            img = np.uint8(img)
+        filled = img.copy()
+        cntrs_temp, _ = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        cv2.drawContours(filled, cntrs_temp, -1, 255, -1)
+        print("Drawing filled")
+        img_cntrs, hrrchy = cv2.findContours(
+            filled, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
         return img_cntrs
 
@@ -52,7 +49,8 @@ class ComponentGroup:
 class Component:
     def __init__(self, name, cntr, grid_size):
         self.name = name
-        self.cntr = self.fix_contour(cntr)  # 2D slice represented as an image
+        self.cntr_fixed = self.fix_contour(cntr)
+        self.cntr = self.cntr_fixed
         self.grid_size = grid_size
         self.first_point = self.get_first_point()
         self.last_point = self.get_last_point()
@@ -68,15 +66,17 @@ class Component:
         cntr = np.squeeze(cntr)
         if cntr.ndim < 2:
             cntr = cntr.reshape(1, -1)  # Ensure arrays are 2D
-        return cntr
+        # Remove duplicate points, keeping first occurrence
+        unique_points, indices = np.unique(cntr, axis=0, return_index=True)
+        # Sort by original indices to maintain order
+        sorted_indices = np.sort(indices)
+        return cntr[sorted_indices]
 
     def get_contours(self):
         grid = self.grid
         grid = np.uint8(self.grid)
         _, grid = cv2.threshold(grid, 0, 255, cv2.THRESH_BINARY)
-        cntrs, hrrchy = cv2.findContours(
-            grid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
-        )
+        cntrs, hrrchy = cv2.findContours(grid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         return cntrs
 
     def get_first_point(self):
@@ -132,21 +132,25 @@ class Component:
 if __name__ == "__main__":
 
     # Generated data
-    density = 55
-    noise_std = 0.00
-    plane = 1
-
+    DENSITY = 35
+    NOISE_STD = 0.05
+    Z_PLANE = 1
+    GRID_RES = 5
     curved_walls = ComponentGroup(
-        "curved_walls", model.gen_planes(density, noise_std=noise_std), plane
+        "curved_walls", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES
     )
     planes = ComponentGroup(
-        "planes", model.gen_planes(density, noise_std=noise_std), plane
+        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES
     )
-    tbeams = ComponentGroup("tbeams", model.gen_tbeams(noise_std, density), plane)
+    tbeams = ComponentGroup(
+        "tbeams", model.gen_tbeams(NOISE_STD, DENSITY), Z_PLANE, GRID_RES
+    )
 
     # List of NON-EMPTY component groups
     component_groups = [tbeams]
+
     # Sort tagged point cloud into individual objects
+    ## Find the size of the image grid
     max_grid = [0, 0]
     for group in component_groups:
         if group.grid.shape[0] > max_grid[0]:
@@ -191,11 +195,14 @@ if __name__ == "__main__":
             + (x.first_point[1] - current.last_point[1]) ** 2,
         )
 
-    component_instances = [name for name, obj in globals().items() 
-                        if isinstance(obj, Component)]
+    component_instances = [
+        name for name, obj in globals().items() if isinstance(obj, Component)
+    ]
     print(component_instances)
-    ic(components[0].cntr)
-    plt.imshow(grid_cntr, cmap="gray")
+    ic(components[0].cntr.shape)
+    grid_slice = np.zeros(max_grid)
+    grid_slice[components[0].cntr[:, 1], components[0].cntr[:, 0]] = 1
+    plt.imshow(grid_slice, cmap="gray")
     # plt.imshow(tbeams.grid_denoised, cmap="gray")
     # plt.imshow(grid_cntrs, cmap="gray")
     plt.show()
