@@ -80,6 +80,8 @@ class Component:
         return cntrs
 
     def get_first_point(self):
+        return self.cntr[1, :]
+        """
         cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
         if cntr.ndim == 1:
             cntr = cntr.reshape(1, -1)  # ensure array is 2D
@@ -87,8 +89,11 @@ class Component:
         max_y_points = cntr[cntr[:, 1] == max_y]
         min_x_idx = np.argmin(max_y_points[:, 0])
         return max_y_points[min_x_idx]
+        """
 
     def get_last_point(self):
+        return self.cntr[-1, :]
+        """
         cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
         if cntr.ndim == 1:
             cntr = cntr.reshape(1, -1)  # ensure array is 2D
@@ -96,6 +101,7 @@ class Component:
         max_y_points = cntr[cntr[:, 1] == max_y]
         max_x_idx = np.argmax(max_y_points[:, 0])
         return max_y_points[max_x_idx]
+        """
 
     def visualize(self):
         ic("Visualizing...")
@@ -147,7 +153,7 @@ if __name__ == "__main__":
     )
 
     # List of NON-EMPTY component groups
-    component_groups = [tbeams]
+    component_groups = [tbeams, planes]
 
     # Sort tagged point cloud into individual objects
     ## Find the size of the image grid
@@ -176,33 +182,28 @@ if __name__ == "__main__":
         for i, cntr in enumerate(group.cntrs):
             components.append(Component(group.name[:-1] + str(i), cntr, max_grid))
 
-    current = components[0]
-    old = []  # components already cut
-    grid_cntr = np.zeros(max_grid)
-    for i, current in enumerate(components):
-        if np.any(current.cntr[:, 0] >= max_grid[1]) or np.any(
-            current.cntr[:, 1] >= max_grid[0]
-        ):
-            ic("Out of bounds!", current.cntr.max(axis=0), max)
-        grid_cntr[current.cntr[:, 1], current.cntr[:, 0]] = 1  # TODO: Very broken
-        # exclude old items from list of candidates
-        candidates = [item for j, item in enumerate(components) if j not in old]
-        if not candidates:  # check if candidates is empty
-            break
-        next = min(
-            candidates,
-            key=lambda x: (x.first_point[0] - current.last_point[0]) ** 2
-            + (x.first_point[1] - current.last_point[1]) ** 2,
-        )
+    components_ordered = []
+    remaining = components.copy
+    current_component = remaining.pop(0)
+    components_ordred.append(current_component)
+    while remaining:
+      distances = [
+            (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
+            for idx, comp in enumerate(remaining)
+        ]
+        nearest_idex = min(distances, key=lambda x: x[1])[0]
+        current_component = remaining.pop(nearest_idx)
+        components_ordered.append(current_component)
 
     component_instances = [
         name for name, obj in globals().items() if isinstance(obj, Component)
     ]
-    print(component_instances)
-    ic(components[0].cntr.shape)
+    ic(components_ordered)
+    for comp in components_ordered:
+        ic(comp.name)
     grid_slice = np.zeros(max_grid)
-    grid_slice[components[0].cntr[:, 1], components[0].cntr[:, 0]] = 1
-    plt.imshow(grid_slice, cmap="gray")
+    grid_slice[components[1].cntr[0:2, 1], components[1].cntr[0:2, 0]] = 1
+    plt.imshow(grid_cntr, cmap="gray")
     # plt.imshow(tbeams.grid_denoised, cmap="gray")
     # plt.imshow(grid_cntrs, cmap="gray")
     plt.show()
