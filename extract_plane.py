@@ -48,8 +48,11 @@ def voxelize(slice, res):
     Returns:
         grid (numpy array): 2D binary image (Y,X ordering)
     """
-    min_x = 0  # slice[:, 0].min()
-    min_y = 0  # slice[:, 1].min()
+    if len(slice) == 0:
+        ic("Voxelize: Warning, empty slice. Returning minimal grid")
+        return np.zeros((1, 1))  # Return minimal grid
+    min_x = slice[:, 0].min()
+    min_y = slice[:, 1].min()
     ic(slice)
     max_x = slice[:, 0].max()
     max_y = slice[:, 1].max()

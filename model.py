@@ -8,6 +8,7 @@ how tagged groups of elements will be passed to the final program
 import gen
 import numpy as np
 import open3d as o3d
+from icecream import ic
 
 
 def gen_ship():
@@ -77,10 +78,15 @@ def gen_curved_walls(density, noise_std):
     origin = [5, 0, 20]
     cloud = gen.curved_wall(origin=origin, roll=np.pi / 2, pitch=np.pi, yaw=np.pi)
     cloud = gen.noise(cloud, std=noise_std)
+    z_min = cloud[:, 2].min()
+    z_max = cloud[:, 2].max()
+    ic("curved wall")
+    ic(f"Tbeam z-range: {z_min} to {z_max}")
+    ic(cloud)
     return cloud
 
 
-def gen_planes(density=5, noise_std=0.00):
+def gen_planes(density, noise_std):
     cloud = np.concatenate(
         (
             gen.plane(origin=[15, 10, 0], length=10, width=10, roll=np.pi / 2),
@@ -92,7 +98,7 @@ def gen_planes(density=5, noise_std=0.00):
     return cloud
 
 
-def gen_tbeams(density=5, noise_std=0):
+def gen_tbeams(density, noise_std):
     cloud = np.concatenate(
         (
             gen.tbeam(
@@ -141,6 +147,11 @@ def gen_tbeams(density=5, noise_std=0):
             ),
         )
     )
+    z_min = cloud[:, 2].min()
+    z_max = cloud[:, 2].max()
+    ic("t beams")
+    ic(f"Tbeam z-range: {z_min} to {z_max}")
+    ic(cloud)
     cloud = gen.noise(cloud, std=noise_std)
     return cloud
 
@@ -148,7 +159,9 @@ def gen_tbeams(density=5, noise_std=0):
 if __name__ == "__main__":
     density = 15
     pcd = o3d.t.geometry.PointCloud(
-        np.concatenate([gen_tbeams(density=5), gen_curved_walls()])
+        np.concatenate(
+            [gen_tbeams(density=5, noise_std=0.00), gen_curved_walls(density, 0)]
+        )
     )
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries([pcd.to_legacy(), axes])

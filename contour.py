@@ -164,7 +164,7 @@ if __name__ == "__main__":
         "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
     )
     tbeams = ComponentGroup(
-        "tbeams", model.gen_tbeams(NOISE_STD, DENSITY), Z_PLANE, GRID_RES, TOLERANCE
+        "tbeams", model.gen_tbeams(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
     )
 
     # List of NON-EMPTY component groups
@@ -186,10 +186,13 @@ if __name__ == "__main__":
     ### Choose the order of the components
     components_ordered = []
     remaining = components.copy()
+    ic(f"Starting with {len(remaining)} components")
     current_component = remaining[0]
     del remaining[0]
     components_ordered.append(current_component)
     while remaining:
+        ic(f"Remaining: {[c.name for c in remaining]}")
+        ic(f"Ordered so far: {[c.name for c in components_ordered]}")
         distances = [
             (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
             for idx, comp in enumerate(remaining)
@@ -199,16 +202,15 @@ if __name__ == "__main__":
         del remaining[nearest_idx]
         components_ordered.append(current_component)
 
+    ic(f"Final ordered: {[c.name for c in components_ordered]}")
     ### Visualize and print info
     component_instances = [
         name for name, obj in globals().items() if isinstance(obj, Component)
     ]
-    ic(components_ordered)
+    grid_slice = np.zeros(max_grid)
     for comp in components_ordered:
         ic(comp.name)
-    grid_slice = np.zeros(max_grid)
-
-    ic(components_ordered[0].name)
-    ic(components_ordered[0].cntr)
-    # grid_slice[components[1].cntr[0:2, 1], components[1].cntr[0:2, 0]] = 1
+        grid_slice[comp.cntr[:, 1], comp.cntr[:, 0]] = 1
+    #    grid_slice[components[1].cntr[:, 1], components[1].cntr[:, 0]] = 1
+    plt.imshow(grid_slice, cmap="gray")
     plt.show()
