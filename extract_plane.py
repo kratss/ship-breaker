@@ -98,13 +98,15 @@ def cloud_to_grid(cloud, res, z_plane, tolerance):
     return grid
 
 
-def get_3D(grid_cntrs, res, z_plane):
+def get_3d(coords2d, res, z_plane):
     """
     Turn 2D image coordinates into 3D point cloud coordinates
     """
-    grid_cntrs_resized = grid_cntrs / res
-    cloud = np.zeros((grid_cntrs_resized.shape), z_plane)
-    return cloud
+    coords3d = np.zeros([coords2d.shape[0], 3])
+    coords3d[:, 0:2] = coords2d
+    coords3d = coords3d / res
+    coords3d[:, 2] = z_plane
+    return coords3d
 
 
 if __name__ == "__main__":
