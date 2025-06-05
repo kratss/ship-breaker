@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+"""
+Extract a 2D slice from a point cloud
+"""
 import gen
 import matplotlib.pyplot as plt
 import model
@@ -93,6 +96,15 @@ def cloud_to_grid(cloud, res, z_plane, tolerance):
     slice = extract_plane(cloud, z_plane, tolerance)
     grid = voxelize(slice, res)
     return grid
+
+
+def get_3D(grid_cntrs, res, z_plane):
+    """
+    Turn 2D image coordinates into 3D point cloud coordinates
+    """
+    grid_cntrs_resized = grid_cntrs / res
+    cloud = np.zeros((grid_cntrs_resized.shape), z_plane)
+    return cloud
 
 
 if __name__ == "__main__":
