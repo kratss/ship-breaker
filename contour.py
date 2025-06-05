@@ -168,7 +168,7 @@ if __name__ == "__main__":
     )
 
     # List of NON-EMPTY component groups
-    component_groups = [tbeams, planes]
+    component_groups = [tbeams, planes, curved_walls]
 
     ### Sort tagged point cloud into individual objects
     # Find the size of the image grid
@@ -203,6 +203,12 @@ if __name__ == "__main__":
         components_ordered.append(current_component)
 
     ic(f"Final ordered: {[c.name for c in components_ordered]}")
+
+    # Collect all coordinates in order
+    coords2D = np.concatenate([comp.cntr for comp in components_ordered], axis=0)
+    ic(coords2D)
+    coords3D = ep.get_3d(coords2D, GRID_RES, Z_PLANE)
+    ic(coords3D)
     ### Visualize and print info
     component_instances = [
         name for name, obj in globals().items() if isinstance(obj, Component)
