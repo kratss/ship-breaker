@@ -126,27 +126,28 @@ if __name__ == "__main__":
     Z_PLANE = 5
     GRID_RES = 5
     TOLERANCE = 1
-    curved_walls = contour.ComponentGroup(
-        "curved_walls",
-        model.gen_curved_walls(DENSITY, NOISE_STD),
-        Z_PLANE,
-        GRID_RES,
-        TOLERANCE,
-    )
-    planes = contour.ComponentGroup(
-        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
-    )
-    tbeams = contour.ComponentGroup(
-        "tbeams", model.gen_tbeams(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
-    )
+    clouds = {
+        "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
+        "planes": model.gen_planes(DENSITY, NOISE_STD),
+        "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
+    }
 
-    # List of NON-EMPTY component groups
-    component_groups = [tbeams, planes, curved_walls]
+    # Collect clouds and create objects
+    component_groups = []
+    for key, value in clouds.items():
+        component_groups.append(
+            contour.ComponentGroup(key, value, Z_PLANE, GRID_RES, TOLERANCE)
+        )
 
     my_path = Path(component_groups, GRID_RES, Z_PLANE)
     ### Sort tagged point cloud into individual objects
+    ic("Components detected:")
+    for comp in my_path.components:
+        ic(comp.name)
     ### Choose the order of the components
-    ic(my_path.components_ordered)
+    ic("Calculated component order")
+    for comp in my_path.components_ordered:
+        ic(comp.name)
     # Collect all coordinates in order
     ic(my_path.coords2d.shape)
     ic(my_path.coords3d.shape)
