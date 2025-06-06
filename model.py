@@ -89,9 +89,9 @@ def gen_curved_walls(density, noise_std):
 def gen_planes(density, noise_std):
     cloud = np.concatenate(
         (
-            gen.plane(origin=[15, 10, 0], length=10, width=10, roll=np.pi / 2),
-            gen.plane(origin=[30, 10, 0], length=10, width=10, roll=np.pi / 2),
-            gen.plane(origin=[45, 10, 0], length=10, width=10, roll=np.pi / 2),
+            gen.plane(origin=[16, 30, 0], length=8, width=8, roll=np.pi / 2),
+            gen.plane(origin=[31, 30, 0], length=8, width=8, roll=np.pi / 2),
+            gen.plane(origin=[46, 30, 0], length=8, width=8, roll=np.pi / 2),
         )
     )
     cloud = gen.noise(cloud, std=noise_std)
@@ -102,7 +102,7 @@ def gen_tbeams(density, noise_std):
     cloud = np.concatenate(
         (
             gen.tbeam(
-                origin=[30, 10, 0],
+                origin=[30, 30, 0],
                 length=10,
                 width=5,
                 roll=-np.pi / 2,
@@ -124,7 +124,7 @@ def gen_tbeams(density, noise_std):
                 density=density,
             ),
             gen.tbeam(
-                origin=[45, 10, 0],
+                origin=[45, 30, 0],
                 length=10,
                 width=5,
                 roll=-np.pi / 2,
@@ -152,6 +152,17 @@ def gen_tbeams(density, noise_std):
     ic("t beams")
     ic(f"Tbeam z-range: {z_min} to {z_max}")
     ic(cloud)
+    cloud = gen.noise(cloud, std=noise_std)
+    return cloud
+
+
+def gen_floor(desnity, noise_std):
+    cloud = np.concatenate(
+        (
+            gen.plane(origin=[15, 0, 0], length=30, width=30, roll=np.pi / 2),
+            gen.plane(origin=[45, 0, 0], length=30, width=30, roll=np.pi / 2),
+        )
+    )
     cloud = gen.noise(cloud, std=noise_std)
     return cloud
 

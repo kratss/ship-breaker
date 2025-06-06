@@ -32,6 +32,7 @@ class ComponentGroup:
             img = img.astype(np.uint8) * 255
         else:
             img = np.uint8(img)
+        """
         filled = img.copy()
         cntrs_temp, _ = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
@@ -40,6 +41,10 @@ class ComponentGroup:
         print("Drawing filled")
         img_cntrs, hrrchy = cv2.findContours(
             filled, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        """
+        img_cntrs, hrrchy = cv2.findContours(
+            img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
         return img_cntrs
 
@@ -90,7 +95,7 @@ class Component:
         return cntrs
 
     def get_first_point(self):
-        return self.cntr[1, :]
+        return self.cntr[0]
         """
         cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
         if cntr.ndim == 1:
@@ -102,7 +107,7 @@ class Component:
         """
 
     def get_last_point(self):
-        return self.cntr[-1, :]
+        return self.cntr[-1]
         """
         cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
         if cntr.ndim == 1:

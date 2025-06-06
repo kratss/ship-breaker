@@ -34,7 +34,6 @@ def extract_plane(scene, z_plane, tolerance):
     slice = scene[np.abs(scene[:, 2] - z_plane) < tolerance]
     slice[:, 2] = 0
     print(f"Z range: {scene[:, 2].min()} to {scene[:, 2].max()}")
-    ic(slice)
     return slice
 
 
@@ -56,7 +55,6 @@ def voxelize(slice, res):
         return np.zeros((1, 1))  # Return minimal grid
     min_x = 0  # slice[:, 0].min()
     min_y = 0  # slice[:, 1].min()
-    ic(slice)
     max_x = slice[:, 0].max()
     max_y = slice[:, 1].max()
     grid_x = max(2, int((max_x - min_x) * res))
@@ -64,7 +62,6 @@ def voxelize(slice, res):
     x_points = max(2, int((max_x - min_x) * res))
     y_points = max(2, int((max_y - min_y) * res))
     grid = np.zeros([grid_y, grid_x])  # Note that the y value goes FIRST
-    ic(max_y)
     grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * res))
     grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * res))
 

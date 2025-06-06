@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 """
-Interface that brings together library path planning functionality
+Determine the cutting path for a plasma torch
 
-grid refers to the 2D projection of the point cloud slice onto a grid
-such that it can be viewed as an image
+This module provides the primary interface for the library
 """
+# Note:
+#    grid refers to the 2D projection of the point cloud slice onto a grid
+#    such that it can be viewed as an image
+
 import cv2
 import contour
 import extract_plane as ep
@@ -13,29 +16,35 @@ from icecream import ic
 import matplotlib.pyplot as plt
 import model
 import numpy as np
+import open3d as o3d
 from skimage.morphology import skeletonize
 
 
 class Path:
+    """
+    Contains the path for the cutting torch to follow
+
+    Attributes:
+        component_groups: list of component groups, i.g. group of
+            T-beams, group of I-beams
+        grid_res: number of squares in grid per unit in the point cloud
+        z_plane: location of the cutting plane alnog the z-axis
+        max_grid: dimensions of the grid
+        components: list of individual component objects
+        components_ordered: list of components ordered to form a path for the plasma torch
+        coords2d: numpy array of 2d coordinates describing the cutting path. NOT resized
+        coords3d: numpy array of 3d coordinates describing the cutting path. Resized to original point cloud scale
+        grid_path: 2D representation of the calculated cutting path in grid scale, not cloud scale
+    """
+
     def __init__(self, component_groups, grid_res, z_plane):
         """
         Initializes Path
 
         Args:
-            component_groups: list of component groups, i.g. group of
-                T-beams, group of I-beams
-            grid_res: number of squares in grid per unit in the point
-                cloud
-            max_grid: dimensions of the grid
-            components: list of individual component objects
-            components_ordered: list of components ordered to form a
-                path for the plasma torch
-            coords2d: numpy array of 2d coordinates describing the
-                cutting path. NOT resized
-            coords3d: numpy array of 3d coordinates describing the
-                cutting path. Resized to original point cloud scale
-            grid_path: 2D representation of the calculated cutting path
-                in grid scale, not cloud scale
+            component_groups:a
+            grid_res: a
+            z_plane: a
         """
         self.component_groups = component_groups
         self.grid_res = grid_res
@@ -76,27 +85,29 @@ class Path:
     def order_components(self):
         """
         Order components based on which component.first_point is closest
-        to the current components .last_point
+        to the current component's .last_point
         """
         components_ordered = []
         remaining = self.components.copy()
-        ic(f"Starting with {len(remaining)} components")
+        print(f"Starting with {len(remaining)} components")
         current_component = remaining[0]
         del remaining[0]
         components_ordered.append(current_component)
         while remaining:
-            ic(f"Remaining: {[c.name for c in remaining]}")
-            ic(f"Ordered so far: {[c.name for c in components_ordered]}")
+            print(f"Remaining: {[c.name for c in remaining]}")
+            print(f"Ordered so far: {[c.name for c in components_ordered]}")
             distances = [
                 (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
                 for idx, comp in enumerate(remaining)
             ]
+            ic(current_component.last_point)
+            ic(current_component.first_point)
             nearest_idx = min(distances, key=lambda x: x[1])[0]
             current_component = remaining[nearest_idx]
             del remaining[nearest_idx]
             components_ordered.append(current_component)
 
-        ic(f"Final ordered: {[c.name for c in components_ordered]}")
+        print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered
 
     def get_grid_path(self):
@@ -111,9 +122,49 @@ class Path:
     def visualize(self):
         """
         Show information about the Path object
+
+        Notes:
+            o3d visualization *must* go before matplot display to avoid QT thread-handling issue
+
+            o3d visualization does not work on wlroots even with x-wayland. Use X11 environment instead
         """
+
+        axes = gen.draw_axes()
+        pcd = o3d.t.geometry.PointCloud(self.coords3d)
+        pcd_legacy = o3d.geometry.PointCloud()
+        pcd_legacy.points = o3d.utility.Vector3dVector(pcd.point.positions.numpy())
+        ic(np.asarray(pcd_legacy.points[0:3]))
+
+        lines = [[i, i + 1] for i in range(len(pcd_legacy.points) - 1)]
+        line_set = o3d.geometry.LineSet()
+        line_set.points = pcd_legacy.points
+        line_set.lines = o3d.utility.Vector2iVector(lines)
+
+        o3d.visualization.draw_geometries([pcd_legacy, line_set])
+
         plt.imshow(self.grid_path, cmap="gray")
         plt.show()
+
+
+class Cloud:
+    def __init__(self, clouds):
+        self.clouds = clouds
+        self.overall_cloud = self.get_overall_cloud()
+
+    def get_overall_cloud(self):
+        overall_cloud = []
+        for key, value in clouds.items():
+            overall_cloud.append(value)
+        overall_cloud = np.concatenate(overall_cloud, axis=0)
+        return overall_cloud
+
+    def visualize(self):
+        axes = gen.draw_axes()
+        pcd = o3d.t.geometry.PointCloud(self.overall_cloud)
+        pcd_legacy = o3d.geometry.PointCloud()
+        pcd_legacy.points = o3d.utility.Vector3dVector(pcd.point.positions.numpy())
+        ic(np.asarray(pcd_legacy.points[0:3]))
+        o3d.visualization.draw_geometries([pcd_legacy])
 
 
 if __name__ == "__main__":
@@ -122,17 +173,22 @@ if __name__ == "__main__":
     ic(hasattr(contour, "Component"))
     # Generated data
     DENSITY = 35
-    NOISE_STD = 0.05
-    Z_PLANE = 5
-    GRID_RES = 5
-    TOLERANCE = 1
+    NOISE_STD = 0.00
     clouds = {
-        "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
-        "planes": model.gen_planes(DENSITY, NOISE_STD),
+        # "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
+        # "planes": model.gen_planes(DENSITY, NOISE_STD),
+        # "floors": model.gen_floor(DENSITY, NOISE_STD),
         "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
     }
 
+    # Chosen parameters
+    Z_PLANE = 5
+    GRID_RES = 5
+    TOLERANCE = 1
+
     # Collect clouds and create objects
+    my_cloud = Cloud(clouds)
+
     component_groups = []
     for key, value in clouds.items():
         component_groups.append(
@@ -154,4 +210,11 @@ if __name__ == "__main__":
     ic(my_path.grid_path.shape)
 
     ### Visualize and print info
+    ic(my_cloud.overall_cloud)
+    ic(my_path.components_ordered[1].cntr)
+    ic(my_path.components_ordered[1].cntr[0])
+    ic(my_path.components_ordered[1].cntr[-1])
+    ic(my_path.components_ordered[1].first_point)
+    ic(my_path.components_ordered[1].last_point)
+    my_cloud.visualize()
     my_path.visualize()
