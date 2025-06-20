@@ -80,9 +80,6 @@ def gen_curved_walls(density, noise_std):
     cloud = gen.noise(cloud, std=noise_std)
     z_min = cloud[:, 2].min()
     z_max = cloud[:, 2].max()
-    ic("curved wall")
-    ic(f"Tbeam z-range: {z_min} to {z_max}")
-    ic(cloud)
     return cloud
 
 
@@ -149,9 +146,6 @@ def gen_tbeams(density, noise_std):
     )
     z_min = cloud[:, 2].min()
     z_max = cloud[:, 2].max()
-    ic("t beams")
-    ic(f"Tbeam z-range: {z_min} to {z_max}")
-    ic(cloud)
     cloud = gen.noise(cloud, std=noise_std)
     return cloud
 

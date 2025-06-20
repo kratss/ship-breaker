@@ -90,8 +90,14 @@ class Path:
         components_ordered = []
         remaining = self.components.copy()
         print(f"Starting with {len(remaining)} components")
-        current_component = remaining[0]
-        del remaining[0]
+
+        first_component_idx = min(
+            range(len(self.components)), key=lambda i: self.components[i].first_point[0]
+        )
+        first_component = self.components[first_component_idx]
+        current_component = first_component
+        ic(current_component.cntr)
+        del remaining[first_component_idx]
         components_ordered.append(current_component)
         while remaining:
             print(f"Remaining: {[c.name for c in remaining]}")
@@ -100,12 +106,12 @@ class Path:
                 (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
                 for idx, comp in enumerate(remaining)
             ]
-            ic(current_component.last_point)
-            ic(current_component.first_point)
             nearest_idx = min(distances, key=lambda x: x[1])[0]
             current_component = remaining[nearest_idx]
             del remaining[nearest_idx]
             components_ordered.append(current_component)
+
+        # If first_point is below the midpoint, move leftware to acheive clockwise motion
 
         print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered
@@ -133,7 +139,6 @@ class Path:
         pcd = o3d.t.geometry.PointCloud(self.coords3d)
         pcd_legacy = o3d.geometry.PointCloud()
         pcd_legacy.points = o3d.utility.Vector3dVector(pcd.point.positions.numpy())
-        ic(np.asarray(pcd_legacy.points[0:3]))
 
         lines = [[i, i + 1] for i in range(len(pcd_legacy.points) - 1)]
         line_set = o3d.geometry.LineSet()
@@ -169,8 +174,6 @@ class Cloud:
 
 if __name__ == "__main__":
 
-    ic(dir(contour))
-    ic(hasattr(contour, "Component"))
     # Generated data
     DENSITY = 35
     NOISE_STD = 0.00
@@ -197,6 +200,7 @@ if __name__ == "__main__":
 
     my_path = Path(component_groups, GRID_RES, Z_PLANE)
     ### Sort tagged point cloud into individual objects
+    """
     ic("Components detected:")
     for comp in my_path.components:
         ic(comp.name)
@@ -214,7 +218,9 @@ if __name__ == "__main__":
     ic(my_path.components_ordered[1].cntr)
     ic(my_path.components_ordered[1].cntr[0])
     ic(my_path.components_ordered[1].cntr[-1])
+    """
     ic(my_path.components_ordered[1].first_point)
     ic(my_path.components_ordered[1].last_point)
-    my_cloud.visualize()
+    ic(my_path.components_ordered[1].cntr)
+    # my_cloud.visualize()
     my_path.visualize()

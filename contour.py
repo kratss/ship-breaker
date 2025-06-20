@@ -32,17 +32,6 @@ class ComponentGroup:
             img = img.astype(np.uint8) * 255
         else:
             img = np.uint8(img)
-        """
-        filled = img.copy()
-        cntrs_temp, _ = cv2.findContours(
-            img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )
-        cv2.drawContours(filled, cntrs_temp, -1, 255, -1)
-        print("Drawing filled")
-        img_cntrs, hrrchy = cv2.findContours(
-            filled, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-        )
-        """
         img_cntrs, hrrchy = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
@@ -85,14 +74,10 @@ class Component:
         unique_points, indices = np.unique(cntr, axis=0, return_index=True)
         # Sort by original indices to maintain order
         sorted_indices = np.sort(indices)
+        cntr = cntr[sorted_indices]
+        if cntr[0][0] > cntr[-1][0]:
+            cntr = np.flip(cntr, axis=0)  # Ensure the cntr runs left to right
         return cntr[sorted_indices]
-
-    def get_contours(self):
-        grid = self.grid
-        grid = np.uint8(self.grid)
-        _, grid = cv2.threshold(grid, 0, 255, cv2.THRESH_BINARY)
-        cntrs, hrrchy = cv2.findContours(grid, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        return cntrs
 
     def get_first_point(self):
         return self.cntr[0]
@@ -119,7 +104,7 @@ class Component:
         """
 
     def visualize(self):
-        ic("Visualizing...")
+        print("Visualizing...")
         cntr = self.cntr.squeeze()
         grid_size = self.grid_size
         w = grid_size[0]
@@ -191,13 +176,13 @@ if __name__ == "__main__":
     ### Choose the order of the components
     components_ordered = []
     remaining = components.copy()
-    ic(f"Starting with {len(remaining)} components")
+    # ic(f"Starting with {len(remaining)} components")
     current_component = remaining[0]
     del remaining[0]
     components_ordered.append(current_component)
     while remaining:
-        ic(f"Remaining: {[c.name for c in remaining]}")
-        ic(f"Ordered so far: {[c.name for c in components_ordered]}")
+        # ic(f"Remaining: {[c.name for c in remaining]}")
+        # ic(f"Ordered so far: {[c.name for c in components_ordered]}")
         distances = [
             (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
             for idx, comp in enumerate(remaining)
@@ -207,20 +192,18 @@ if __name__ == "__main__":
         del remaining[nearest_idx]
         components_ordered.append(current_component)
 
-    ic(f"Final ordered: {[c.name for c in components_ordered]}")
+    # ic(f"Final ordered: {[c.name for c in components_ordered]}")
 
     # Collect all coordinates in order
     coords2D = np.concatenate([comp.cntr for comp in components_ordered], axis=0)
-    ic(coords2D)
     coords3D = ep.get_3d(coords2D, GRID_RES, Z_PLANE)
-    ic(coords3D)
     ### Visualize and print info
     component_instances = [
         name for name, obj in globals().items() if isinstance(obj, Component)
     ]
     grid_slice = np.zeros(max_grid)
     for comp in components_ordered:
-        ic(comp.name)
+        # ic(comp.name)
         grid_slice[comp.cntr[:, 1], comp.cntr[:, 0]] = 1
     #    grid_slice[components[1].cntr[:, 1], components[1].cntr[:, 0]] = 1
     plt.imshow(grid_slice, cmap="gray")
