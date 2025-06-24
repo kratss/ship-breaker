@@ -110,8 +110,7 @@ class Path:
             current_component = remaining[nearest_idx]
             del remaining[nearest_idx]
             components_ordered.append(current_component)
-
-        # If first_point is below the midpoint, move leftware to acheive clockwise motion
+        # If first_point is below the midpoint, move leftward to acheive clockwise motion
 
         print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered

@@ -30,7 +30,7 @@ def extract_plane(scene, z_plane, tolerance):
         numpy array: narrow cross section of the scene
     """
 
-    print("shape of scene pcd: \n", scene.shape)
+    print("Shape of scene point cloud: \n", scene.shape)
     slice = scene[np.abs(scene[:, 2] - z_plane) < tolerance]
     slice[:, 2] = 0
     print(f"Z range: {scene[:, 2].min()} to {scene[:, 2].max()}")
@@ -65,7 +65,7 @@ def voxelize(slice, res):
     grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * res))
     grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * res))
 
-    # Edge case logic
+    # Edge case logic: when grid length is zero
     if min_x == max_x:
         grid_idx_x = np.array([min_x])
     else:
@@ -107,6 +107,9 @@ def get_3d(coords2d, res, z_plane):
 
 
 if __name__ == "__main__":
+    """
+    Demo plane extraction
+    """
     density = 3
     noise_std = 0.1
 
@@ -117,8 +120,6 @@ if __name__ == "__main__":
     planes_pcd = o3d.t.geometry.PointCloud(planes)
     curved_walls_pcd = o3d.t.geometry.PointCloud(curved_walls)
     slice = extract_plane(curved_walls)
-    # slice_pcd = o3d.geometry.PointCloud()
-    # slice_pcd.points = o3d.utility.Vector3dVector(slice)
     slice_pcd = o3d.t.geometry.PointCloud(slice)
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries(
