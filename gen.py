@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#! /usr/bin/env python3
 """Programmatically generate point clouds"""
 import open3d as o3d
 import numpy as np
@@ -21,16 +21,6 @@ def rot_mat(roll=0, pitch=0, yaw=0):
     Returns:
         A numpy array of shape (3,3) representing a rotation matrix
     """
-
-    print("\nGenerating rotation matrix...")
-    print(
-        "roll:  ",
-        round(roll, 2),
-        "\npitch: ",
-        round(pitch, 2),
-        "\nyaw:   ",
-        round(yaw, 2),
-    )
     R_roll = np.array(
         [
             [1, 0, 0],
@@ -53,7 +43,6 @@ def rot_mat(roll=0, pitch=0, yaw=0):
         ]
     )
     R = R_yaw @ R_pitch @ R_roll
-    print("R: \n", np.round(R, 2))
     return R
 
 
@@ -317,7 +306,7 @@ def tbeam(
     density=20,
 ):
     # Origin is measured from TOP of t-beam as defined by its typical orientation
-    print("Generating I-beam...")
+    print("Generating T-beam...")
     origin = np.array(origin)
     l = length
     w = width
@@ -398,6 +387,9 @@ def bulb_flat(
     yaw=0,
     density=15,
 ):
+    """
+    Generate a bulb flat (aka Holland profile) stiffener
+    """
     # Generate curved section
     # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
     print("Generating bulb flat stiffener...")
@@ -414,7 +406,7 @@ def bulb_flat(
         cloud = np.concatenate((cloud, cloudt))
     # Generate flat
     cloudt = plane(
-        origin=[1, -1, 0],
+        origin=[1, 0, 0],
         roll=np.pi / 2,
         pitch=0,
         yaw=0,
@@ -423,6 +415,15 @@ def bulb_flat(
         density=density,
     )
     cloud = np.concatenate((cloud, cloudt))
+    cloudt = plane(
+        origin=[1, -1, 0],
+        roll=np.pi / 2,
+        pitch=0,
+        yaw=0,
+        length=length,
+        width=width,
+        density=density,
+    )
     cloud = cloud * scale
     R = rot_mat(roll, pitch, yaw)
     cloud = R @ cloud.T
@@ -433,7 +434,6 @@ def bulb_flat(
 
 
 def curved_wall(
-    x_range=[0, 5],
     a=1 / 2,
     b=0,
     c=0,
@@ -445,8 +445,18 @@ def curved_wall(
     height=50,
     density=15,
 ):
+    """
+    Create a curved wall given by a second degree polynomial
+
+    Args:
+        a: as in a*x^2 + b*x + c
+        b: as in a*x^2 + b*x + c
+        c: as in a*x^2 + b*x + c
+        origin: position of the object
+
+
+    """
     print("\nGenerating curved wall...")
-    ic(origin)
     origin = np.array(origin)
     Y = np.linspace(0, length, int(length * density))
     Z = np.linspace(0, 1, int(height * density))
@@ -462,8 +472,8 @@ def curved_wall(
     R = rot_mat(roll, pitch, yaw)
     cloud = (R @ cloud.T).T
     cloud = cloud + origin
-    print("cloud shape: ", np.shape(cloud))
-    print("cloud:\n", cloud)
+    # print("cloud shape: ", np.shape(cloud))
+    # print("cloud:\n", cloud)
     return cloud
 
 
@@ -560,13 +570,10 @@ def ship():
     )
 
 
-# display point cloud in browser window (as opposed to locally with draw_geometries) as
-
-
 if __name__ == "__main__":
-    # note that the new tensor .t is required. legacy version will break this
-    # pcd.paint_uniform_color(np.array([0, 0.7, 0], dtype=np.float32))
-    # the opengl backend doesn't work with wayland
+    # Note: the new tensor .t is required. Legacy version breaks code
+    # Note: opengl backend doesn't work with wayland
+    #   Use another draw_* to draw in browser window when required
     pcd = o3d.t.geometry.PointCloud(ship())
     axes = draw_axes()
     o3d.visualization.draw_geometries([pcd.to_legacy(), axes])
