@@ -22,14 +22,16 @@ def gen_ship():
         Numpy array representing X,Y,Z coordinates of point cloud
         points
     """
-    return noise(
+    return gen.noise(
         np.concatenate(
             (
-                plane(origin=[0, 30, 0], length=10, width=10, roll=np.pi / 2),
-                tbeam(
-                    origin=[10, 30, 10],
+                gen.curved_wall(origin=[2, 0, 10], roll=-np.pi / 2, height=30),
+                gen.plane(origin=[10, 30, 0], length=10, width=10, roll=np.pi / 2),
+                gen.tbeam(
+                    origin=[20, 30, 10],
                     length=10,
                     width=5,
+                    thickness=1,
                     roll=-np.pi / 2,
                     pitch=np.pi / 2,
                     skip=[
@@ -47,11 +49,12 @@ def gen_ship():
                         False,
                     ],
                 ),
-                plane(origin=[15, 30, 0], length=10, width=10, roll=np.pi / 2),
-                tbeam(
-                    origin=[25, 30, 10],
+                gen.plane(origin=[25, 30, 0], length=10, width=10, roll=np.pi / 2),
+                gen.tbeam(
+                    origin=[35, 30, 10],
                     length=10,
                     width=5,
+                    thickness=1,
                     roll=-np.pi / 2,
                     pitch=np.pi / 2,
                     skip=[
@@ -69,6 +72,9 @@ def gen_ship():
                         False,
                     ],
                 ),
+                gen.plane(origin=[40, 30, 0], length=10, width=10, roll=np.pi / 2),
+                gen.plane(origin=[60, 0, 0], length=10, width=30, pitch=-np.pi / 2),
+                gen.bulb_flat(origin=[60, 10, 0]),
             )
         )
     )
@@ -163,10 +169,6 @@ def gen_floor(desnity, noise_std):
 
 if __name__ == "__main__":
     density = 15
-    pcd = o3d.t.geometry.PointCloud(
-        np.concatenate(
-            [gen_tbeams(density=5, noise_std=0.00), gen_curved_walls(density, 0)]
-        )
-    )
+    pcd = o3d.t.geometry.PointCloud(gen_ship())
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries([pcd.to_legacy(), axes])

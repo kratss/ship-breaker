@@ -70,8 +70,10 @@ class Component:
         cntr = np.squeeze(cntr)
         if cntr.ndim < 2:
             cntr = cntr.reshape(1, -1)  # Ensure arrays are 2D
+
         # Remove duplicate points, keeping first occurrence
         unique_points, indices = np.unique(cntr, axis=0, return_index=True)
+
         # Sort by original indices to maintain order
         sorted_indices = np.sort(indices)
         cntr = cntr[sorted_indices]
@@ -81,27 +83,9 @@ class Component:
 
     def get_first_point(self):
         return self.cntr[0]
-        """
-        cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
-        if cntr.ndim == 1:
-            cntr = cntr.reshape(1, -1)  # ensure array is 2D
-        max_y = np.max(cntr[:, 1])
-        max_y_points = cntr[cntr[:, 1] == max_y]
-        min_x_idx = np.argmin(max_y_points[:, 0])
-        return max_y_points[min_x_idx]
-        """
 
     def get_last_point(self):
         return self.cntr[-1]
-        """
-        cntr = self.cntr.squeeze()  # simplify ugly cv2 formatting
-        if cntr.ndim == 1:
-            cntr = cntr.reshape(1, -1)  # ensure array is 2D
-        max_y = np.max(cntr[:, 1])
-        max_y_points = cntr[cntr[:, 1] == max_y]
-        max_x_idx = np.argmax(max_y_points[:, 0])
-        return max_y_points[max_x_idx]
-        """
 
     def visualize(self):
         print("Visualizing...")
@@ -176,13 +160,10 @@ if __name__ == "__main__":
     ### Choose the order of the components
     components_ordered = []
     remaining = components.copy()
-    # ic(f"Starting with {len(remaining)} components")
     current_component = remaining[0]
     del remaining[0]
     components_ordered.append(current_component)
     while remaining:
-        # ic(f"Remaining: {[c.name for c in remaining]}")
-        # ic(f"Ordered so far: {[c.name for c in components_ordered]}")
         distances = [
             (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
             for idx, comp in enumerate(remaining)
@@ -192,19 +173,16 @@ if __name__ == "__main__":
         del remaining[nearest_idx]
         components_ordered.append(current_component)
 
-    # ic(f"Final ordered: {[c.name for c in components_ordered]}")
-
     # Collect all coordinates in order
     coords2D = np.concatenate([comp.cntr for comp in components_ordered], axis=0)
     coords3D = ep.get_3d(coords2D, GRID_RES, Z_PLANE)
+
     ### Visualize and print info
     component_instances = [
         name for name, obj in globals().items() if isinstance(obj, Component)
     ]
     grid_slice = np.zeros(max_grid)
     for comp in components_ordered:
-        # ic(comp.name)
         grid_slice[comp.cntr[:, 1], comp.cntr[:, 0]] = 1
-    #    grid_slice[components[1].cntr[:, 1], components[1].cntr[:, 0]] = 1
     plt.imshow(grid_slice, cmap="gray")
     plt.show()
