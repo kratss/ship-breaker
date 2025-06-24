@@ -13,6 +13,7 @@ import contour
 import extract_plane as ep
 import gen
 from icecream import ic
+import math
 import matplotlib.pyplot as plt
 import model
 import numpy as np
@@ -51,7 +52,7 @@ class Path:
         self.z_plane = z_plane
         self.max_grid = self.get_grid_size()
         self.components = self.get_components()
-        self.components_ordered = self.order_components()
+        self.components_ordered = self.stich_primtives()
         self.coords2d = np.concatenate(
             [comp.cntr for comp in self.components_ordered], axis=0
         )
@@ -62,7 +63,7 @@ class Path:
         """
         Find the size of the image grid
         """
-        max_grid = [0, 0]
+        max_grid = np.array([0, 0])
         for group in self.component_groups:
             if group.grid.shape[0] > max_grid[0]:
                 max_grid[0] = group.grid.shape[0]
@@ -82,9 +83,18 @@ class Path:
                 )
         return components
 
-    def order_components(self):
+    def stich_primtives(self):
         """
-        Order components based on which component.first_point is closest
+        Call a primtive stitching algorithm
+
+        Returns:
+            Ordered list of primitives
+        """
+        return self.algo_gstp()
+
+    def algo_min(self):
+        """
+        Primitive sitching algorithm that uses simple minimum distance, i.g. which component.first_point is closest
         to the current component's .last_point
         """
         components_ordered = []
@@ -115,10 +125,38 @@ class Path:
         print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered
 
+    def algo_gstp(self):
+        """
+        Traveling salesman algo
+        """
+        cmpnts = self.components
+        ccw_penalty = 0.5
+        remaining = self.components
+        cmpnts_ordered = []
+        first_cmpnt_idx = min(
+            range(len(self.components)), key=lambda i: self.components[i].first_point[0]
+        )
+        current_cmpnt = self.components[first_cmpnt_idx]
+        remaining.remove(current_cmpnt)
+        while remaining:
+            cost = []
+            for cmpnt in remaining:
+                vec0 = current_cmpnt.first_point - self.max_grid / 2
+                vec1 = cmpnt.last_point - self.max_grid / 2
+                angle = np.arctan2(vec1[1], vec1[0]) - np.arctan2(vec0[1], vec0[0])
+                bool_ccw = int(angle < 0)
+                dist = math.dist(current_cmpnt.first_point, cmpnt.last_point)
+                cost.append(dist + ccw_penalty * bool_ccw)
+            idx_min_cost = cost.index(min(cost))
+            next = cmpnts[idx_min_cost]
+            cmpnts_ordered.append(cmpnts[idx_min_cost])
+            remaining.remove(cmpnts[idx_min_cost])
+        return cmpnts_ordered
+
     def get_grid_path(self):
         """
         Create 2D representation of the calculated cutting path
-        in grid scale, not cloud scale
+        Note: in grid scale, not cloud scale
         """
         grid_path = np.zeros(self.max_grid)
         grid_path[self.coords2d[:, 1], self.coords2d[:, 0]] = 1
@@ -151,6 +189,14 @@ class Path:
 
 
 class Cloud:
+    """
+    An object holding all tagged point clouds
+
+    Attributes:
+        clouds: a dictionary of form "structure":point_cloud, meaning the name of the structure type and a numpy array holding all the points tagged as that structure type
+        overall_cloud: a numpy array holding the x,y,z coordinates of every point in the scene
+    """
+
     def __init__(self, clouds):
         self.clouds = clouds
         self.overall_cloud = self.get_overall_cloud()
@@ -178,7 +224,7 @@ if __name__ == "__main__":
     NOISE_STD = 0.00
     clouds = {
         # "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
-        # "planes": model.gen_planes(DENSITY, NOISE_STD),
+        "planes": model.gen_planes(DENSITY, NOISE_STD),
         # "floors": model.gen_floor(DENSITY, NOISE_STD),
         "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
     }
