@@ -52,7 +52,7 @@ class Path:
         self.z_plane = z_plane
         self.max_grid = self.get_grid_size()
         self.components = self.get_components()
-        self.components_ordered = self.stich_primtives()
+        self.components_ordered = self.stitch_primitives()
         self.coords2d = np.concatenate(
             [comp.cntr for comp in self.components_ordered], axis=0
         )
@@ -83,14 +83,51 @@ class Path:
                 )
         return components
 
-    def stich_primtives(self):
+    def stitch_primitives(self):
         """
         Call a primtive stitching algorithm
 
         Returns:
             Ordered list of primitives
         """
-        return self.algo_gstp()
+        return self.algo_gtsp()
+
+    def get_costs(self):
+        """
+        Traveling salesman algo
+        """
+        forward = self.components
+        backward = []
+        for cmpnt in self.components:
+            points_reversed = list(reversed(cmpnt.cntr))
+            cmpnt_reversed = contour.Component(
+                cmpnt.name, points_reversed, cmpnt.grid_size
+            )
+            backward.append(cmpnt_reversed)
+
+        nodes = forward + backward
+        ccw_penalty = 100  # TODO: Reevaluate number
+
+        n = len(nodes)
+        costs = np.zeros((n, n))
+
+        cluster = []
+        for i in range(len(forward)):
+            cluster.append(i)
+            cluster.append(i)
+
+        for i in range(n):
+            for j in range(n):
+                if cluster[i] == cluster[j]:
+                    costs[i, j] = np.inf
+                    continue
+                vec0 = nodes[i].last_point - self.max_grid / 2
+                vec1 = nodes[j].first_point - self.max_grid / 2
+                angle = np.arctan2(vec1[1], vec1[0]) - np.arctan2(vec0[1], vec0[0])
+                bool_ccw = int(angle < 0)
+                dist = math.dist(nodes[i].last_point, nodes[j].first_point)
+                costs[i, j] = dist + ccw_penalty * bool_ccw
+        return costs
 
     def algo_min(self):
         """
@@ -125,33 +162,11 @@ class Path:
         print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered
 
-    def algo_gstp(self):
+    def algo_gtsp(self):
         """
-        Traveling salesman algo
+        General Traveling Salesman Problem solver
         """
-        cmpnts = self.components
-        ccw_penalty = 0.5
-        remaining = self.components
-        cmpnts_ordered = []
-        first_cmpnt_idx = min(
-            range(len(self.components)), key=lambda i: self.components[i].first_point[0]
-        )
-        current_cmpnt = self.components[first_cmpnt_idx]
-        remaining.remove(current_cmpnt)
-        while remaining:
-            cost = []
-            for cmpnt in remaining:
-                vec0 = current_cmpnt.first_point - self.max_grid / 2
-                vec1 = cmpnt.last_point - self.max_grid / 2
-                angle = np.arctan2(vec1[1], vec1[0]) - np.arctan2(vec0[1], vec0[0])
-                bool_ccw = int(angle < 0)
-                dist = math.dist(current_cmpnt.first_point, cmpnt.last_point)
-                cost.append(dist + ccw_penalty * bool_ccw)
-            idx_min_cost = cost.index(min(cost))
-            next = cmpnts[idx_min_cost]
-            cmpnts_ordered.append(cmpnts[idx_min_cost])
-            remaining.remove(cmpnts[idx_min_cost])
-        return cmpnts_ordered
+        costs = self.get_costs()
 
     def get_grid_path(self):
         """
