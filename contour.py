@@ -13,14 +13,28 @@ from skimage.morphology import skeletonize
 
 
 class ComponentGroup:
-    def __init__(self, name, cloud, plane, grid_res, tolerance):
+    """
+    Container class that holds multiple members of a single component type.
+
+
+    This class groups together all components of a particular type (i.g. an object named tbeams that holds all tbeams from the scene). It contains both the three-dimensional point cloud and two dimensional slice, and the key points of each component
+
+    Attributes:
+        name (str): the component type. If the type is known, type-specific code will be used to provide the key points from the primtive. Else, a fallback function will be used
+        cloud (3xn numpy array): point cloud of all constituent components
+        plane (float): desired cutting plane
+        grid_density (int): number of squares in image space per square unit in point cloud space
+
+    """
+
+    def __init__(self, name, cloud, plane, grid_density, tolerance):
         self.name = name
         self.cloud = cloud
         self.plane = plane
         self.tolerance = tolerance
-        self.grid_res = grid_res
+        self.grid_density = grid_density
         self.grid_noisy = ep.cloud_to_grid(
-            self.cloud, self.grid_res, self.plane, self.tolerance
+            self.cloud, self.grid_density, self.plane, self.tolerance
         )
         self.grid_denoised = self.denoise()
         self.grid_thinned = self.thin()
@@ -103,21 +117,6 @@ class Component:
         plt.tight_layout()
         plt.show()
 
-    def get_closest(self, components):
-        # Searches for the component closest to the current component
-        dists = [
-            (
-                component,
-                (
-                    (self.last_point[0] - component.first_point[0]) ** 2
-                    + (self.last_point[1] - component.first_point[1]) ** 2
-                )
-                ** 0.5,
-            )
-            for component in components
-        ]
-        return min(dists, key=lambda x: x[1])[0]
-
 
 if __name__ == "__main__":
 
@@ -125,20 +124,20 @@ if __name__ == "__main__":
     DENSITY = 35
     NOISE_STD = 0.05
     Z_PLANE = 5
-    GRID_RES = 5
+    grid_density = 5
     TOLERANCE = 1
     curved_walls = ComponentGroup(
         "curved_walls",
         model.gen_curved_walls(DENSITY, NOISE_STD),
         Z_PLANE,
-        GRID_RES,
+        grid_density,
         TOLERANCE,
     )
     planes = ComponentGroup(
-        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
+        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, grid_density, TOLERANCE
     )
     tbeams = ComponentGroup(
-        "tbeams", model.gen_tbeams(DENSITY, NOISE_STD), Z_PLANE, GRID_RES, TOLERANCE
+        "tbeams", model.gen_tbeams(DENSITY, NOISE_STD), Z_PLANE, grid_density, TOLERANCE
     )
 
     # List of NON-EMPTY component groups
@@ -175,7 +174,7 @@ if __name__ == "__main__":
 
     # Collect all coordinates in order
     coords2D = np.concatenate([comp.cntr for comp in components_ordered], axis=0)
-    coords3D = ep.get_3d(coords2D, GRID_RES, Z_PLANE)
+    coords3D = ep.get_3d(coords2D, grid_density, Z_PLANE)
 
     ### Visualize and print info
     component_instances = [

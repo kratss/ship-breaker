@@ -36,6 +36,7 @@ class Path:
         coords2d: numpy array of 2d coordinates describing the cutting path. NOT resized
         coords3d: numpy array of 3d coordinates describing the cutting path. Resized to original point cloud scale
         grid_path: 2D representation of the calculated cutting path in grid scale, not cloud scale
+        nodes: All component objects plus component objects with paths reversed
     """
 
     def __init__(self, component_groups, grid_res, z_plane):
@@ -52,24 +53,49 @@ class Path:
         self.z_plane = z_plane
         self.max_grid = self.get_grid_size()
         self.components = self.get_components()
+        self.nodes = self.get_nodes()
         self.components_ordered = self.stitch_primitives()
         self.coords2d = np.concatenate(
-            [comp.cntr for comp in self.components_ordered], axis=0
+            [cmpnt.cntr for cmpnt in self.components_ordered], axis=0
         )
         self.coords3d = ep.get_3d(self.coords2d, self.grid_res, self.z_plane)
         self.grid_path = self.get_grid_path()
 
-    def get_grid_size(self):
+    def get_clusters(self):
+        clusters = []
+        for i in range(len(self.components)):
+            clusters.append(i)
+            clusters.append(i)
+        if clusters == None:
+            raise Exception(
+                "No clusters found. Ensure Path.components is populated \
+                before calling Path.get_costs()"
+            )
+        return clusters
+
+    def get_costs(self):
         """
-        Find the size of the image grid
+        Traveling salesman algo
         """
-        max_grid = np.array([0, 0])
-        for group in self.component_groups:
-            if group.grid.shape[0] > max_grid[0]:
-                max_grid[0] = group.grid.shape[0]
-            if group.grid.shape[1] > max_grid[1]:
-                max_grid[1] = group.grid.shape[1]
-        return max_grid
+        nodes = self.nodes
+        ccw_penalty = 10000  # TODO: Reevaluate number
+
+        n = len(nodes)
+        costs = np.zeros((n, n))
+        clusters = self.get_clusters()
+
+        for i in range(n):
+            for j in range(n):
+                if clusters[i] == clusters[j]:
+                    costs[i, j] = np.inf
+                    continue
+                vec1 = nodes[i].last_point - self.max_grid / 2
+                vec0 = nodes[j].first_point - self.max_grid / 2
+                angle = np.arctan2(vec0[1], vec0[0]) - np.arctan2(vec1[1], vec1[0])
+                bool_ccw = int(angle > 0)
+                dist = math.dist(nodes[i].last_point, nodes[j].first_point)
+                costs[i, j] = dist + ccw_penalty * bool_ccw
+        return costs
 
     def get_components(self):
         """
@@ -83,19 +109,28 @@ class Path:
                 )
         return components
 
-    def stitch_primitives(self):
+    def get_grid_size(self):
         """
-        Call a primtive stitching algorithm
+        Find the size of the image grid
+        """
+        max_grid = np.array([0, 0])
+        for group in self.component_groups:
+            if group.grid.shape[0] > max_grid[0]:
+                max_grid[0] = group.grid.shape[0]
+            if group.grid.shape[1] > max_grid[1]:
+                max_grid[1] = group.grid.shape[1]
+        return max_grid
 
-        Returns:
-            Ordered list of primitives
+    def get_grid_path(self):
         """
-        return self.algo_gtsp()
+        Create 2D representation of the calculated cutting path
+        Note: in grid scale, not cloud scale
+        """
+        grid_path = np.zeros(self.max_grid)
+        grid_path[self.coords2d[:, 1], self.coords2d[:, 0]] = 1
+        return grid_path
 
-    def get_costs(self):
-        """
-        Traveling salesman algo
-        """
+    def get_nodes(self):
         forward = self.components
         backward = []
         for cmpnt in self.components:
@@ -106,28 +141,7 @@ class Path:
             backward.append(cmpnt_reversed)
 
         nodes = forward + backward
-        ccw_penalty = 100  # TODO: Reevaluate number
-
-        n = len(nodes)
-        costs = np.zeros((n, n))
-
-        cluster = []
-        for i in range(len(forward)):
-            cluster.append(i)
-            cluster.append(i)
-
-        for i in range(n):
-            for j in range(n):
-                if cluster[i] == cluster[j]:
-                    costs[i, j] = np.inf
-                    continue
-                vec0 = nodes[i].last_point - self.max_grid / 2
-                vec1 = nodes[j].first_point - self.max_grid / 2
-                angle = np.arctan2(vec1[1], vec1[0]) - np.arctan2(vec0[1], vec0[0])
-                bool_ccw = int(angle < 0)
-                dist = math.dist(nodes[i].last_point, nodes[j].first_point)
-                costs[i, j] = dist + ccw_penalty * bool_ccw
-        return costs
+        return nodes
 
     def algo_min(self):
         """
@@ -162,20 +176,46 @@ class Path:
         print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered
 
-    def algo_gtsp(self):
+    def algo_greedy_gtsp(self):
         """
         General Traveling Salesman Problem solver
         """
+        nodes = self.nodes
         costs = self.get_costs()
+        clusters = self.get_clusters()
+        ic(self.max_grid)
+        num_nodes = len(costs)
+        num_clusters = len(set(clusters))  # does not count duplciates
 
-    def get_grid_path(self):
+        visited_clusters = [0]
+        visited_nodes = [0]
+        current_idx = 0
+        while len(visited_clusters) < num_clusters:
+            min_cost = np.inf
+            min_cost_idx = 0
+            for i in range(num_nodes):
+                if clusters[i] in visited_clusters:
+                    continue
+                if costs[current_idx, i] < min_cost:
+                    min_cost = costs[current_idx, i]
+                    min_cost_idx = i
+            visited_nodes.append(min_cost_idx)
+            visited_clusters.append(clusters[min_cost_idx])
+            current_idx = min_cost_idx
+        if min_cost_idx is None:
+            raise Exception("No valid next node found. Check Path.get_cost()")
+
+        components_ordered = [nodes[i] for i in visited_nodes]
+        return components_ordered
+
+    def stitch_primitives(self):
         """
-        Create 2D representation of the calculated cutting path
-        Note: in grid scale, not cloud scale
+        Call a primtive stitching algorithm
+
+        Returns:
+            Ordered list of primitives
         """
-        grid_path = np.zeros(self.max_grid)
-        grid_path[self.coords2d[:, 1], self.coords2d[:, 0]] = 1
-        return grid_path
+        return self.algo_greedy_gtsp()
 
     def visualize(self):
         """
@@ -257,8 +297,8 @@ if __name__ == "__main__":
         component_groups.append(
             contour.ComponentGroup(key, value, Z_PLANE, GRID_RES, TOLERANCE)
         )
-
     my_path = Path(component_groups, GRID_RES, Z_PLANE)
+
     ### Sort tagged point cloud into individual objects
     """
     ic("Components detected:")
