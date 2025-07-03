@@ -28,7 +28,7 @@ class Path:
     Attributes:
         component_groups: list of component groups, i.g. group of
             T-beams, group of I-beams
-        grid_res: number of squares in grid per unit in the point cloud
+        grid_density: number of squares in grid per unit in the point cloud
         z_plane: location of the cutting plane alnog the z-axis
         max_grid: dimensions of the grid
         components: list of individual component objects
@@ -39,17 +39,17 @@ class Path:
         nodes: All component objects plus component objects with paths reversed
     """
 
-    def __init__(self, component_groups, grid_res, z_plane):
+    def __init__(self, component_groups, grid_density, z_plane):
         """
         Initializes Path
 
         Args:
             component_groups:a
-            grid_res: a
+            grid_density: a
             z_plane: a
         """
         self.component_groups = component_groups
-        self.grid_res = grid_res
+        self.grid_density = grid_density
         self.z_plane = z_plane
         self.max_grid = self.get_grid_size()
         self.components = self.get_components()
@@ -58,7 +58,7 @@ class Path:
         self.coords2d = np.concatenate(
             [cmpnt.cntr for cmpnt in self.components_ordered], axis=0
         )
-        self.coords3d = ep.get_3d(self.coords2d, self.grid_res, self.z_plane)
+        self.coords3d = ep.get_3d(self.coords2d, self.grid_density, self.z_plane)
         self.grid_path = self.get_grid_path()
 
     def get_clusters(self):
@@ -89,8 +89,8 @@ class Path:
                 if clusters[i] == clusters[j]:
                     costs[i, j] = np.inf
                     continue
-                vec1 = nodes[i].last_point - self.max_grid / 2
-                vec0 = nodes[j].first_point - self.max_grid / 2
+                vec1 = nodes[i].cntr[-1] - self.max_grid / 2
+                vec0 = nodes[j].cntr[0] - self.max_grid / 2
                 angle = np.arctan2(vec0[1], vec0[0]) - np.arctan2(vec1[1], vec1[0])
                 bool_ccw = int(angle > 0)
                 dist = math.dist(nodes[i].last_point, nodes[j].first_point)
@@ -286,7 +286,7 @@ if __name__ == "__main__":
 
     # Chosen parameters
     Z_PLANE = 5
-    GRID_RES = 5
+    GRID_DENSITY = 5
     TOLERANCE = 1
 
     # Collect clouds and create objects
@@ -295,9 +295,9 @@ if __name__ == "__main__":
     component_groups = []
     for key, value in clouds.items():
         component_groups.append(
-            contour.ComponentGroup(key, value, Z_PLANE, GRID_RES, TOLERANCE)
+            contour.ComponentGroup(key, value, Z_PLANE, GRID_DENSITY, TOLERANCE)
         )
-    my_path = Path(component_groups, GRID_RES, Z_PLANE)
+    my_path = Path(component_groups, GRID_DENSITY, Z_PLANE)
 
     ### Sort tagged point cloud into individual objects
     """

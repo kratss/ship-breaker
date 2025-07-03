@@ -33,9 +33,7 @@ class ComponentGroup:
         self.plane = plane
         self.tolerance = tolerance
         self.grid_density = grid_density
-        self.grid_noisy = ep.cloud_to_grid(
-            self.cloud, self.grid_density, self.plane, self.tolerance
-        )
+        self.grid_noisy = self.get_grid_noisy()
         self.grid_denoised = self.denoise()
         self.grid_thinned = self.thin()
         self.grid = self.grid_thinned
@@ -50,6 +48,18 @@ class ComponentGroup:
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
         return img_cntrs
+
+    def process_grid(self):
+        self.grid_noisy = self.get_grid_noisy()
+        self.grid_denoised = self.denoise()
+        self.grid_thinned = self.thin()
+
+    def get_grid_noisy(self):
+        grid_noisy = ep.cloud_to_grid(
+            self.cloud, self.grid_density, self.plane, self.tolerance
+        )
+        #        grid_noisy = np.flip(grid_noisy, axis=0)
+        return grid_noisy
 
     def denoise(self):
         return cv2.GaussianBlur(self.grid_noisy, (5, 5), 0)
@@ -76,6 +86,12 @@ class Component:
     def get_info(self):
         return f"Component is a {self.name}"
 
+    def get_first_point(self):
+        return self.cntr[0]
+
+    def get_last_point(self):
+        return self.cntr[-1]
+
     def fix_contour(self, cntr):
         """
         Squeeze out the extra dimension that cv.contours produces.
@@ -94,12 +110,6 @@ class Component:
         if cntr[0][0] > cntr[-1][0]:
             cntr = np.flip(cntr, axis=0)  # Ensure the cntr runs left to right
         return cntr[sorted_indices]
-
-    def get_first_point(self):
-        return self.cntr[0]
-
-    def get_last_point(self):
-        return self.cntr[-1]
 
     def visualize(self):
         print("Visualizing...")
