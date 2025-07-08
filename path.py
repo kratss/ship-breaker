@@ -78,7 +78,6 @@ class Path:
         Traveling salesman algo
         """
         nodes = self.nodes
-        ccw_penalty = 10000  # TODO: Reevaluate number
 
         n = len(nodes)
         costs = np.zeros((n, n))
@@ -89,12 +88,7 @@ class Path:
                 if clusters[i] == clusters[j]:
                     costs[i, j] = np.inf
                     continue
-                vec1 = nodes[i].cntr[-1] - 500  # self.max_grid
-                vec0 = nodes[j].cntr[0] - 500  # self.max_grid
-                angle = np.arctan2(vec0[1], vec0[0]) - np.arctan2(vec1[1], vec1[0])
-                bool_ccw = int(angle > 0)
-                dist = math.dist(nodes[i].last_pt, nodes[j].first_pt)
-                costs[i, j] = dist + ccw_penalty * bool_ccw
+                costs[i, j] = math.dist(nodes[i].last_pt, nodes[j].first_pt)
         return costs
 
     def get_components(self):
