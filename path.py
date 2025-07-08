@@ -19,6 +19,7 @@ import model
 import numpy as np
 import open3d as o3d
 from skimage.morphology import skeletonize
+from itertools import product, permutations
 
 
 class Path:
@@ -204,6 +205,27 @@ class Path:
         components_ordered = [nodes[i] for i in visited_nodes]
         return components_ordered
 
+    def algo_brute_force(self):
+        n = len(self.components)
+        nodes = self.nodes
+        costs = self.get_costs()
+        cost_best = np.inf
+        path_best = None
+        for directions in product([0, 1], repeat=n):  # Try every [f,b,b] [b,f,b]
+            # each row is one possible ordering
+            nodes_selected = [2 * i + dir for i, dir in enumerate(directions)]
+            for order in permutations(range(n)):
+                path_nodes = [nodes_selected[i] for i in order]
+
+            cost_total = 0
+            for i in range(len(path_nodes) - 1):
+                cost_total += costs[path_nodes[i], path_nodes[i + 1]]
+            if cost_total < cost_best:
+                cost_best = cost_total
+                path_best = path_nodes
+        components_ordered = [nodes[i] for i in path_best]
+        return components_ordered
+
     def stitch_primitives(self):
         """
         Call a primtive stitching algorithm
@@ -211,7 +233,7 @@ class Path:
         Returns:
             Ordered list of primitives
         """
-        return self.algo_greedy_gtsp()
+        return self.algo_brute_force()
 
     def visualize(self):
         """
