@@ -33,10 +33,7 @@ class ComponentGroup:
         self.plane = plane
         self.tolerance = tolerance
         self.grid_density = grid_density
-        self.grid_noisy = self.get_grid_noisy()
-        self.grid_denoised = self.denoise()
-        self.grid_thinned = self.thin()
-        self.grid = self.grid_thinned
+        self.grid = self.process_grid()
         self.cntrs = self.get_contours(self.grid)
 
     def get_contours(self, img):
@@ -50,22 +47,17 @@ class ComponentGroup:
         return img_cntrs
 
     def process_grid(self):
-        self.grid_noisy = self.get_grid_noisy()
-        self.grid_denoised = self.denoise()
-        self.grid_thinned = self.thin()
-
-    def get_grid_noisy(self):
-        grid_noisy = ep.cloud_to_grid(
+        grid = ep.cloud_to_grid(
             self.cloud, self.grid_density, self.plane, self.tolerance
         )
-        #        grid_noisy = np.flip(grid_noisy, axis=0)
-        return grid_noisy
+        grid = self.denoise(grid)
+        grid = self.thin(grid)
+        return grid
 
-    def denoise(self):
-        return cv2.GaussianBlur(self.grid_noisy, (5, 5), 0)
+    def denoise(self, grid):
+        return cv2.GaussianBlur(grid, (5, 5), 0)
 
-    def thin(self):
-        grid = self.grid_denoised
+    def thin(self, grid):
         grid = skeletonize(grid)
         return grid
 
@@ -77,19 +69,18 @@ class Component:
 
     def __init__(self, name, cntr, grid_size):
         self.name = name
-        self.cntr_fixed = self.fix_contour(cntr)
-        self.cntr = self.cntr_fixed
         self.grid_size = grid_size
-        self.first_point = self.get_first_point()
-        self.last_point = self.get_last_point()
+        self.cntr = self.fix_contour(cntr)
+        self.first_pt = self.get_first_pt()
+        self.last_pt = self.get_last_pt()
 
     def get_info(self):
         return f"Component is a {self.name}"
 
-    def get_first_point(self):
+    def get_first_pt(self):
         return self.cntr[0]
 
-    def get_last_point(self):
+    def get_last_pt(self):
         return self.cntr[-1]
 
     def fix_contour(self, cntr):
@@ -107,9 +98,13 @@ class Component:
         # Sort by original indices to maintain order
         sorted_indices = np.sort(indices)
         cntr = cntr[sorted_indices]
+
+        # max_y = self.grid_size[1]
+        # cntr[:, 1] = max_y - cntr[:, 1]
+
         if cntr[0][0] > cntr[-1][0]:
-            cntr = np.flip(cntr, axis=0)  # Ensure the cntr runs left to right
-        return cntr[sorted_indices]
+            cntr = cntr[::-1]
+        return cntr
 
     def visualize(self):
         print("Visualizing...")
@@ -174,7 +169,7 @@ if __name__ == "__main__":
     components_ordered.append(current_component)
     while remaining:
         distances = [
-            (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
+            (idx, np.sum((comp.first_pt - current_component.last_pt) ** 2))
             for idx, comp in enumerate(remaining)
         ]
         nearest_idx = min(distances, key=lambda x: x[1])[0]

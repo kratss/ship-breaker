@@ -169,6 +169,6 @@ def gen_floor(desnity, noise_std):
 
 if __name__ == "__main__":
     density = 15
-    pcd = o3d.t.geometry.PointCloud(gen_ship())
+    pcd = o3d.t.geometry.PointCloud(gen_tbeams(15, 0.001))
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries([pcd.to_legacy(), axes])

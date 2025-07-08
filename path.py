@@ -63,9 +63,9 @@ class Path:
 
     def get_clusters(self):
         clusters = []
-        for i in range(len(self.components)):
-            clusters.append(i)
-            clusters.append(i)
+        for i in range(2):
+            for j in range(len(self.components)):
+                clusters.append(j)
         if clusters == None:
             raise Exception(
                 "No clusters found. Ensure Path.components is populated \
@@ -89,11 +89,11 @@ class Path:
                 if clusters[i] == clusters[j]:
                     costs[i, j] = np.inf
                     continue
-                vec1 = nodes[i].cntr[-1] - self.max_grid / 2
-                vec0 = nodes[j].cntr[0] - self.max_grid / 2
+                vec1 = nodes[i].cntr[-1] - 500  # self.max_grid
+                vec0 = nodes[j].cntr[0] - 500  # self.max_grid
                 angle = np.arctan2(vec0[1], vec0[0]) - np.arctan2(vec1[1], vec1[0])
                 bool_ccw = int(angle > 0)
-                dist = math.dist(nodes[i].last_point, nodes[j].first_point)
+                dist = math.dist(nodes[i].last_pt, nodes[j].first_pt)
                 costs[i, j] = dist + ccw_penalty * bool_ccw
         return costs
 
@@ -107,6 +107,9 @@ class Path:
                 components.append(
                     contour.Component(group.name[:-1] + str(i), cntr, self.max_grid)
                 )
+                ic(group.name)
+                ic(cntr)
+
         return components
 
     def get_grid_size(self):
@@ -145,15 +148,15 @@ class Path:
 
     def algo_min(self):
         """
-        Primitive sitching algorithm that uses simple minimum distance, i.g. which component.first_point is closest
-        to the current component's .last_point
+        Primitive sitching algorithm that uses simple minimum distance, i.g. which component.first_pt is closest
+        to the current component's .last_pt
         """
         components_ordered = []
         remaining = self.components.copy()
         print(f"Starting with {len(remaining)} components")
 
         first_component_idx = min(
-            range(len(self.components)), key=lambda i: self.components[i].first_point[0]
+            range(len(self.components)), key=lambda i: self.components[i].first_pt[0]
         )
         first_component = self.components[first_component_idx]
         current_component = first_component
@@ -164,14 +167,14 @@ class Path:
             print(f"Remaining: {[c.name for c in remaining]}")
             print(f"Ordered so far: {[c.name for c in components_ordered]}")
             distances = [
-                (idx, np.sum((comp.first_point - current_component.last_point) ** 2))
+                (idx, np.sum((comp.first_pt - current_component.last_pt) ** 2))
                 for idx, comp in enumerate(remaining)
             ]
             nearest_idx = min(distances, key=lambda x: x[1])[0]
             current_component = remaining[nearest_idx]
             del remaining[nearest_idx]
             components_ordered.append(current_component)
-        # If first_point is below the midpoint, move leftward to acheive clockwise motion
+        # If first_pt is below the midpoint, move leftward to acheive clockwise motion
 
         print(f"Final ordered: {[c.name for c in components_ordered]}")
         return components_ordered
@@ -183,7 +186,6 @@ class Path:
         nodes = self.nodes
         costs = self.get_costs()
         clusters = self.get_clusters()
-        ic(self.max_grid)
         num_nodes = len(costs)
         num_clusters = len(set(clusters))  # does not count duplciates
 
@@ -297,6 +299,7 @@ if __name__ == "__main__":
         component_groups.append(
             contour.ComponentGroup(key, value, Z_PLANE, GRID_DENSITY, TOLERANCE)
         )
+
     my_path = Path(component_groups, GRID_DENSITY, Z_PLANE)
 
     ### Sort tagged point cloud into individual objects
@@ -319,8 +322,12 @@ if __name__ == "__main__":
     ic(my_path.components_ordered[1].cntr[0])
     ic(my_path.components_ordered[1].cntr[-1])
     """
-    ic(my_path.components_ordered[1].first_point)
-    ic(my_path.components_ordered[1].last_point)
-    ic(my_path.components_ordered[1].cntr)
+    ic(my_path.components[0].name)
+    ic(my_path.components[0].cntr)
+    ic(my_path.components[1].name)
+    ic(my_path.components[1].cntr)
+    ic(my_path.components[2].name)
+    ic(my_path.components[2].cntr)
+
     # my_cloud.visualize()
     my_path.visualize()
