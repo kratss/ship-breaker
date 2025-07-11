@@ -93,8 +93,8 @@ def gen_planes(density, noise_std):
     cloud = np.concatenate(
         (
             gen.plane(origin=[16, 30, 0], length=8, width=8, roll=np.pi / 2),
-            gen.plane(origin=[31, 30, 0], length=8, width=8, roll=np.pi / 2),
-            gen.plane(origin=[46, 30, 0], length=8, width=8, roll=np.pi / 2),
+            # gen.plane(origin=[31, 30, 0], length=8, width=8, roll=np.pi / 2),
+            # gen.plane(origin=[46, 30, 0], length=8, width=8, roll=np.pi / 2),
         )
     )
     cloud = gen.noise(cloud, std=noise_std)

@@ -283,9 +283,12 @@ class Cloud:
 
     def visualize(self):
         axes = gen.draw_axes()
-        pcd = o3d.t.geometry.PointCloud(self.overall_cloud)
-        pcd_legacy = o3d.geometry.PointCloud()
-        pcd_legacy.points = o3d.utility.Vector3dVector(pcd.point.positions.numpy())
+        cloud = o3d.t.geometry.PointCloud(self.overall_cloud)
+        ic(cloud)
+        o3d.visualization.draw_geometries([cloud.to_legacy(), gen.draw_axes])
+        ic("end")
+        path = o3d.geometry.PointCloud()
+        path.points = o3d.utility.Vector3dVector(pcd.point.positions.numpy())
         ic(np.asarray(pcd_legacy.points[0:3]))
         o3d.visualization.draw_geometries([pcd_legacy])
 

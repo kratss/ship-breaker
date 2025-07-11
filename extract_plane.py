@@ -110,16 +110,19 @@ if __name__ == "__main__":
     """
     Demo plane extraction
     """
-    density = 3
-    noise_std = 0.1
+    DENSITY = 23
+    NOISE_STD = 0.01
+    Z_PLANE = 3
+    TOLERANCE = 0.1
 
-    tbeams = model.gen_tbeams(noise_std=noise_std)
-    planes = model.gen_planes(noise_std=noise_std)
-    curved_walls = model.gen_curved_walls(origin=[0, 0, 20], density=5, noise_std=0)
+    tbeams = model.gen_tbeams(noise_std=NOISE_STD, density=DENSITY)
+    planes = model.gen_planes(noise_std=NOISE_STD, density=DENSITY)
+    curved_walls = model.gen_curved_walls(density=DENSITY, noise_std=NOISE_STD)
+    cloud = np.concatenate([tbeams, planes], axis=0)
+    slice = extract_plane(cloud, Z_PLANE, TOLERANCE)
     tbeams_pcd = o3d.t.geometry.PointCloud(tbeams)
     planes_pcd = o3d.t.geometry.PointCloud(planes)
     curved_walls_pcd = o3d.t.geometry.PointCloud(curved_walls)
-    slice = extract_plane(curved_walls)
     slice_pcd = o3d.t.geometry.PointCloud(slice)
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries(

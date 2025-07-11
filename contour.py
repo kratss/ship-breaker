@@ -41,6 +41,12 @@ class ComponentGroup:
             img = img.astype(np.uint8) * 255
         else:
             img = np.uint8(img)
+
+        if self.name == "planes":
+            """KNN Approach. Find end point with only one neighbor"""
+            skeleton = cv2.ximgproc.thinning(img)
+            return endpoint_coords
+
         img_cntrs, hrrchy = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
