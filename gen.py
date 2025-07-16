@@ -404,9 +404,10 @@ def bulb_flat(
         z = np.full(num_points, i)
         cloudt = np.column_stack([x, y, z])
         cloud = np.concatenate((cloud, cloudt))
+
     # Generate flat
     cloudt = plane(
-        origin=[1, 0, 0],
+        origin=[1, -1, 0] * scale,
         roll=np.pi / 2,
         pitch=0,
         yaw=0,
@@ -416,7 +417,7 @@ def bulb_flat(
     )
     cloud = np.concatenate((cloud, cloudt))
     cloudt = plane(
-        origin=[1, -1, 0],
+        origin=[1, 0, 0],
         roll=np.pi / 2,
         pitch=0,
         yaw=0,
@@ -424,6 +425,8 @@ def bulb_flat(
         width=width,
         density=density,
     )
+
+    # Transform
     cloud = cloud * scale
     R = rot_mat(roll, pitch, yaw)
     cloud = R @ cloud.T
