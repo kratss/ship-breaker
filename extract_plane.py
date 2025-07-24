@@ -37,7 +37,7 @@ def extract_plane(scene, z_plane, tolerance):
     return slice
 
 
-def voxelize(slice, res):
+def voxelize(slice, density):
     """
     Voxelize a two dimensional point cloud projection to create a binary image
 
@@ -45,7 +45,7 @@ def voxelize(slice, res):
 
     Args:
         slice (numpy array): 2D point cloud projection
-        res (int): Grid cells per unit distance in the cloud
+        density (int): Grid cells per unit distance in the cloud
 
     Returns:
         grid (numpy array): 2D binary image (Y,X ordering)
@@ -57,15 +57,15 @@ def voxelize(slice, res):
     min_y = 0  # slice[:, 1].min()
     max_x = slice[:, 0].max()
     max_y = slice[:, 1].max()
-    grid_x = max(2, int((max_x - min_x) * res))
-    grid_y = max(2, int((max_y - min_y) * res))
-    x_points = max(2, int((max_x - min_x) * res))
-    y_points = max(2, int((max_y - min_y) * res))
+    grid_x = max(2, int((max_x - min_x) * density))
+    grid_y = max(2, int((max_y - min_y) * density))
+    x_points = max(2, int((max_x - min_x) * density))
+    y_points = max(2, int((max_y - min_y) * density))
     grid = np.zeros([grid_y, grid_x])  # Note that the y value goes FIRST
-    grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * res))
-    grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * res))
+    grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * density))
+    grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * density))
 
-    # Edge case logic: when grid length is zero
+    # Edge case: when grid length is zero
     if min_x == max_x:
         grid_idx_x = np.array([min_x])
     else:
@@ -89,19 +89,19 @@ def voxelize(slice, res):
     return grid
 
 
-def cloud_to_grid(cloud, res, z_plane, tolerance):
+def cloud_to_grid(cloud, density, z_plane, tolerance):
     slice = extract_plane(cloud, z_plane, tolerance)
-    grid = voxelize(slice, res)
+    grid = voxelize(slice, density)
     return grid
 
 
-def get_3d(coords2d, res, z_plane):
+def get_3d(coords2d, density, z_plane):
     """
     Turn 2D image coordinates into 3D point cloud coordinates
     """
     coords3d = np.zeros([coords2d.shape[0], 3])
     coords3d[:, 0:2] = coords2d
-    coords3d = coords3d / res
+    coords3d = coords3d / density
     coords3d[:, 2] = z_plane
     return coords3d
 
@@ -110,24 +110,19 @@ if __name__ == "__main__":
     """
     Demo plane extraction
     """
-    DENSITY = 23
-    NOISE_STD = 0.01
+    DENSITY = 33
+    NOISE_STD = 0.05
     Z_PLANE = 3
     TOLERANCE = 0.1
+    DENSITY_GRID = 5
 
-    tbeams = model.gen_tbeams(noise_std=NOISE_STD, density=DENSITY)
-    planes = model.gen_planes(noise_std=NOISE_STD, density=DENSITY)
-    curved_walls = model.gen_curved_walls(density=DENSITY, noise_std=NOISE_STD)
-    cloud = np.concatenate([tbeams, planes], axis=0)
+    cloud = model.gen_tbeams_many(density=DENSITY, noise_std=NOISE_STD)
+    cloud_pcd = o3d.t.geometry.PointCloud(cloud)
     slice = extract_plane(cloud, Z_PLANE, TOLERANCE)
-    tbeams_pcd = o3d.t.geometry.PointCloud(tbeams)
-    planes_pcd = o3d.t.geometry.PointCloud(planes)
-    curved_walls_pcd = o3d.t.geometry.PointCloud(curved_walls)
     slice_pcd = o3d.t.geometry.PointCloud(slice)
+    slice = slice[::-1]  # Ensure matplotlib is right side up
     axes = gen.draw_axes()
-    o3d.visualization.draw_geometries(
-        [axes, slice_pcd.to_legacy(), tbeams_pcd.to_legacy(), planes_pcd.to_legacy()]
-    )
-    grid = voxelize(slice, res=1)
-    plt.pcolor(grid, cmap="binary", edgecolors="r")
+    o3d.visualization.draw_geometries([slice_pcd.to_legacy()])
+    grid = voxelize(slice, density=DENSITY_GRID)
+    plt.imshow(grid, cmap="binary")
     plt.show()

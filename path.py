@@ -302,7 +302,7 @@ if __name__ == "__main__":
         # "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
         "planes": model.gen_planes(DENSITY, NOISE_STD),
         # "floors": model.gen_floor(DENSITY, NOISE_STD),
-        "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
+        # "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
     }
 
     # Chosen parameters
@@ -322,7 +322,6 @@ if __name__ == "__main__":
     my_path = Path(component_groups, GRID_DENSITY, Z_PLANE)
 
     ### Sort tagged point cloud into individual objects
-    """
     ic("Components detected:")
     for comp in my_path.components:
         ic(comp.name)
@@ -340,13 +339,5 @@ if __name__ == "__main__":
     ic(my_path.components_ordered[1].cntr)
     ic(my_path.components_ordered[1].cntr[0])
     ic(my_path.components_ordered[1].cntr[-1])
-    """
-    ic(my_path.components[0].name)
-    ic(my_path.components[0].cntr)
-    ic(my_path.components[1].name)
-    ic(my_path.components[1].cntr)
-    ic(my_path.components[2].name)
-    ic(my_path.components[2].cntr)
-
-    # my_cloud.visualize()
+    my_cloud.visualize()
     my_path.visualize()

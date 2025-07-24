@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Generates pre-configured point cloud models of a ship separate components
+Generates pre-configured point cloud models of ships and components
 
 Functions are separated into gen_planes, gen_tbeams, and so on to mimcic
-how tagged groups of elements will be passed to the final program
+how tagged groups of elements will be passed to the final program, while
+gen_ship() generates a more complete model for visualization purposes
 """
 import gen
 import numpy as np
@@ -25,13 +26,23 @@ def gen_ship():
     return gen.noise(
         np.concatenate(
             (
-                gen.curved_wall(origin=[2, 0, 10], roll=-np.pi / 2, height=30),
+                gen.curved_wall(
+                    origin=[2, 0, 10], roll=-np.pi / 2, height=30, length=10
+                ),
+                gen.curved_wall(
+                    origin=[59, 0, 0],
+                    roll=-np.pi / 2,
+                    pitch=np.pi,
+                    height=30,
+                    length=10,
+                ),
                 gen.plane(origin=[10, 30, 0], length=10, width=10, roll=np.pi / 2),
                 gen.tbeam(
                     origin=[20, 30, 10],
                     length=10,
-                    width=5,
-                    thickness=1,
+                    width=4.9,
+                    height=6,
+                    thickness=0.7,
                     roll=-np.pi / 2,
                     pitch=np.pi / 2,
                     skip=[
@@ -53,8 +64,9 @@ def gen_ship():
                 gen.tbeam(
                     origin=[35, 30, 10],
                     length=10,
-                    width=5,
-                    thickness=1,
+                    width=4.9,
+                    thickness=0.7,
+                    height=6,
                     roll=-np.pi / 2,
                     pitch=np.pi / 2,
                     skip=[
@@ -73,8 +85,14 @@ def gen_ship():
                     ],
                 ),
                 gen.plane(origin=[40, 30, 0], length=10, width=10, roll=np.pi / 2),
-                gen.plane(origin=[60, 0, 0], length=10, width=30, pitch=-np.pi / 2),
-                gen.bulb_flat(origin=[60, 10, 0]),
+                gen.plane(
+                    origin=[58, 0, 0],
+                    length=10,
+                    width=55,
+                    pitch=-np.pi / 2,
+                    yaw=np.pi / 2,
+                ),
+                # gen.bulb_flat(origin=[61, 6, 0], yaw=1.4 * np.pi / 2, length=40),
             )
         )
     )
@@ -156,6 +174,161 @@ def gen_tbeams(density, noise_std):
     return cloud
 
 
+def gen_tbeams_many(density, noise_std):
+    cloud = np.concatenate(
+        (
+            gen.tbeam(
+                origin=[30, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
+            gen.tbeam(
+                origin=[50, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
+            gen.tbeam(
+                origin=[70, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
+            gen.tbeam(
+                origin=[90, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
+            gen.tbeam(
+                origin=[110, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
+            gen.tbeam(
+                origin=[130, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
+        )
+    )
+    z_min = cloud[:, 2].min()
+    z_max = cloud[:, 2].max()
+    cloud = gen.noise(cloud, std=noise_std)
+    return cloud
+
+
 def gen_floor(desnity, noise_std):
     cloud = np.concatenate(
         (
@@ -168,7 +341,11 @@ def gen_floor(desnity, noise_std):
 
 
 if __name__ == "__main__":
-    density = 15
-    pcd = o3d.t.geometry.PointCloud(gen_tbeams(15, 0.001))
+    """
+    Demo premade models
+    """
+    DENSITY = 33
+    NOISE_STD = 0.05
+    pcd = o3d.t.geometry.PointCloud(gen_tbeams_many(DENSITY, NOISE_STD))
     axes = gen.draw_axes()
     o3d.visualization.draw_geometries([pcd.to_legacy(), axes])

@@ -375,9 +375,9 @@ def tbeam(
 
 def bulb_flat(
     origin=[0, 0, 0],
-    a=-2,
-    b=1,
-    c=0,
+    a=-1,
+    b=2,
+    c=-0.5,
     num_points=300,
     length=15,
     width=5,
@@ -389,17 +389,26 @@ def bulb_flat(
 ):
     """
     Generate a bulb flat (aka Holland profile) stiffener
+
+    Inputs:
+        origin (numpy array): location of the component
+        a (float): first coefficient of second degree polynomial
+        b (float): second coefficient of second degree polynomial
+        c (float): third coefficient of second degree polynomial
+        length (float): number of units long the flat is in point cloud space
+        width (float): number of units wide the component is in point cloud space
+
     """
-    # Generate curved section
-    # Basic eq: (-2)x^2 + (1)*x + 0 = y with x=[0,1] graph
     print("Generating bulb flat stiffener...")
     origin = np.array([origin])
 
     # Generate bulb
     z = np.linspace(0, width, int(num_points))
-    cloud = np.array([[0, 0, 0]])
+    cloud = np.empty((0, 3))
     for i in z:
-        x = np.linspace(0, 1, num_points)
+        x = np.linspace(
+            0.0, 1.6, num_points
+        )  # originally from [0,1], but needed a little bit extra
         y = a * x**2 + b * x + c
         z = np.full(num_points, i)
         cloudt = np.column_stack([x, y, z])
@@ -407,7 +416,11 @@ def bulb_flat(
 
     # Generate flat
     cloudt = plane(
-        origin=[1, -1, 0] * scale,
+        origin=[
+            1.6,
+            a * (1.6**2) + b * 1.6 + c,
+            0,
+        ],  # 1.6 comes from x = np.linspace...
         roll=np.pi / 2,
         pitch=0,
         yaw=0,
