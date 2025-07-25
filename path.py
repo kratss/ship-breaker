@@ -21,6 +21,8 @@ import open3d as o3d
 from skimage.morphology import skeletonize
 from itertools import product, permutations
 
+np.set_printoptions(precision=1, suppress=True)
+
 
 class Path:
     """
@@ -33,6 +35,7 @@ class Path:
         z_plane: location of the cutting plane alnog the z-axis
         max_grid: dimensions of the grid
         components: list of individual component objects
+        nodes: contains all component objects plus all component objects with the ordered list of points reversed
         components_ordered: list of components ordered to form a path for the plasma torch
         coords2d: numpy array of 2d coordinates describing the cutting path. NOT resized
         coords3d: numpy array of 3d coordinates describing the cutting path. Resized to original point cloud scale
@@ -64,14 +67,15 @@ class Path:
 
     def get_clusters(self):
         clusters = []
-        for i in range(2):
-            for j in range(len(self.components)):
+        for j in range(len(self.components)):
+            for i in range(2):
                 clusters.append(j)
         if clusters == None:
             raise Exception(
                 "No clusters found. Ensure Path.components is populated \
                 before calling Path.get_costs()"
             )
+        ic(clusters)
         return clusters
 
     def get_costs(self):
@@ -79,7 +83,6 @@ class Path:
         Traveling salesman algo
         """
         nodes = self.nodes
-
         n = len(nodes)
         costs = np.zeros((n, n))
         clusters = self.get_clusters()
@@ -89,7 +92,8 @@ class Path:
                 if clusters[i] == clusters[j]:
                     costs[i, j] = np.inf
                     continue
-                costs[i, j] = math.dist(nodes[i].last_pt, nodes[j].first_pt)
+                costs[i, j] = np.linalg.norm(nodes[i].last_pt - nodes[j].first_pt)
+        ic(costs)
         return costs
 
     def get_components(self):
@@ -103,8 +107,6 @@ class Path:
                     contour.Component(group.name[:-1] + str(i), cntr, self.max_grid)
                 )
                 ic(group.name)
-                ic(cntr)
-
         return components
 
     def get_grid_size(self):
@@ -130,15 +132,18 @@ class Path:
 
     def get_nodes(self):
         forward = self.components
-        backward = []
+        nodes = []
         for cmpnt in self.components:
-            points_reversed = list(reversed(cmpnt.cntr))
+            points_reversed = np.flipud(cmpnt.cntr)
+            ic(cmpnt.cntr)
+            ic(points_reversed)
             cmpnt_reversed = contour.Component(
                 cmpnt.name, points_reversed, cmpnt.grid_size
             )
-            backward.append(cmpnt_reversed)
-
-        nodes = forward + backward
+            ic(cmpnt.cntr)
+            ic(cmpnt_reversed.cntr)
+            nodes.append(cmpnt)
+            nodes.append(cmpnt_reversed)
         return nodes
 
     def algo_min(self):
@@ -155,7 +160,6 @@ class Path:
         )
         first_component = self.components[first_component_idx]
         current_component = first_component
-        ic(current_component.cntr)
         del remaining[first_component_idx]
         components_ordered.append(current_component)
         while remaining:
@@ -179,17 +183,19 @@ class Path:
         General Traveling Salesman Problem solver
         """
         nodes = self.nodes
+        for i in nodes:
+            ic(i.name)
         costs = self.get_costs()
         clusters = self.get_clusters()
         num_nodes = len(costs)
         num_clusters = len(set(clusters))  # does not count duplciates
 
-        visited_clusters = [0]
-        visited_nodes = [0]
+        visited_clusters = []
+        visited_nodes = []
         current_idx = 0
         while len(visited_clusters) < num_clusters:
             min_cost = np.inf
-            min_cost_idx = 0
+            min_cost_idx = []
             for i in range(num_nodes):
                 if clusters[i] in visited_clusters:
                     continue
@@ -203,6 +209,8 @@ class Path:
             raise Exception("No valid next node found. Check Path.get_cost()")
 
         components_ordered = [nodes[i] for i in visited_nodes]
+        for i in components_ordered:
+            ic(i.name)
         return components_ordered
 
     def algo_brute_force(self):
@@ -224,6 +232,8 @@ class Path:
                 cost_best = cost_total
                 path_best = path_nodes
         components_ordered = [nodes[i] for i in path_best]
+        for i in components_ordered:
+            ic(i.name)
         return components_ordered
 
     def stitch_primitives(self):
@@ -233,7 +243,7 @@ class Path:
         Returns:
             Ordered list of primitives
         """
-        return self.algo_brute_force()
+        return self.algo_greedy_gtsp()
 
     def visualize(self):
         """
@@ -276,21 +286,20 @@ class Cloud:
 
     def get_overall_cloud(self):
         overall_cloud = []
-        for key, value in clouds.items():
+        for key, value in self.clouds.items():
             overall_cloud.append(value)
         overall_cloud = np.concatenate(overall_cloud, axis=0)
         return overall_cloud
 
     def visualize(self):
+        """
+        Draw the complete point cloud and print the array contents.
+        NOTE: X only, not Wayland compatible
+        """
         axes = gen.draw_axes()
         cloud = o3d.t.geometry.PointCloud(self.overall_cloud)
         ic(cloud)
-        o3d.visualization.draw_geometries([cloud.to_legacy(), gen.draw_axes])
-        ic("end")
-        path = o3d.geometry.PointCloud()
-        path.points = o3d.utility.Vector3dVector(pcd.point.positions.numpy())
-        ic(np.asarray(pcd_legacy.points[0:3]))
-        o3d.visualization.draw_geometries([pcd_legacy])
+        o3d.visualization.draw_geometries([cloud.to_legacy(), axes])
 
 
 if __name__ == "__main__":

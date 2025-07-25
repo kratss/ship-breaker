@@ -329,11 +329,11 @@ def gen_tbeams_many(density, noise_std):
     return cloud
 
 
-def gen_floor(desnity, noise_std):
+def gen_floor(density, noise_std):
     cloud = np.concatenate(
         (
-            gen.plane(origin=[15, 0, 0], length=30, width=30, roll=np.pi / 2),
-            gen.plane(origin=[45, 0, 0], length=30, width=30, roll=np.pi / 2),
+            gen.plane(origin=[80, 160, 0], length=5, width=30, roll=1.2 * np.pi / 2),
+            gen.plane(origin=[0, 0, 0], length=5, width=30, roll=1.2 * np.pi / 2),
         )
     )
     cloud = gen.noise(cloud, std=noise_std)

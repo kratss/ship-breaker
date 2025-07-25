@@ -1,51 +1,58 @@
 #!/usr/bin/env python
+import contour
+from icecream import ic
+import model
 import open3d as o3d
-import gen
-import numpy as np
+import path
 
-pcd = o3d.t.geometry.PointCloud(
-    gen.ibeam(
-        origin=[3, 5, 1],
-        skip=[
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            True,
-            False,
-            False,
-            False,
-            False,
-            False,
-        ],
-        length=15,
+
+"""
+Terminology:
+"component" refers to a specific structure in the vessel interior, such
+as a beam at a given (X,Y,Z) coordinate.
+
+"component class" refers to all structures of the same type, such as
+all T-beams in the environment
+"""
+# Generated data
+DENSITY = 35
+NOISE_STD = 0.00
+clouds = {
+    # "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
+    # "planes": model.gen_planes(DENSITY, NOISE_STD),
+    "floors": model.gen_floor(DENSITY, NOISE_STD),
+    "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
+}
+
+ic(clouds)
+# Chosen parameters
+Z_PLANE = 5
+GRID_DENSITY = 5
+TOLERANCE = 1
+
+# Collect input pcd into Cloud object
+my_cloud = path.Cloud(clouds)
+
+# Create ComponentGroup objects for each component class
+# All T-beams are in a ComponentGroup named tbeams,
+# All planes are in a ComponentGroup named planes, etc
+component_groups = []
+for key, value in clouds.items():
+    component_groups.append(
+        contour.ComponentGroup(key, value, Z_PLANE, GRID_DENSITY, TOLERANCE)
     )
-)
-pcd2 = o3d.t.geometry.PointCloud(
-    gen.tbeam(
-        origin=[30, 40, 0],
-        skip=[
-            False,
-            False,
-            False,
-            False,
-            True,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-            False,
-        ],
-        width=4,
-        height=12,
-        thickness=1,
-        length=15,
-    )
-)
-pcd3 = o3d.t.geometry.PointCloud(gen.curved_wall(a=3) + np.array([80, 0, 0]))
-o3d.visualization.draw_plotly([pcd.to_legacy(), pcd2.to_legacy()])
-o3d.visualization.draw_plotly([pcd3.to_legacy()])
+
+# Create Path object
+#   Creates a component object for each structure in the ship. Store all
+#   in a list as the "component" attribute
+#
+#   Creates components_ordered which orders the
+#   the primtives by calling self.stich_primtives()
+#
+#   Creates ordered list of 2D coordinates that create the calculated
+#   path
+#
+#   Converts ordered list of 2D coordinates to 3D coordinates, which is
+#   the final result of the program
+my_path = path.Path(component_groups, GRID_DENSITY, Z_PLANE)
+my_path.visualize()

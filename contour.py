@@ -45,7 +45,7 @@ class ComponentGroup:
         if self.name == "planes":
             """KNN Approach. Find end point with only one neighbor"""
             skeleton = cv2.ximgproc.thinning(img)
-            return endpoint_coords
+            return skeleton
 
         img_cntrs, hrrchy = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
@@ -101,15 +101,6 @@ class Component:
         # Remove duplicate points, keeping first occurrence
         unique_points, indices = np.unique(cntr, axis=0, return_index=True)
 
-        # Sort by original indices to maintain order
-        sorted_indices = np.sort(indices)
-        cntr = cntr[sorted_indices]
-
-        # max_y = self.grid_size[1]
-        # cntr[:, 1] = max_y - cntr[:, 1]
-
-        if cntr[0][0] > cntr[-1][0]:
-            cntr = cntr[::-1]
         return cntr
 
     def visualize(self):
