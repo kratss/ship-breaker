@@ -5,7 +5,6 @@ import model
 import open3d as o3d
 import path
 
-
 """
 Terminology:
 "component" refers to a specific structure in the vessel interior, such
@@ -14,20 +13,20 @@ as a beam at a given (X,Y,Z) coordinate.
 "component class" refers to all structures of the same type, such as
 all T-beams in the environment
 """
+
 # Generated data
-DENSITY = 35
+DENSITY = 65
 NOISE_STD = 0.00
 clouds = {
-    # "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
+    "curved_walls": model.gen_curved_walls(DENSITY, NOISE_STD),
     # "planes": model.gen_planes(DENSITY, NOISE_STD),
     "floors": model.gen_floor(DENSITY, NOISE_STD),
-    "tbeams": model.gen_tbeams(DENSITY, NOISE_STD),
+    "tbeams": model.gen_tbeams_many(DENSITY, NOISE_STD),
 }
 
-ic(clouds)
 # Chosen parameters
 Z_PLANE = 5
-GRID_DENSITY = 5
+GRID_DENSITY = 10
 TOLERANCE = 1
 
 # Collect input pcd into Cloud object
@@ -42,6 +41,7 @@ for key, value in clouds.items():
         contour.ComponentGroup(key, value, Z_PLANE, GRID_DENSITY, TOLERANCE)
     )
 
+
 # Create Path object
 #   Creates a component object for each structure in the ship. Store all
 #   in a list as the "component" attribute
@@ -55,4 +55,5 @@ for key, value in clouds.items():
 #   Converts ordered list of 2D coordinates to 3D coordinates, which is
 #   the final result of the program
 my_path = path.Path(component_groups, GRID_DENSITY, Z_PLANE)
+ic(my_path.coords2d)
 my_path.visualize()

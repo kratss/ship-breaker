@@ -3,7 +3,7 @@
 Generates pre-configured point cloud models of ships and components
 
 Functions are separated into gen_planes, gen_tbeams, and so on to mimcic
-how tagged groups of elements will be passed to the final program, while
+how tagged groups of elements will be passed to the path finding algo, while
 gen_ship() generates a more complete model for visualization purposes
 """
 import gen
@@ -99,7 +99,7 @@ def gen_ship():
 
 
 def gen_curved_walls(density, noise_std):
-    origin = [5, 0, 20]
+    origin = [55, 0, 20]
     cloud = gen.curved_wall(origin=origin, roll=np.pi / 2, pitch=np.pi, yaw=np.pi)
     cloud = gen.noise(cloud, std=noise_std)
     z_min = cloud[:, 2].min()
@@ -178,55 +178,7 @@ def gen_tbeams_many(density, noise_std):
     cloud = np.concatenate(
         (
             gen.tbeam(
-                origin=[30, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[50, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[70, 30, 0],
+                origin=[70, 35, 0],
                 length=10,
                 width=5,
                 height=6,
@@ -321,6 +273,30 @@ def gen_tbeams_many(density, noise_std):
                 ],
                 density=density,
             ),
+            gen.tbeam(
+                origin=[150, 30, 0],
+                length=10,
+                width=5,
+                height=6,
+                thickness=0.7,
+                roll=-np.pi / 2,
+                pitch=-np.pi / 2,
+                skip=[
+                    True,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                    False,
+                ],
+                density=density,
+            ),
         )
     )
     z_min = cloud[:, 2].min()
@@ -332,7 +308,7 @@ def gen_tbeams_many(density, noise_std):
 def gen_floor(density, noise_std):
     cloud = np.concatenate(
         (
-            gen.plane(origin=[80, 160, 0], length=5, width=30, roll=1.2 * np.pi / 2),
+            #      gen.plane(origin=[80, 160, 0], length=5, width=30, roll=1.2 * np.pi / 2),
             gen.plane(origin=[0, 0, 0], length=5, width=30, roll=1.2 * np.pi / 2),
         )
     )

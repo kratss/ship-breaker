@@ -63,6 +63,9 @@ def voxelize(slice, density):
     y_points = max(2, int((max_y - min_y) * density))
     grid = np.zeros([grid_y, grid_x])  # Note that the y value goes FIRST
     grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * density))
+    ic(slice)
+    ic(min_y)
+    ic(max_y)
     grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * density))
 
     # Edge case: when grid length is zero

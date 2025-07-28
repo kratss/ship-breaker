@@ -8,6 +8,7 @@ This module provides the primary interface for the library
 #    grid refers to the 2D projection of the point cloud slice onto a grid
 #    such that it can be viewed as an image
 
+import bnb
 import cv2
 import contour
 import extract_plane as ep
@@ -56,6 +57,7 @@ class Path:
         self.grid_density = grid_density
         self.z_plane = z_plane
         self.max_grid = self.get_grid_size()
+        self.min_grid = self.get_grid_min()
         self.components = self.get_components()
         self.nodes = self.get_nodes()
         self.components_ordered = self.stitch_primitives()
@@ -75,7 +77,6 @@ class Path:
                 "No clusters found. Ensure Path.components is populated \
                 before calling Path.get_costs()"
             )
-        ic(clusters)
         return clusters
 
     def get_costs(self):
@@ -93,7 +94,6 @@ class Path:
                     costs[i, j] = np.inf
                     continue
                 costs[i, j] = np.linalg.norm(nodes[i].last_pt - nodes[j].first_pt)
-        ic(costs)
         return costs
 
     def get_components(self):
@@ -106,7 +106,6 @@ class Path:
                 components.append(
                     contour.Component(group.name[:-1] + str(i), cntr, self.max_grid)
                 )
-                ic(group.name)
         return components
 
     def get_grid_size(self):
@@ -121,12 +120,24 @@ class Path:
                 max_grid[1] = group.grid.shape[1]
         return max_grid
 
+    def get_grid_min(self):
+        """
+        Find the size of the image grid
+        """
+        max_grid = np.array([0, 0])
+        for group in self.component_groups:
+            if group.grid.shape[0] < max_grid[0]:
+                max_grid[0] = group.grid.shape[0]
+            if group.grid.shape[1] < max_grid[1]:
+                max_grid[1] = group.grid.shape[1]
+        return max_grid
+
     def get_grid_path(self):
         """
         Create 2D representation of the calculated cutting path
         Note: in grid scale, not cloud scale
         """
-        grid_path = np.zeros(self.max_grid)
+        grid_path = np.zeros(self.max_grid - self.min_grid)
         grid_path[self.coords2d[:, 1], self.coords2d[:, 0]] = 1
         return grid_path
 
@@ -135,13 +146,9 @@ class Path:
         nodes = []
         for cmpnt in self.components:
             points_reversed = np.flipud(cmpnt.cntr)
-            ic(cmpnt.cntr)
-            ic(points_reversed)
             cmpnt_reversed = contour.Component(
                 cmpnt.name, points_reversed, cmpnt.grid_size
             )
-            ic(cmpnt.cntr)
-            ic(cmpnt_reversed.cntr)
             nodes.append(cmpnt)
             nodes.append(cmpnt_reversed)
         return nodes
@@ -183,8 +190,6 @@ class Path:
         General Traveling Salesman Problem solver
         """
         nodes = self.nodes
-        for i in nodes:
-            ic(i.name)
         costs = self.get_costs()
         clusters = self.get_clusters()
         num_nodes = len(costs)
@@ -209,8 +214,6 @@ class Path:
             raise Exception("No valid next node found. Check Path.get_cost()")
 
         components_ordered = [nodes[i] for i in visited_nodes]
-        for i in components_ordered:
-            ic(i.name)
         return components_ordered
 
     def algo_brute_force(self):
@@ -232,8 +235,16 @@ class Path:
                 cost_best = cost_total
                 path_best = path_nodes
         components_ordered = [nodes[i] for i in path_best]
-        for i in components_ordered:
-            ic(i.name)
+        return components_ordered
+
+    def algo_bnb(self):
+        num_nodes = len(self.nodes)
+        brothers = bnb.generate_brothers(num_nodes)
+        cost_matrix = bnb.create_distance_matrix(num_nodes, brothers, self.nodes)
+        best_path, best_cost, selected_nodes = bnb.tsp_branch_and_bound_with_brothers(
+            cost_matrix, brothers
+        )
+        components_ordered = [self.nodes[i] for i in best_path]
         return components_ordered
 
     def stitch_primitives(self):
@@ -243,7 +254,7 @@ class Path:
         Returns:
             Ordered list of primitives
         """
-        return self.algo_greedy_gtsp()
+        return self.algo_bnb()
 
     def visualize(self):
         """
