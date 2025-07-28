@@ -12,11 +12,7 @@ import open3d.core as o3c
 from icecream import ic
 
 
-def extract_plane(
-    scene,
-    z_plane,
-    tolerance,
-):
+def extract_plane(scene, z_plane, tolerance):
     """
     Extract the portion of the scene point cloud that is near the
         cutting plane
@@ -41,7 +37,7 @@ def extract_plane(
     return slice
 
 
-def voxelize(slice, density, grid_dim):
+def voxelize(slice, density):
     """
     Voxelize a two dimensional point cloud projection to create a binary image
 
@@ -57,19 +53,20 @@ def voxelize(slice, density, grid_dim):
     if len(slice) == 0:
         ic("Voxelize: Warning, empty slice. Returning minimal grid")
         return np.zeros((1, 1))  # Return minimal grid
-    min_x = grid_dim[0, 0]
-    min_y = grid_dim[0, 1]
-    max_x = grid_dim[1, 0]
-    max_y = grid_dim[1, 1]
-
+    min_x = 0  # slice[:, 0].min()
+    min_y = 0  # slice[:, 1].min()
+    max_x = slice[:, 0].max()
+    max_y = slice[:, 1].max()
     grid_x = max(2, int((max_x - min_x) * density))
     grid_y = max(2, int((max_y - min_y) * density))
-
     x_points = max(2, int((max_x - min_x) * density))
     y_points = max(2, int((max_y - min_y) * density))
-
     grid = np.zeros([grid_y, grid_x])  # Note that the y value goes FIRST
     grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * density))
+    ic(slice)
+    ic(min_y)
+    ic(max_y)
+    grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * density))
 
     # Edge case: when grid length is zero
     if min_x == max_x:
@@ -95,9 +92,9 @@ def voxelize(slice, density, grid_dim):
     return grid
 
 
-def cloud_to_grid(cloud, density, z_plane, tolerance, grid_dim):
+def cloud_to_grid(cloud, density, z_plane, tolerance):
     slice = extract_plane(cloud, z_plane, tolerance)
-    grid = voxelize(slice, density, grid_dim)
+    grid = voxelize(slice, density)
     return grid
 
 

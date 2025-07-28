@@ -27,7 +27,7 @@ def gen_ship():
         np.concatenate(
             (
                 gen.curved_wall(
-                    origin=[2, 0, 10], roll=-np.pi / 2, height=30, length=10
+                    origin=[2, 0, 10], roll=-np.pi / 2, height=20, length=10
                 ),
                 gen.curved_wall(
                     origin=[59, 0, 0],
@@ -178,7 +178,7 @@ def gen_tbeams_many(density, noise_std):
     cloud = np.concatenate(
         (
             gen.tbeam(
-                origin=[70, 35, 0],
+                origin=[70, 30, 0],
                 length=10,
                 width=5,
                 height=6,
@@ -309,7 +309,7 @@ def gen_floor(density, noise_std):
     cloud = np.concatenate(
         (
             #      gen.plane(origin=[80, 160, 0], length=5, width=30, roll=1.2 * np.pi / 2),
-            gen.plane(origin=[0, 0, 0], length=5, width=30, roll=1.2 * np.pi / 2),
+            gen.plane(origin=[80, 0, 0], length=25, width=30, roll=1.2 * np.pi / 2),
         )
     )
     cloud = gen.noise(cloud, std=noise_std)

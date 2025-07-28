@@ -1,0 +1,95 @@
+[33mcommit fc6f9b7b6f4961ccd1b78f0028f31aca546c0346[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev[m[33m)[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Mon Jul 28 15:43:44 2025 -0600
+
+    Partway through positioning bug
+
+[33mcommit 7155685c3636097b48fc4586e238f9d7f1718aaa[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Mon Jul 28 15:43:10 2025 -0600
+
+    Partway through positioning bug
+
+[33mcommit 2eb62e17df6de964dc28f0ce7a32b354363d5868[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Mon Jul 28 14:34:40 2025 -0600
+
+    3D issue
+
+[33mcommit 50f1186f8dd3518a30cc9c0289f4670b60c41b48[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Thu Jul 24 10:44:50 2025 -0600
+
+    2025-07-24. Critical disappearing component bug still present
+
+[33mcommit 4d394a92999ac1ca628c04250f6b6a77a735e41c[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Fri Jul 11 11:22:31 2025 -0600
+
+    Checkpoint 2025-07-11
+
+[33mcommit 21e68b1cb352aebc1072f4a13f5b118b227f5111[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Tue Jun 24 07:15:13 2025 -0600
+
+    Minor fixes
+
+[33mcommit 603cdf8a87ece729f9774c855bc8f8d710898eb3[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Fri Jun 6 17:23:10 2025 +0200
+
+    minor changes
+
+[33mcommit 0aa345a0573481192141540ae657a547e3de1af0[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Thu Jun 5 17:31:39 2025 +0200
+
+    Create path.py. Project is now feature complete and functional
+
+[33mcommit fba7ab47f039da6a521fc0bb619c40609acdd756[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Thu Jun 5 16:02:35 2025 +0200
+
+    Improve get_3d functionality
+
+[33mcommit b37a283320bec22504c56ecad19a6ab36fb6ffad[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Thu Jun 5 15:42:47 2025 +0200
+
+    Add get_3d to return grid to 3D coordinates
+
+[33mcommit 03bfebe4d2c3544c7e454c2d9d5a191086c563c9[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Thu Jun 5 15:12:57 2025 +0200
+
+    Fix empty slice bug
+
+[33mcommit 4139e7a0567dce529ea8cb1e61594d622c3f4a9a[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Wed Jun 4 17:13:26 2025 +0200
+
+    Fixed extract_plane bug after 7 hours
+
+[33mcommit 72d820bf808f69241684e360d9c679b7caf60e08[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Wed May 28 14:31:21 2025 +0200
+
+    Cutting plane is now along Z axis instead of X axis
+
+[33mcommit 0a0a85c9a7a6a24be5550f921d804b5e11a5a24d[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Tue May 6 10:37:24 2025 +0200
+
+    Improve extract_plane.py demo from main()
+
+[33mcommit d7bc10c9ccfb2912b160dc6b51d75a50d79c8a7d[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Mon Apr 14 20:28:11 2025 +0200
+
+    Add voxelize() and extract_plane()
+
+[33mcommit 89d07f28c6e901c1fde0dd6910b50f4c7a58705e[m
+Author: Jarrett Bolander <010.git@endor.cyou>
+Date:   Mon Apr 14 17:50:09 2025 +0200
+
+    rename extract-plane.py to extract_plane.py for python compatibility
