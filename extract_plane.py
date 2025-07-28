@@ -57,8 +57,8 @@ def voxelize(slice, density, grid_dim):
     if len(slice) == 0:
         ic("Voxelize: Warning, empty slice. Returning minimal grid")
         return np.zeros((1, 1))  # Return minimal grid
-    grid_x = int(grid_dim[0, 0] - grid_dim[1, 0])
-    grid_y = int(grid_dim[0, 1] - grid_dim[1, 1])
+    grid_x = int(grid_dim[1, 0] - grid_dim[0, 0])
+    grid_y = int(grid_dim[1, 1] - grid_dim[0, 1])
     x_points = max(2, int((grid_dim[1, 0] - grid_dim[0, 0]) * density))
     y_points = max(2, int((grid_dim[1, 1] - grid_dim[0, 1]) * density))
     grid = np.zeros([grid_y, grid_x])  # Note that the y value goes FIRST
