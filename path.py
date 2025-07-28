@@ -291,9 +291,22 @@ class Cloud:
         overall_cloud: a numpy array holding the x,y,z coordinates of every point in the scene
     """
 
-    def __init__(self, clouds):
+    def __init__(self, clouds, z_plane, density, tolerance):
         self.clouds = clouds
+        self.z_plane = z_plane
+        self.density = density
+        self.tolerance = tolerance
         self.overall_cloud = self.get_overall_cloud()
+        self.grid_dim = self.get_grid_dim()  # min x, min y, max x, max y
+
+    def get_grid_dim(self):
+        grid_size = [0, 0]
+        slice = ep.extract_plane(self.overall_cloud, self.z_plane, self.tolerance)
+        min_x = slice[:, 0].min()
+        min_y = slice[:, 1].min()
+        max_x = slice[:, 0].max()
+        max_y = slice[:, 1].max()
+        return np.array([[min_x, min_y], [max_x, max_y]])
 
     def get_overall_cloud(self):
         overall_cloud = []
@@ -331,12 +344,19 @@ if __name__ == "__main__":
     TOLERANCE = 1
 
     # Collect clouds and create objects
-    my_cloud = Cloud(clouds)
+    my_cloud = Cloud(clouds, Z_PLANE, DENSITY, TOLERANCE)
 
     component_groups = []
     for key, value in clouds.items():
         component_groups.append(
-            contour.ComponentGroup(key, value, Z_PLANE, GRID_DENSITY, TOLERANCE)
+            contour.ComponentGroup(
+                key,
+                value,
+                Z_PLANE,
+                GRID_DENSITY,
+                TOLERANCE,
+                my_cloud.grid_dim,
+            )
         )
 
     my_path = Path(component_groups, GRID_DENSITY, Z_PLANE)

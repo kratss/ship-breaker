@@ -27,12 +27,13 @@ class ComponentGroup:
 
     """
 
-    def __init__(self, name, cloud, plane, grid_density, tolerance):
+    def __init__(self, name, cloud, plane, grid_density, tolerance, grid_dim):
         self.name = name
         self.cloud = cloud
         self.plane = plane
         self.tolerance = tolerance
         self.grid_density = grid_density
+        self.grid_dim = grid_dim
         self.grid = self.process_grid()
         self.cntrs = self.get_contours(self.grid)
 
@@ -54,7 +55,11 @@ class ComponentGroup:
 
     def process_grid(self):
         grid = ep.cloud_to_grid(
-            self.cloud, self.grid_density, self.plane, self.tolerance
+            self.cloud,
+            self.grid_density,
+            self.plane,
+            self.tolerance,
+            self.grid_dim,
         )
         grid = self.denoise(grid)
         grid = self.thin(grid)

@@ -30,7 +30,7 @@ GRID_DENSITY = 10
 TOLERANCE = 1
 
 # Collect input pcd into Cloud object
-my_cloud = path.Cloud(clouds)
+my_cloud = path.Cloud(clouds, Z_PLANE, DENSITY, TOLERANCE)
 
 # Create ComponentGroup objects for each component class
 # All T-beams are in a ComponentGroup named tbeams,
@@ -38,7 +38,14 @@ my_cloud = path.Cloud(clouds)
 component_groups = []
 for key, value in clouds.items():
     component_groups.append(
-        contour.ComponentGroup(key, value, Z_PLANE, GRID_DENSITY, TOLERANCE)
+        contour.ComponentGroup(
+            key,
+            value,
+            Z_PLANE,
+            GRID_DENSITY,
+            TOLERANCE,
+            my_cloud.grid_dim,
+        )
     )
 
 

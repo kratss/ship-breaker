@@ -12,7 +12,11 @@ import open3d.core as o3c
 from icecream import ic
 
 
-def extract_plane(scene, z_plane, tolerance):
+def extract_plane(
+    scene,
+    z_plane,
+    tolerance,
+):
     """
     Extract the portion of the scene point cloud that is near the
         cutting plane
@@ -37,7 +41,7 @@ def extract_plane(scene, z_plane, tolerance):
     return slice
 
 
-def voxelize(slice, density):
+def voxelize(slice, density, grid_dim):
     """
     Voxelize a two dimensional point cloud projection to create a binary image
 
@@ -53,31 +57,28 @@ def voxelize(slice, density):
     if len(slice) == 0:
         ic("Voxelize: Warning, empty slice. Returning minimal grid")
         return np.zeros((1, 1))  # Return minimal grid
-    min_x = 0  # slice[:, 0].min()
-    min_y = 0  # slice[:, 1].min()
-    max_x = slice[:, 0].max()
-    max_y = slice[:, 1].max()
-    grid_x = max(2, int((max_x - min_x) * density))
-    grid_y = max(2, int((max_y - min_y) * density))
-    x_points = max(2, int((max_x - min_x) * density))
-    y_points = max(2, int((max_y - min_y) * density))
+    grid_x = int(grid_dim[0, 0] - grid_dim[1, 0])
+    grid_y = int(grid_dim[0, 1] - grid_dim[1, 1])
+    x_points = max(2, int((grid_dim[1, 0] - grid_dim[0, 0]) * density))
+    y_points = max(2, int((grid_dim[1, 1] - grid_dim[0, 1]) * density))
     grid = np.zeros([grid_y, grid_x])  # Note that the y value goes FIRST
-    grid_idx_x = np.linspace(min_x, max_x, int((max_x - min_x) * density))
-    ic(slice)
-    ic(min_y)
-    ic(max_y)
-    grid_idx_y = np.linspace(min_y, max_y, int((max_y - min_y) * density))
+    grid_idx_x = np.linspace(
+        grid_dim[0, 0], grid_dim[1, 0], int((grid_dim[1, 0] - grid_dim[0, 0]) * density)
+    )
+    grid_idx_y = np.linspace(
+        grid_dim[0, 1], grid_dim[1, 1], int((grid_dim[1, 1] - grid_dim[0, 1]) * density)
+    )
 
     # Edge case: when grid length is zero
-    if min_x == max_x:
-        grid_idx_x = np.array([min_x])
+    if grid_dim[0, 0] == grid_dim[1, 0]:
+        grid_idx_x = np.array([grid_dim[0, 0]])
     else:
-        grid_idx_x = np.linspace(min_x, max_x, x_points)
+        grid_idx_x = np.linspace(grid_dim[0, 0], grid_dim[1, 0], x_points)
 
-    if min_y == max_y:
-        grid_idx_y = np.array([min_y])
+    if grid_dim[0, 1] == grid_dim[1, 1]:
+        grid_idx_y = np.array([grid_dim[0, 1]])
     else:
-        grid_idx_y = np.linspace(min_y, max_y, y_points)
+        grid_idx_y = np.linspace(grid_dim[0, 1], grid_dim[1, 1], y_points)
 
     # Check if either dimension is empty
     if len(grid_idx_y) == 0 or len(grid_idx_y) == 0:
@@ -92,9 +93,9 @@ def voxelize(slice, density):
     return grid
 
 
-def cloud_to_grid(cloud, density, z_plane, tolerance):
+def cloud_to_grid(cloud, density, z_plane, tolerance, grid_dim):
     slice = extract_plane(cloud, z_plane, tolerance)
-    grid = voxelize(slice, density)
+    grid = voxelize(slice, density, grid_dim)
     return grid
 
 
