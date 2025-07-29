@@ -30,7 +30,7 @@ GRID_DENSITY = 10
 TOLERANCE = 1
 
 # Collect input pcd into Cloud object
-my_cloud = path.Cloud(clouds, Z_PLANE, TOLERANCE)
+my_cloud = path.Cloud(clouds, Z_PLANE, DENSITY, TOLERANCE)
 
 # Create ComponentGroup objects for each component class
 # All T-beams are in a ComponentGroup named tbeams,

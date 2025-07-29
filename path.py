@@ -78,7 +78,7 @@ class Path:
                 before calling Path.get_costs()"
             )
         return clusters
-
+`
     def get_costs(self):
         """
         Traveling salesman algo
