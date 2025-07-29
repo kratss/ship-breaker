@@ -100,7 +100,9 @@ def gen_ship():
 
 def gen_curved_walls(density, noise_std):
     origin = [55, 0, 20]
-    cloud = gen.curved_wall(origin=origin, roll=np.pi / 2, pitch=np.pi, yaw=np.pi)
+    cloud = gen.curved_wall(
+        origin=origin, roll=np.pi / 2, pitch=np.pi, yaw=np.pi, height=30
+    )
     cloud = gen.noise(cloud, std=noise_std)
     z_min = cloud[:, 2].min()
     z_max = cloud[:, 2].max()
@@ -309,7 +311,7 @@ def gen_floor(density, noise_std):
     cloud = np.concatenate(
         (
             #      gen.plane(origin=[80, 160, 0], length=5, width=30, roll=1.2 * np.pi / 2),
-            gen.plane(origin=[80, 0, 0], length=25, width=30, roll=1.2 * np.pi / 2),
+            gen.plane(origin=[80, 0, 0], length=85, width=30, roll=1.2 * np.pi / 2),
         )
     )
     cloud = gen.noise(cloud, std=noise_std)

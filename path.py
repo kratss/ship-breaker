@@ -291,7 +291,7 @@ class Cloud:
         overall_cloud: a numpy array holding the x,y,z coordinates of every point in the scene
     """
 
-    def __init__(self, clouds, z_plane, density, tolerance):
+    def __init__(self, clouds, z_plane, tolerance, density=None):
         self.clouds = clouds
         self.z_plane = z_plane
         self.density = density

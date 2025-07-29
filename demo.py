@@ -62,5 +62,6 @@ for key, value in clouds.items():
 #   Converts ordered list of 2D coordinates to 3D coordinates, which is
 #   the final result of the program
 my_path = path.Path(component_groups, GRID_DENSITY, Z_PLANE)
-ic(my_path.coords2d)
+# ic(my_path.coords2d) # Entire cutting path in grid space
+ic(my_path.components[2].get_info())
 my_path.visualize()

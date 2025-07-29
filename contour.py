@@ -9,6 +9,7 @@ from icecream import ic
 import matplotlib.pyplot as plt
 import model
 import numpy as np
+import pandas as pd
 from skimage.morphology import skeletonize
 
 
@@ -21,10 +22,12 @@ class ComponentGroup:
 
     Attributes:
         name (str): the component type. If the type is known, type-specific code will be used to provide the key points from the primtive. Else, a fallback function will be used
-        cloud (3xn numpy array): point cloud of all constituent components
+        cloud (3 x n array): point cloud of all constituent components
         plane (float): desired cutting plane
         grid_density (int): number of squares in image space per square unit in point cloud space
-
+        grid_dim (2 x 2 array): the location of the bottom-left and top-right corners of the grid in grid space
+        grid (2 x n array): binary image of the cross-section of the component group. Values are 1 or 0.
+        cntrs (2 x 1 x n array): array of key points that describe the entire component_group
     """
 
     def __init__(self, name, cloud, plane, grid_density, tolerance, grid_dim):
@@ -36,8 +39,10 @@ class ComponentGroup:
         self.grid_dim = grid_dim
         self.grid = self.process_grid()
         self.cntrs = self.get_contours(self.grid)
+        print("Initializing component group", self.name)
 
     def get_contours(self, img):
+        print("Obtaining primitives for", self.name)
         if img.dtype == bool:
             img = img.astype(np.uint8) * 255
         else:
@@ -47,6 +52,47 @@ class ComponentGroup:
             """KNN Approach. Find end point with only one neighbor"""
             skeleton = cv2.ximgproc.thinning(img)
             return skeleton
+        if self.name == "tbeams":
+            """
+            Find the points with the greatest y value, and move them
+            to the top and bottom of the array. This trick ensures the
+            path has navigable 45 degree angles.
+
+            Without this, the contour will have a -45 degree angle
+            """
+            img_cntrs, hrrchy = cv2.findContours(
+                img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            img_cntrs = list(img_cntrs)  # make mutable
+            for i in range(len(img_cntrs)):
+                cntr = img_cntrs[i].reshape(-1, 2)
+                cntr = pd.DataFrame(cntr).drop_duplicates().values
+
+                median_x = np.median(cntr[:, 0])
+                """
+                left_side_idx = np.where(cntr[:, 0] < median_x)[0]
+                max_y_idx = left_side_idx[np.argmin(cntr[left_side_idx, 1])]
+                cntr = np.vstack([cntr[max_y_idx], np.delete(cntr, max_y_idx, axis=0)])
+
+                right_side_idx = np.where(cntr[:, 0] > median_x)[0]
+                max_y_idx = left_side_idx[np.argmin(cntr[right_side_idx, 1])]
+                cntr = np.vstack([cntr[max_y_idx], np.delete(cntr, max_y_idx, axis=0)])
+                """
+                cntr[0, 0] = cntr[0, 0] - 2 * abs(cntr[0, 0] - cntr[1, 0])
+
+                ic(cntr)
+                cntr = cntr.reshape(-1, 1, 2)
+                img_cntrs[i] = cntr
+            return img_cntrs
+        if self.name == "curved_walls":
+            img_cntrs, hrrchy = cv2.findContours(
+                img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+            )
+            unique_points, indices = np.unique(img_cntrs, axis=0, return_index=True)
+            img_cntrs = unique_points
+            # ic("curved_walls")
+            # ic(img_cntrs)
+            return img_cntrs
 
         img_cntrs, hrrchy = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
@@ -86,7 +132,11 @@ class Component:
         self.last_pt = self.get_last_pt()
 
     def get_info(self):
-        return f"Component is a {self.name}"
+        print(f"Component is {self.name}")
+        ic(self.cntr)
+        ic(self.first_pt)
+        ic(self.last_pt)
+        return
 
     def get_first_pt(self):
         return self.cntr[0]
@@ -103,9 +153,10 @@ class Component:
         if cntr.ndim < 2:
             cntr = cntr.reshape(1, -1)  # Ensure arrays are 2D
 
-        # Remove duplicate points, keeping first occurrence
-        unique_points, indices = np.unique(cntr, axis=0, return_index=True)
-
+        # Remove duplicate points, keep first occurrence
+        cntr = pd.DataFrame(cntr).drop_duplicates().values
+        # unique_points, indices = np.unique(cntr, axis=0, return_index=True)
+        # cntr = unique_points
         return cntr
 
     def visualize(self):
@@ -131,20 +182,32 @@ if __name__ == "__main__":
     DENSITY = 35
     NOISE_STD = 0.05
     Z_PLANE = 5
-    grid_density = 5
+    GRID_DENSITY = 5
     TOLERANCE = 1
+    GRID_DIM = np.array([[0, 0], [300, 300]])
     curved_walls = ComponentGroup(
         "curved_walls",
         model.gen_curved_walls(DENSITY, NOISE_STD),
         Z_PLANE,
-        grid_density,
+        GRID_DENSITY,
         TOLERANCE,
+        GRID_DIM,
     )
     planes = ComponentGroup(
-        "planes", model.gen_planes(DENSITY, NOISE_STD), Z_PLANE, grid_density, TOLERANCE
+        "planes",
+        model.gen_planes(DENSITY, NOISE_STD),
+        Z_PLANE,
+        GRID_DENSITY,
+        TOLERANCE,
+        GRID_DIM,
     )
     tbeams = ComponentGroup(
-        "tbeams", model.gen_tbeams(DENSITY, NOISE_STD), Z_PLANE, grid_density, TOLERANCE
+        "tbeams",
+        model.gen_tbeams(DENSITY, NOISE_STD),
+        Z_PLANE,
+        GRID_DENSITY,
+        TOLERANCE,
+        GRID_DIM,
     )
 
     # List of NON-EMPTY component groups
@@ -181,7 +244,7 @@ if __name__ == "__main__":
 
     # Collect all coordinates in order
     coords2D = np.concatenate([comp.cntr for comp in components_ordered], axis=0)
-    coords3D = ep.get_3d(coords2D, grid_density, Z_PLANE)
+    coords3D = ep.get_3d(coords2D, GRID_DENSITY, Z_PLANE)
 
     ### Visualize and print info
     component_instances = [
