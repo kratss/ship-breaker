@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import open3d as o3d
-import gen
+import planner as pln
 import numpy as np
 
 
@@ -22,26 +22,26 @@ np.set_printoptions(precision=1, floatmode="fixed")
 # roof, roof tbeam 1, root tbeam 2
 pcd_points = np.concatenate(
     (
-        gen.plane(origin=[5, 5, 5], length=10, width=2, density=density),
-        gen.plane(
+        pln.plane(origin=[5, 5, 5], length=10, width=2, density=density),
+        pln.plane(
             origin=[5, 5, 5], length=10, width=2, roll=np.pi / 2, density=density
         ),
-        gen.plane(
+        pln.plane(
             origin=[5, 5, 5], length=10, width=2, pitch=np.pi / 2, density=density
         ),
-        gen.plane(origin=[0, 10, 30], length=110, width=90, density=density),
-        gen.tbeam(origin=[0, 30, 30], length=90, density=density),
-        gen.tbeam(origin=[0, 60, 30], length=90, density=density),
-        gen.tbeam(origin=[0, 90, 30], length=90, density=density),
-        gen.curved_wall(
+        pln.plane(origin=[0, 10, 30], length=110, width=90, density=density),
+        pln.tbeam(origin=[0, 30, 30], length=90, density=density),
+        pln.tbeam(origin=[0, 60, 30], length=90, density=density),
+        pln.tbeam(origin=[0, 90, 30], length=90, density=density),
+        pln.curved_wall(
             origin=[110, 5, 0],
             length=110,
             height=30,
             yaw=np.pi / 2,
         ),
-        gen.bulb_flat(origin=[0, 10, 30], roll=np.pi / 2, yaw=np.pi / 2),
-        gen.plane(origin=[0, 0, 0], length=110, width=90, density=density),
-        gen.ibeam(origin=[20, 20, 5], roll=np.pi / 2),
+        pln.bulb_flat(origin=[0, 10, 30], roll=np.pi / 2, yaw=np.pi / 2),
+        pln.plane(origin=[0, 0, 0], length=110, width=90, density=density),
+        pln.ibeam(origin=[20, 20, 5], roll=np.pi / 2),
     )
 )
 pcd = o3d.t.geometry.PointCloud(pcd_points)

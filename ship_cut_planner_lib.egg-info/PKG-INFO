@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: ship-cut-planner-lib
+Version: 0.1.0
+Summary: Autonomous ship dismantling path planning library
+Author: Jarrett Bolander
+Requires-Python: >=3.12
+Requires-Dist: numpy==2.2.0
+Requires-Dist: pandas==2.2.3
+Requires-Dist: matplotlib==3.10.3
+Requires-Dist: opencv-python<4.11,>=4.10
+Requires-Dist: open3d<0.20.0,>=0.19
+Requires-Dist: PyQt5
+Requires-Dist: icecream
+Requires-Dist: opencv-contrib-python
+Dynamic: author
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

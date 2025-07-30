@@ -11,6 +11,7 @@ which python3.12
 Download the repository, prepare the Python environment, and install the library
 
 ```
+#!/usr/bin/bash
 git clone https://github.com/kratss/ship-breaker.git 
 cd ship-breaker
 chmod u+x *.py
