@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+"""
+Solve traveling salesman problems with bound and branch
+
+Implements a variant of the bound and branch algorithm to solve a cluster-based variant of an assymetric traveling salesman problem. This determines the optimal order of components to create the cutting path. The clusters are introduced because ordered list of points comprising a component path can be navigated either forward or backward, but not both.
+"""
+
 import itertools
 import random
 import matplotlib.pyplot as plt
@@ -8,12 +14,32 @@ from icecream import ic
 
 
 def generate_brothers(num_nodes):
+    """
+    Create brothers (clusters) to track which nodes represent the same component
+
+    Args:
+        num_nodes (int): Number of nodes in the problem. Equal to twice the number of components"
+
+    Returns:
+        dictionary: Map of node clusters
+    """
     if num_nodes % 2 != 0:
-        raise ValueError("Anzahl der Knoten muss gerade sein.")
+        raise ValueError("Anzahl der Knoten muss gerade sein.kk")
     return {i: i + 1 if i % 2 == 0 else i - 1 for i in range(num_nodes)}
 
 
 def create_distance_matrix(num_nodes, brothers, nodes):
+    """
+    Create matrix of distances between nodes
+
+    Args:
+        num_nodes (int): Number of nodes in the problem. Equal to twice the number of components
+        brothers (dictionary): Map of node clusters
+        nodes (list): List of all component objects in the scene
+
+    Returns:
+        list: Cost to travel between two nodes
+    """
     matrix = []
     for i in range(num_nodes):
         row = []
@@ -79,6 +105,19 @@ def bnb_tsp(matrix, nodes):
 
 
 def tsp_branch_and_bound_with_brothers(matrix, brothers):
+    """
+    Find solution to a clustered, assymetric traveling salesman problem with bound and branch
+
+    Args:
+        matrix (list): Matrix of edge costs between nodes
+        brothers (dictionary): Maps which nodes belong to which clusters
+
+    Returns:
+        tuple:
+            - best_overall_path (list): Optimal path
+            - best_overall_cost (float): Cost of the path
+            - best_selection: Set of nodes selected from clusters
+    """
     used = set()
     pairs = []
     for a, b in brothers.items():

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 """
-Find the path the robot must follow
+Apply primitives to the point cloud
 """
 import cv2
-import primitives.extract_plane as ep
-import primitives.gen
+from . import extract_plane as ep
+from . import gen
 from icecream import ic
 import matplotlib.pyplot as plt
-import primitives.model
+from . import model
 import numpy as np
 import pandas as pd
 from skimage.morphology import skeletonize
@@ -22,12 +22,13 @@ class ComponentGroup:
 
     Attributes:
         name (str): the component type. If the type is known, type-specific code will be used to provide the key points from the primtive. Else, a fallback function will be used
-        cloud (3 x n array): point cloud of all constituent components
+        cloud (numpy.ndarray): point cloud of shape (n,3) of all constituent components
         plane (float): desired cutting plane
+        tolerance (float): amount of deviation from the cutting plane permitted
         grid_density (int): number of squares in image space per square unit in point cloud space
-        grid_dim (2 x 2 array): the location of the bottom-left and top-right corners of the grid in grid space
-        grid (2 x n array): binary image of the cross-section of the component group. Values are 1 or 0.
-        cntrs (2 x 1 x n array): array of key points that describe the entire component_group
+        grid_dim (numpy.ndarray): an array of size (2,2) describing the location of the bottom-left and top-right corners of the grid in grid space
+        grid (numpy.ndarray): a (2,n) array giving a binary image of the cross-section of the component group. Values are 1 or 0.
+        cntrs (list): list of lists of key points that describe the entire component_group
     """
 
     def __init__(self, name, cloud, plane, grid_density, tolerance, grid_dim):
@@ -42,6 +43,15 @@ class ComponentGroup:
         print("Initializing component group", self.name)
 
     def get_contours(self, img):
+        """
+        Apply the primitives to the binary image to obtain the key points
+
+        Args:
+            img (np.ndarray): An array of size (n,3) giving a binary image of the cross-section of the component group. Values are 1 or 0.
+
+        Returns:
+            list: A list of lists, with each list containing the ordered set of key points for a specific component
+        """
         print("Obtaining primitives for", self.name)
         if img.dtype == bool:
             img = img.astype(np.uint8) * 255
@@ -100,6 +110,12 @@ class ComponentGroup:
         return img_cntrs
 
     def process_grid(self):
+        """
+        Obtain the binary image of the cross section from the point cloud
+
+        Returns:
+            np.ndarray: An array of size (n,3) giving a binary image of the cross-section of the component group. Values are 1 or 0.
+        """
         grid = ep.cloud_to_grid(
             self.cloud,
             self.grid_density,
@@ -112,9 +128,21 @@ class ComponentGroup:
         return grid
 
     def denoise(self, grid):
+        """
+        Removes noise
+
+        Returns:
+            np.ndarray: An array of size (n,3) giving a binary image of the cross-section of the component group. Values are 1 or 0.
+        """
         return cv2.GaussianBlur(grid, (5, 5), 0)
 
     def thin(self, grid):
+        """
+        Thins lines with mutliple pixels in width
+
+        Returns:
+            np.ndarray: An array of size (n,3) giving a binary image of the cross-section of the component group. Values are 1 or 0.
+        """
         grid = skeletonize(grid)
         return grid
 
@@ -122,6 +150,13 @@ class ComponentGroup:
 class Component:
     """
     An individual structural component. E.g. I-beam
+
+    Attributes:
+        name (str): name of the specific component at a specific location in space. E.g. plane0, plane1, plane2 ...
+        grid_size (np.ndarray): length and width of the image grid. Size is 2
+        cntr (np.ndarray): ordered list of (x,y) points the robot must follow to cut the component
+        first_pt (np.ndarray): the first pair of (x,y) coordinates in the primitive path. Improves code legibility
+        last_pt (np.ndarray): the last pair of (x,y) coordinates in the primitive path. Improves code legibility
     """
 
     def __init__(self, name, cntr, grid_size):
@@ -132,6 +167,9 @@ class Component:
         self.last_pt = self.get_last_pt()
 
     def get_info(self):
+        """
+        Prints useful info about the component
+        """
         print(f"Component is {self.name}")
         ic(self.cntr)
         ic(self.first_pt)
@@ -139,15 +177,31 @@ class Component:
         return
 
     def get_first_pt(self):
+        """Returns the first point in the primitive path
+
+        Returns:
+            np.ndarray: x,y coordinate
+        """
         return self.cntr[0]
 
     def get_last_pt(self):
+        """Returns the last point in the primitive path
+
+        Returns:
+            np.ndarray: x,y coordinate
+        """
         return self.cntr[-1]
 
     def fix_contour(self, cntr):
         """
         Squeeze out the extra dimension that cv.contours produces.
         Ensure cntrs containing only one point are still 2D
+
+        Args:
+            cntr (np.ndarray): Ordered list of (x,y) points
+
+        Returns
+            cntr (np.ndarray): Ordered list of (x,y) points
         """
         cntr = np.squeeze(cntr)
         if cntr.ndim < 2:
@@ -160,6 +214,11 @@ class Component:
         return cntr
 
     def visualize(self):
+        """
+        Prints 2D plot of the component path.
+
+        Note: Wayland only
+        """
         print("Visualizing...")
         cntr = self.cntr.squeeze()
         grid_size = self.grid_size

@@ -1,22 +1,20 @@
 #!/usr/bin/env python
 """
 Determine the cutting path for a plasma torch
-
-This module provides the primary interface for the library
 """
 # Note:
 #    grid refers to the 2D projection of the point cloud slice onto a grid
 #    such that it can be viewed as an image
 
-import primitives.bnb as bnb
+from . import bnb
 import cv2
-import primitives.contour as contour
-import primitives.extract_plane as ep
-import primitives.gen as gen
+from . import contour
+from . import extract_plane as ep
+from . import gen
 from icecream import ic
 import math
 import matplotlib.pyplot as plt
-import primitives.model as model
+from . import model
 import numpy as np
 import open3d as o3d
 from skimage.morphology import skeletonize

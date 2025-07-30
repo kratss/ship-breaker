@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>planner.path.Cloud</title>
+    <meta name="generator" content="pydoctor 24.11.1"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="readthedocstheme.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+    
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          Ship Cutting Planner <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="apidocs-help-button" title="Help" href="apidocs-help.html"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 10px;">
+          <p>For more information on the search, visit the <a href="apidocs-help.html#rst-search">help page</a>.</p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+    
+        <!-- Side navigation -->
+      <div class="sidebarcontainer">
+        <nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="planner.path.Cloud.html" class="internal-link" title="This class"><wbr></wbr>Cloud</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="planner.path.Cloud.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_grid_dim" class="internal-link" title="planner.path.Cloud.get_grid_dim">get<wbr></wbr>_grid<wbr></wbr>_dim</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_overall_cloud" class="internal-link" title="planner.path.Cloud.get_overall_cloud">get<wbr></wbr>_overall<wbr></wbr>_cloud</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#visualize" class="internal-link" title="planner.path.Cloud.visualize">visualize</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#clouds" class="internal-link" title="planner.path.Cloud.clouds">clouds</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#density" class="internal-link" title="planner.path.Cloud.density">density</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#grid_dim" class="internal-link" title="planner.path.Cloud.grid_dim">grid<wbr></wbr>_dim</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#overall_cloud" class="internal-link" title="planner.path.Cloud.overall_cloud">overall<wbr></wbr>_cloud</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#tolerance" class="internal-link" title="planner.path.Cloud.tolerance">tolerance</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#z_plane" class="internal-link" title="planner.path.Cloud.z_plane">z<wbr></wbr>_plane</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="planner.path.html" class="internal-link" title="The parent of this class">path</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="planner.path.Cloud.html" class="internal-link" title="planner.path.Cloud"><wbr></wbr>Cloud</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="planner.path.Path.html" class="internal-link" title="planner.path.Path"><wbr></wbr>Path</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        
+         
+
+        
+         
+
+        
+         
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        <!-- No sidebar toggle for read the docs theme, the sidebar is always
+          visible when the screen is width enough.
+        -->
+      </div>
+
+    </nav>
+    
+    <div class="container-fluid">
+
+      <div id="main" class="">
+        
+
+        
+
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="index.html" class="internal-link">planner</a></code><wbr></wbr>.<code><a href="planner.path.html" class="internal-link" title="planner.path">path</a></code><wbr></wbr>.<code><a href="planner.path.Cloud.html" class="internal-link" title="planner.path.Cloud">Cloud</a></code></code></h1>
+          <div id="showPrivate">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Cloud</span>:</code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="planner.path.Cloud.__init__">Cloud(clouds, z_plane, tolerance, density)</a></code></p>
+          <p><a href="classIndex.html#planner.path.Cloud">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p>An object holding all tagged point clouds</p></div>
+        </div>
+
+        <div id="splitTables">
+          <table class="children sortable" id="id11">
+  
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="planner.path.Cloud.__init__">__init__</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_grid_dim" class="internal-link" title="planner.path.Cloud.get_grid_dim">get<wbr></wbr>_grid<wbr></wbr>_dim</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_overall_cloud" class="internal-link" title="planner.path.Cloud.get_overall_cloud">get<wbr></wbr>_overall<wbr></wbr>_cloud</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#visualize" class="internal-link" title="planner.path.Cloud.visualize">visualize</a></code></td>
+    <td>Draw the complete point cloud and print the array contents. NOTE: X only, not Wayland compatible</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#clouds" class="internal-link" title="planner.path.Cloud.clouds">clouds</a></code></td>
+    <td>a dictionary of form "structure":point_cloud, meaning the name of the structure type and a numpy array holding all the points tagged as that structure type</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#density" class="internal-link" title="planner.path.Cloud.density">density</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#grid_dim" class="internal-link" title="planner.path.Cloud.grid_dim">grid<wbr></wbr>_dim</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#overall_cloud" class="internal-link" title="planner.path.Cloud.overall_cloud">overall<wbr></wbr>_cloud</a></code></td>
+    <td>a numpy array holding the x,y,z coordinates of every point in the scene</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#tolerance" class="internal-link" title="planner.path.Cloud.tolerance">tolerance</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#z_plane" class="internal-link" title="planner.path.Cloud.z_plane">z<wbr></wbr>_plane</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="childList">
+          <div class="basemethod">
+  
+  
+  <a name="planner.path.Cloud.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, clouds, z_plane, tolerance, density=None)</span>:
+    
+    <a class="headerLink" href="#__init__" title="planner.path.Cloud.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Cloud.get_grid_dim">
+    
+  </a>
+  <a name="get_grid_dim">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_grid_dim</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_grid_dim" title="planner.path.Cloud.get_grid_dim">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Cloud.get_overall_cloud">
+    
+  </a>
+  <a name="get_overall_cloud">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_overall_cloud</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_overall_cloud" title="planner.path.Cloud.get_overall_cloud">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Cloud.visualize">
+    
+  </a>
+  <a name="visualize">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">visualize</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#visualize" title="planner.path.Cloud.visualize">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Draw the complete point cloud and print the array contents.
+NOTE: X only, not Wayland compatible</p></div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Cloud.clouds">
+    
+  </a>
+  <a name="clouds">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">clouds</span> =
+    
+    <a class="headerLink" href="#clouds" title="planner.path.Cloud.clouds">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>a dictionary of form "structure":point_cloud, meaning the name of the structure type and a numpy array holding all the points tagged as that structure type</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Cloud.density">
+    
+  </a>
+  <a name="density">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">density</span> =
+    
+    <a class="headerLink" href="#density" title="planner.path.Cloud.density">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Cloud.grid_dim">
+    
+  </a>
+  <a name="grid_dim">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">grid_dim</span> =
+    
+    <a class="headerLink" href="#grid_dim" title="planner.path.Cloud.grid_dim">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Cloud.overall_cloud">
+    
+  </a>
+  <a name="overall_cloud">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">overall_cloud</span> =
+    
+    <a class="headerLink" href="#overall_cloud" title="planner.path.Cloud.overall_cloud">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>a numpy array holding the x,y,z coordinates of every point in the scene</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Cloud.tolerance">
+    
+  </a>
+  <a name="tolerance">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">tolerance</span> =
+    
+    <a class="headerLink" href="#tolerance" title="planner.path.Cloud.tolerance">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Cloud.z_plane">
+    
+  </a>
+  <a name="z_plane">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">z_plane</span> =
+    
+    <a class="headerLink" href="#z_plane" title="planner.path.Cloud.z_plane">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer class="navbar navbar-default">
+    <hr />
+    
+    
+    <div class="container-fluid">
+      <a href="index.html">API Documentation</a> for Ship Cutting Planner,
+    generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+      24.11.1 at 2025-07-30 15:34:46.
+    </div>
+    
+    <script src="ajax.js" type="text/javascript"></script>
+    <script src="searchlib.js" type="text/javascript"></script>
+    <script src="search.js" type="text/javascript"></script>
+  
+  </footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>planner.contour.Component</title>
+    <meta name="generator" content="pydoctor 24.11.1"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="readthedocstheme.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+    
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          Ship Cutting Planner <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="apidocs-help-button" title="Help" href="apidocs-help.html"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 10px;">
+          <p>For more information on the search, visit the <a href="apidocs-help.html#rst-search">help page</a>.</p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+    
+        <!-- Side navigation -->
+      <div class="sidebarcontainer">
+        <nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="planner.contour.Component.html" class="internal-link" title="This class"><wbr></wbr>Component</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="planner.contour.Component.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#fix_contour" class="internal-link" title="planner.contour.Component.fix_contour">fix<wbr></wbr>_contour</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_first_pt" class="internal-link" title="planner.contour.Component.get_first_pt">get<wbr></wbr>_first<wbr></wbr>_pt</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_info" class="internal-link" title="planner.contour.Component.get_info">get<wbr></wbr>_info</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_last_pt" class="internal-link" title="planner.contour.Component.get_last_pt">get<wbr></wbr>_last<wbr></wbr>_pt</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#visualize" class="internal-link" title="planner.contour.Component.visualize">visualize</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#cntr" class="internal-link" title="planner.contour.Component.cntr">cntr</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#first_pt" class="internal-link" title="planner.contour.Component.first_pt">first<wbr></wbr>_pt</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#grid_size" class="internal-link" title="planner.contour.Component.grid_size">grid<wbr></wbr>_size</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#last_pt" class="internal-link" title="planner.contour.Component.last_pt">last<wbr></wbr>_pt</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#name" class="internal-link" title="planner.contour.Component.name">name</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="planner.contour.html" class="internal-link" title="The parent of this class">contour</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="planner.contour.Component.html" class="internal-link" title="planner.contour.Component"><wbr></wbr>Component</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="planner.contour.ComponentGroup.html" class="internal-link" title="planner.contour.ComponentGroup"><wbr></wbr>Component<wbr></wbr>Group</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        
+         
+
+        
+         
+
+        
+         
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        <!-- No sidebar toggle for read the docs theme, the sidebar is always
+          visible when the screen is width enough.
+        -->
+      </div>
+
+    </nav>
+    
+    <div class="container-fluid">
+
+      <div id="main" class="">
+        
+
+        
+
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="index.html" class="internal-link">planner</a></code><wbr></wbr>.<code><a href="planner.contour.html" class="internal-link" title="planner.contour">contour</a></code><wbr></wbr>.<code><a href="planner.contour.Component.html" class="internal-link" title="planner.contour.Component">Component</a></code></code></h1>
+          <div id="showPrivate">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Component</span>:</code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="planner.contour.Component.__init__">Component(name, cntr, grid_size)</a></code></p>
+          <p><a href="classIndex.html#planner.contour.Component">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p>An individual structural component. E.g. I-beam</p></div>
+        </div>
+
+        <div id="splitTables">
+          <table class="children sortable" id="id5">
+  
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="planner.contour.Component.__init__">__init__</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#fix_contour" class="internal-link" title="planner.contour.Component.fix_contour">fix<wbr></wbr>_contour</a></code></td>
+    <td>Squeeze out the extra dimension that cv.contours produces. Ensure cntrs containing only one point are still 2D</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_first_pt" class="internal-link" title="planner.contour.Component.get_first_pt">get<wbr></wbr>_first<wbr></wbr>_pt</a></code></td>
+    <td>Returns the first point in the primitive path</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_info" class="internal-link" title="planner.contour.Component.get_info">get<wbr></wbr>_info</a></code></td>
+    <td>Prints useful info about the component</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_last_pt" class="internal-link" title="planner.contour.Component.get_last_pt">get<wbr></wbr>_last<wbr></wbr>_pt</a></code></td>
+    <td>Returns the last point in the primitive path</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#visualize" class="internal-link" title="planner.contour.Component.visualize">visualize</a></code></td>
+    <td>Prints 2D plot of the component path.</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#cntr" class="internal-link" title="planner.contour.Component.cntr">cntr</a></code></td>
+    <td>ordered list of (x,y) points the robot must follow to cut the component</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#first_pt" class="internal-link" title="planner.contour.Component.first_pt">first<wbr></wbr>_pt</a></code></td>
+    <td>the first pair of (x,y) coordinates in the primitive path. Improves code legibility</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#grid_size" class="internal-link" title="planner.contour.Component.grid_size">grid<wbr></wbr>_size</a></code></td>
+    <td>length and width of the image grid. Size is 2</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#last_pt" class="internal-link" title="planner.contour.Component.last_pt">last<wbr></wbr>_pt</a></code></td>
+    <td>the last pair of (x,y) coordinates in the primitive path. Improves code legibility</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#name" class="internal-link" title="planner.contour.Component.name">name</a></code></td>
+    <td>name of the specific component at a specific location in space. E.g. plane0, plane1, plane2 ...</td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="childList">
+          <div class="basemethod">
+  
+  
+  <a name="planner.contour.Component.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, name, cntr, grid_size)</span>:
+    
+    <a class="headerLink" href="#__init__" title="planner.contour.Component.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.contour.Component.fix_contour">
+    
+  </a>
+  <a name="fix_contour">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">fix_contour</span><span class="function-signature">(self, cntr)</span>:
+    
+    <a class="headerLink" href="#fix_contour" title="planner.contour.Component.fix_contour">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Squeeze out the extra dimension that cv.contours produces.
+Ensure cntrs containing only one point are still 2D</p>
+<dl class="rst-docutils">
+<dt>Returns</dt>
+<dd>cntr (np.ndarray): Ordered list of (x,y) points</dd>
+</dl>
+<table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">cntr:</span><code>np.ndarray</code></td><td class="fieldArgDesc">Ordered list of (x,y) points</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.contour.Component.get_first_pt">
+    
+  </a>
+  <a name="get_first_pt">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_first_pt</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_first_pt" title="planner.contour.Component.get_first_pt">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Returns the first point in the primitive path</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code>np.ndarray</code></td><td class="fieldArgDesc">x,y coordinate</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.contour.Component.get_info">
+    
+  </a>
+  <a name="get_info">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_info</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_info" title="planner.contour.Component.get_info">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Prints useful info about the component</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.contour.Component.get_last_pt">
+    
+  </a>
+  <a name="get_last_pt">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_last_pt</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_last_pt" title="planner.contour.Component.get_last_pt">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Returns the last point in the primitive path</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td class="fieldArgContainer"><code>np.ndarray</code></td><td class="fieldArgDesc">x,y coordinate</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.contour.Component.visualize">
+    
+  </a>
+  <a name="visualize">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">visualize</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#visualize" title="planner.contour.Component.visualize">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Prints 2D plot of the component path.</p>
+<p>Note: Wayland only</p>
+</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.contour.Component.cntr">
+    
+  </a>
+  <a name="cntr">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">cntr</span>: <code>np.ndarray</code> =
+    
+    <a class="headerLink" href="#cntr" title="planner.contour.Component.cntr">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>ordered list of (x,y) points the robot must follow to cut the component</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.contour.Component.first_pt">
+    
+  </a>
+  <a name="first_pt">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">first_pt</span>: <code>np.ndarray</code> =
+    
+    <a class="headerLink" href="#first_pt" title="planner.contour.Component.first_pt">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>the first pair of (x,y) coordinates in the primitive path. Improves code legibility</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.contour.Component.grid_size">
+    
+  </a>
+  <a name="grid_size">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">grid_size</span>: <code>np.ndarray</code> =
+    
+    <a class="headerLink" href="#grid_size" title="planner.contour.Component.grid_size">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>length and width of the image grid. Size is 2</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.contour.Component.last_pt">
+    
+  </a>
+  <a name="last_pt">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">last_pt</span>: <code>np.ndarray</code> =
+    
+    <a class="headerLink" href="#last_pt" title="planner.contour.Component.last_pt">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>the last pair of (x,y) coordinates in the primitive path. Improves code legibility</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.contour.Component.name">
+    
+  </a>
+  <a name="name">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">name</span>: <code>str</code> =
+    
+    <a class="headerLink" href="#name" title="planner.contour.Component.name">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>name of the specific component at a specific location in space. E.g. plane0, plane1, plane2 ...</p></div>
+    
+  </div>
+</div>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer class="navbar navbar-default">
+    <hr />
+    
+    
+    <div class="container-fluid">
+      <a href="index.html">API Documentation</a> for Ship Cutting Planner,
+    generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+      24.11.1 at 2025-07-30 15:34:46.
+    </div>
+    
+    <script src="ajax.js" type="text/javascript"></script>
+    <script src="searchlib.js" type="text/javascript"></script>
+    <script src="search.js" type="text/javascript"></script>
+  
+  </footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

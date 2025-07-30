@@ -47,6 +47,17 @@ def rot_mat(roll=0, pitch=0, yaw=0):
 
 
 def noise(cloud, std=0.01):
+    """
+    Adds Gaussian noise to a point cloud to realistically simulate noise
+
+    Args:
+        cloud (numpy.ndarray): Input point cloud of shape (n, 3)
+        std (float, optional): Standard deviation of the Gaussian noise
+            distribution. Defaults to 0.01.
+
+    Returns:
+        numpy.ndarray: Noisy point cloud with the same shape as input
+    """
     print("Adding noise...")
     cloud_noisy = np.random.normal(cloud, std)
     return cloud_noisy
@@ -66,6 +77,25 @@ def plane(
     Origin specifies the location of the southwest corner
     Roll pitch yaw correspond to phi theta psi by convention and rotate on
     the x, y, and z axes respectively
+
+    Args:
+        origin (list): Location of the southwest corner of the plane. Defaults to [0, 0, 0].
+        roll (float): Rotation angle in radians around x-axis
+            Defaults to 0.
+        pitch (float): Rotation angle in radians around y-axis
+            Defaults to 0.
+        yaw (float): Rotation angle in radians around z-axis
+            Defaults to 0.
+        length (float): Length of the plane in the x-direction.
+            Defaults to 5.
+        width (float): Width of the plane in the y-direction.
+            Defaults to 20.
+        density (int): Points per unit length/width for sampling
+            density. Defaults to 20.
+
+    Returns:
+        numpy.ndarray: Point cloud array of shape (n, 3) representing points
+            on the generated plane
     """
     print("\nGenerating plane...")
     origin = np.array(origin)
@@ -305,6 +335,31 @@ def tbeam(
     skip=[False] * 12,
     density=20,
 ):
+    """
+    Args:
+        origin (list): Location of beam. Defaults to [0, 0, 0].
+        roll (float): Rotation angle in radians around x-axis
+            Defaults to 0.
+        pitch (float): Rotation angle in radians around y-axis
+            Defaults to 0.
+        yaw (float): Rotation angle in radians around z-axis
+            Defaults to 0.
+        length (float): Length of the beam
+            Defaults to 10.
+        width (float): Width of the beam
+            Defaults to 5.
+        height (float): Width of the beam
+            Defaults to 10.
+        thickness (float): Thickness of the beam.
+            Defaults to 2.
+        density (int): Points per unit length in cloud space
+            Defaults to 20.
+
+    Returns:
+        numpy.ndarray: Point cloud array of shape (n, 3) representing points
+            on the generated beam
+    """
+
     # Origin is measured from TOP of t-beam as defined by its typical orientation
     print("Generating T-beam...")
     origin = np.array(origin)
@@ -390,7 +445,8 @@ def bulb_flat(
     """
     Generate a bulb flat (aka Holland profile) stiffener
 
-    Inputs:
+
+    Args:
         origin (numpy array): location of the component
         a (float): first coefficient of second degree polynomial
         b (float): second coefficient of second degree polynomial
@@ -398,6 +454,9 @@ def bulb_flat(
         length (float): number of units long the flat is in point cloud space
         width (float): number of units wide the component is in point cloud space
 
+    Returns:
+        numpy.ndarray: Point cloud array of shape (n, 3) representing points
+            on the generated stiffener
     """
     print("Generating bulb flat stiffener...")
     origin = np.array([origin])
@@ -471,6 +530,9 @@ def curved_wall(
         origin: position of the object
 
 
+    Returns:
+        numpy.ndarray: Point cloud array of shape (n, 3) representing points
+            on the generated curve
     """
     print("\nGenerating curved wall...")
     origin = np.array(origin)
@@ -495,13 +557,16 @@ def curved_wall(
 
 def draw_axes(size=1.0, origin=[0, 0, 0]):
     """
-    Draw and color-code the origin
-    X axis is red
-    Y axis is green
-    Z axis is blue
+        Draw and color-code the origin
+        X axis is red
+        Y axis is green
+        Z axis is blue
 
-    Arguments:
-        size: int representing length of axis lines
+        Args:
+            size: int representing length of axis lines
+
+    Returns:
+        o3d.geometry.LineSet: Can be plotted to show axes in an open3d cloud
     """
 
     points = [

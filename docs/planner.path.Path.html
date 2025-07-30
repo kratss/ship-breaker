@@ -1,0 +1,1252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+          "DTD/xhtml1-strict.dtd">
+<html>
+  
+
+  <head>
+    
+    <title>planner.path.Path</title>
+    <meta name="generator" content="pydoctor 24.11.1"> 
+        
+    </meta>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1 maximum-scale=1" />
+    <link rel="stylesheet" type="text/css" href="apidocs.css" />
+    <link rel="stylesheet" type="text/css" href="readthedocstheme.css" />
+    <link rel="stylesheet" type="text/css" href="extra.css" />
+    
+</head>
+
+  <body>
+
+    
+
+    <nav class="navbar navbar-default mainnavbar">
+      
+  
+  <div class="container-fluid">
+
+
+    <div class="navbar-header">
+      
+      <div class="navlinks">
+        <span class="navbar-brand">
+          Ship Cutting Planner <a href="index.html">API Documentation</a>
+        </span>
+
+        <a href="moduleIndex.html">
+          Modules
+        </a>
+
+        <a href="classIndex.html">
+          Classes
+        </a>
+
+        <a href="nameIndex.html">
+          Names
+        </a>
+
+        <div id="search-box-container">
+          <div class="input-group">
+            <input id="search-box" type="search" name="search-query" placeholder="Search..." aria-label="Search" minlength="2" class="form-control" autocomplete="off" />
+            
+            <span class="input-group-btn">
+              <a style="display: none;" class="btn btn-default" id="search-clear-button" title="Clear" onclick="clearSearch()"><img src="fonts/x-circle.svg" alt="Clear" /></a>
+              <a class="btn btn-default" id="apidocs-help-button" title="Help" href="apidocs-help.html"><img src="fonts/info.svg" alt="Help" /></a>
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="search-results-container" style="display: none;">
+        
+        <div id="search-buttons">
+          <span class="label label-default" id="search-docstrings-button">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="toggle-search-in-docstrings-checkbox" value="false" onclick="toggleSearchInDocstrings()">
+              search in docstrings
+            </input>
+          </label>
+          </span>
+          
+        </div>
+        
+        <noscript>
+            <h1>Cannot search: JavaScript is not supported/enabled in your browser.</h1>
+        </noscript>
+
+        <div id="search-status"> </div>
+
+        <div class="warning" id="search-warn-box" style="display: none;">
+          <p class="rst-last"><span id="search-warn"></span></p>
+        </div>
+
+        <table id="search-results">
+          <!-- Filled dynamically by JS -->
+        </table>
+        
+        <div style="margin-top: 10px;">
+          <p>For more information on the search, visit the <a href="apidocs-help.html#rst-search">help page</a>.</p>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+    
+        <!-- Side navigation -->
+      <div class="sidebarcontainer">
+        <nav class="sidebar">
+  
+
+  <div>
+
+      <div class="thingTitle">
+        <span>Class</span>
+        <code class="thisobject"><a href="planner.path.Path.html" class="internal-link" title="This class"><wbr></wbr>Path</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        
+        
+
+        <div class="childrenKindTitle">Methods</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#__init__" class="internal-link" title="planner.path.Path.__init__">__init__</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#algo_bnb" class="internal-link" title="planner.path.Path.algo_bnb">algo<wbr></wbr>_bnb</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#algo_brute_force" class="internal-link" title="planner.path.Path.algo_brute_force">algo<wbr></wbr>_brute<wbr></wbr>_force</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#algo_greedy_gtsp" class="internal-link" title="planner.path.Path.algo_greedy_gtsp">algo<wbr></wbr>_greedy<wbr></wbr>_gtsp</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#algo_min" class="internal-link" title="planner.path.Path.algo_min">algo<wbr></wbr>_min</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_clusters" class="internal-link" title="planner.path.Path.get_clusters">get<wbr></wbr>_clusters</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_components" class="internal-link" title="planner.path.Path.get_components">get<wbr></wbr>_components</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_costs" class="internal-link" title="planner.path.Path.get_costs">get<wbr></wbr>_costs</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_grid_min" class="internal-link" title="planner.path.Path.get_grid_min">get<wbr></wbr>_grid<wbr></wbr>_min</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_grid_path" class="internal-link" title="planner.path.Path.get_grid_path">get<wbr></wbr>_grid<wbr></wbr>_path</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_grid_size" class="internal-link" title="planner.path.Path.get_grid_size">get<wbr></wbr>_grid<wbr></wbr>_size</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#get_nodes" class="internal-link" title="planner.path.Path.get_nodes">get<wbr></wbr>_nodes</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#stitch_primitives" class="internal-link" title="planner.path.Path.stitch_primitives">stitch<wbr></wbr>_primitives</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#visualize" class="internal-link" title="planner.path.Path.visualize">visualize</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+
+        <div class="childrenKindTitle">Attributes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#component_groups" class="internal-link" title="planner.path.Path.component_groups">component<wbr></wbr>_groups</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#components" class="internal-link" title="planner.path.Path.components">components</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#components_ordered" class="internal-link" title="planner.path.Path.components_ordered">components<wbr></wbr>_ordered</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#coords2d" class="internal-link" title="planner.path.Path.coords2d">coords2d</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#coords3d" class="internal-link" title="planner.path.Path.coords3d">coords3d</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#grid_density" class="internal-link" title="planner.path.Path.grid_density">grid<wbr></wbr>_density</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#grid_path" class="internal-link" title="planner.path.Path.grid_path">grid<wbr></wbr>_path</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#max_grid" class="internal-link" title="planner.path.Path.max_grid">max<wbr></wbr>_grid</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#min_grid" class="internal-link" title="planner.path.Path.min_grid">min<wbr></wbr>_grid</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#nodes" class="internal-link" title="planner.path.Path.nodes">nodes</a></code>
+            </div>
+        
+
+    </li><li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="#z_plane" class="internal-link" title="planner.path.Path.z_plane">z<wbr></wbr>_plane</a></code>
+            </div>
+        
+
+    </li>
+</ul> 
+
+        
+         
+        
+      </div>
+  </div><div>
+
+      <div class="thingTitle">
+        <span>Module</span>
+        <code><a href="planner.path.html" class="internal-link" title="The parent of this class">path</a></code> 
+      </div>
+      
+      <div>
+        
+
+        
+         
+
+        <div class="childrenKindTitle">Classes</div>
+        <ul>
+    
+    <li class="">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="planner.path.Cloud.html" class="internal-link" title="planner.path.Cloud"><wbr></wbr>Cloud</a></code>
+            </div>
+        
+
+    </li><li class=" thisobject">
+        
+        
+        
+
+        
+            <div class="itemName"><code><a href="planner.path.Path.html" class="internal-link" title="planner.path.Path"><wbr></wbr>Path</a></code>
+            </div>
+        
+
+    </li>
+</ul>
+
+        
+         
+
+        
+         
+
+        
+         
+
+        
+         
+        
+      </div>
+  </div>
+
+</nav>
+        <!-- No sidebar toggle for read the docs theme, the sidebar is always
+          visible when the screen is width enough.
+        -->
+      </div>
+
+    </nav>
+    
+    <div class="container-fluid">
+
+      <div id="main" class="">
+        
+
+        
+
+
+        <div class="page-header">
+          <h1 class="class"><code><code><a href="index.html" class="internal-link">planner</a></code><wbr></wbr>.<code><a href="planner.path.html" class="internal-link" title="planner.path">path</a></code><wbr></wbr>.<code><a href="planner.path.Path.html" class="internal-link" title="planner.path.Path">Path</a></code></code></h1>
+          <div id="showPrivate">
+            <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+          </div>
+        </div>
+
+        <div class="categoryHeader">
+          class documentation
+        </div>
+
+        <div class="extrasDocstring">
+          <p class="class-signature"><code><span class="py-keyword">class</span> <span class="py-defname">Path</span>:</code></p><p>Constructor: <code><a href="#__init__" class="internal-link" title="planner.path.Path.__init__">Path(component_groups, grid_density, z_plane)</a></code></p>
+          <p><a href="classIndex.html#planner.path.Path">View In Hierarchy</a></p>
+        </div>
+
+        <div class="moduleDocstring">
+          <div><p>Contains the path for the cutting torch to follow</p></div>
+        </div>
+
+        <div id="splitTables">
+          <table class="children sortable" id="id10">
+  
+  
+  <tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#__init__" class="internal-link" title="planner.path.Path.__init__">__init__</a></code></td>
+    <td>Initializes Path</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#algo_bnb" class="internal-link" title="planner.path.Path.algo_bnb">algo<wbr></wbr>_bnb</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#algo_brute_force" class="internal-link" title="planner.path.Path.algo_brute_force">algo<wbr></wbr>_brute<wbr></wbr>_force</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#algo_greedy_gtsp" class="internal-link" title="planner.path.Path.algo_greedy_gtsp">algo<wbr></wbr>_greedy<wbr></wbr>_gtsp</a></code></td>
+    <td>General Traveling Salesman Problem solver</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#algo_min" class="internal-link" title="planner.path.Path.algo_min">algo<wbr></wbr>_min</a></code></td>
+    <td>Primitive sitching algorithm that uses simple minimum distance, i.g. which component.first_pt is closest to the current component's .last_pt</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_clusters" class="internal-link" title="planner.path.Path.get_clusters">get<wbr></wbr>_clusters</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_components" class="internal-link" title="planner.path.Path.get_components">get<wbr></wbr>_components</a></code></td>
+    <td>Sort tagged point cloud into individual objects</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_costs" class="internal-link" title="planner.path.Path.get_costs">get<wbr></wbr>_costs</a></code></td>
+    <td>Traveling salesman algo</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_grid_min" class="internal-link" title="planner.path.Path.get_grid_min">get<wbr></wbr>_grid<wbr></wbr>_min</a></code></td>
+    <td>Find the size of the image grid</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_grid_path" class="internal-link" title="planner.path.Path.get_grid_path">get<wbr></wbr>_grid<wbr></wbr>_path</a></code></td>
+    <td>Create 2D representation of the calculated cutting path Note: in grid scale, not cloud scale</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_grid_size" class="internal-link" title="planner.path.Path.get_grid_size">get<wbr></wbr>_grid<wbr></wbr>_size</a></code></td>
+    <td>Find the size of the image grid</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#get_nodes" class="internal-link" title="planner.path.Path.get_nodes">get<wbr></wbr>_nodes</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#stitch_primitives" class="internal-link" title="planner.path.Path.stitch_primitives">stitch<wbr></wbr>_primitives</a></code></td>
+    <td>Call a primtive stitching algorithm</td>
+  </tr><tr class="method">
+    
+    <td>Method</td>
+    <td><code><a href="#visualize" class="internal-link" title="planner.path.Path.visualize">visualize</a></code></td>
+    <td>Show information about the Path object</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#component_groups" class="internal-link" title="planner.path.Path.component_groups">component<wbr></wbr>_groups</a></code></td>
+    <td>list of component groups, i.g. group of T-beams, group of I-beams</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#components" class="internal-link" title="planner.path.Path.components">components</a></code></td>
+    <td>list of individual component objects</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#components_ordered" class="internal-link" title="planner.path.Path.components_ordered">components<wbr></wbr>_ordered</a></code></td>
+    <td>list of components ordered to form a path for the plasma torch</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#coords2d" class="internal-link" title="planner.path.Path.coords2d">coords2d</a></code></td>
+    <td>numpy array of 2d coordinates describing the cutting path. NOT resized</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#coords3d" class="internal-link" title="planner.path.Path.coords3d">coords3d</a></code></td>
+    <td>numpy array of 3d coordinates describing the cutting path. Resized to original point cloud scale</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#grid_density" class="internal-link" title="planner.path.Path.grid_density">grid<wbr></wbr>_density</a></code></td>
+    <td>number of squares in grid per unit in the point cloud</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#grid_path" class="internal-link" title="planner.path.Path.grid_path">grid<wbr></wbr>_path</a></code></td>
+    <td>2D representation of the calculated cutting path in grid scale, not cloud scale</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#max_grid" class="internal-link" title="planner.path.Path.max_grid">max<wbr></wbr>_grid</a></code></td>
+    <td>dimensions of the grid</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#min_grid" class="internal-link" title="planner.path.Path.min_grid">min<wbr></wbr>_grid</a></code></td>
+    <td><span class="undocumented">Undocumented</span></td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#nodes" class="internal-link" title="planner.path.Path.nodes">nodes</a></code></td>
+    <td>All component objects plus component objects with paths reversed</td>
+  </tr><tr class="instancevariable">
+    
+    <td>Instance Variable</td>
+    <td><code><a href="#z_plane" class="internal-link" title="planner.path.Path.z_plane">z<wbr></wbr>_plane</a></code></td>
+    <td>location of the cutting plane alnog the z-axis</td>
+  </tr>
+</table>
+          
+
+            
+        </div>
+
+        <div id="childList">
+          <div class="basemethod">
+  
+  
+  <a name="planner.path.Path.__init__">
+    
+  </a>
+  <a name="__init__">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">__init__</span><span class="function-signature">(self, component_groups, grid_density, z_plane)</span>:
+    
+    <a class="headerLink" href="#__init__" title="planner.path.Path.__init__">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Initializes Path</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Parameters</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">component<wbr></wbr>_groups</span></td><td class="fieldArgDesc">a</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">grid<wbr></wbr>_density</span></td><td class="fieldArgDesc">a</td></tr><tr><td class="fieldArgContainer"><span class="fieldArg">z<wbr></wbr>_plane</span></td><td class="fieldArgDesc">a</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.algo_bnb">
+    
+  </a>
+  <a name="algo_bnb">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">algo_bnb</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#algo_bnb" title="planner.path.Path.algo_bnb">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.algo_brute_force">
+    
+  </a>
+  <a name="algo_brute_force">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">algo_brute_force</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#algo_brute_force" title="planner.path.Path.algo_brute_force">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.algo_greedy_gtsp">
+    
+  </a>
+  <a name="algo_greedy_gtsp">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">algo_greedy_gtsp</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#algo_greedy_gtsp" title="planner.path.Path.algo_greedy_gtsp">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>General Traveling Salesman Problem solver</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.algo_min">
+    
+  </a>
+  <a name="algo_min">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">algo_min</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#algo_min" title="planner.path.Path.algo_min">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Primitive sitching algorithm that uses simple minimum distance, i.g. which component.first_pt is closest
+to the current component's .last_pt</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_clusters">
+    
+  </a>
+  <a name="get_clusters">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_clusters</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_clusters" title="planner.path.Path.get_clusters">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_components">
+    
+  </a>
+  <a name="get_components">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_components</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_components" title="planner.path.Path.get_components">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Sort tagged point cloud into individual objects</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_costs">
+    
+  </a>
+  <a name="get_costs">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_costs</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_costs" title="planner.path.Path.get_costs">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Traveling salesman algo</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_grid_min">
+    
+  </a>
+  <a name="get_grid_min">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_grid_min</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_grid_min" title="planner.path.Path.get_grid_min">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Find the size of the image grid</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_grid_path">
+    
+  </a>
+  <a name="get_grid_path">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_grid_path</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_grid_path" title="planner.path.Path.get_grid_path">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Create 2D representation of the calculated cutting path
+Note: in grid scale, not cloud scale</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_grid_size">
+    
+  </a>
+  <a name="get_grid_size">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_grid_size</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_grid_size" title="planner.path.Path.get_grid_size">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Find the size of the image grid</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.get_nodes">
+    
+  </a>
+  <a name="get_nodes">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">get_nodes</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#get_nodes" title="planner.path.Path.get_nodes">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.stitch_primitives">
+    
+  </a>
+  <a name="stitch_primitives">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">stitch_primitives</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#stitch_primitives" title="planner.path.Path.stitch_primitives">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Call a primtive stitching algorithm</p><table class="fieldTable"><tr class="fieldStart"><td class="fieldName" colspan="2">Returns</td></tr><tr><td colspan="2">Ordered list of primitives</td></tr></table></div>
+  </div>
+</div><div class="basemethod">
+  
+  
+  <a name="planner.path.Path.visualize">
+    
+  </a>
+  <a name="visualize">
+    
+  </a>
+  <div class="functionHeader">
+    
+    
+    <span class="py-keyword">def</span> <span class="py-defname">visualize</span><span class="function-signature">(self)</span>:
+    
+    <a class="headerLink" href="#visualize" title="planner.path.Path.visualize">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="docstring functionBody">
+    
+    <div><p>Show information about the Path object</p>
+<div class="rst-admonition rst-admonition-notes">
+<p class="rst-admonition-title rst-first">Notes</p>
+<p>o3d visualization <em>must</em> go before matplot display to avoid QT thread-handling issue</p>
+<p class="rst-last">o3d visualization does not work on wlroots even with x-wayland. Use X11 environment instead</p>
+</div>
+</div>
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.component_groups">
+    
+  </a>
+  <a name="component_groups">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">component_groups</span> =
+    
+    <a class="headerLink" href="#component_groups" title="planner.path.Path.component_groups">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>list of component groups, i.g. group of
+T-beams, group of I-beams</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.components">
+    
+  </a>
+  <a name="components">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">components</span> =
+    
+    <a class="headerLink" href="#components" title="planner.path.Path.components">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>list of individual component objects</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.components_ordered">
+    
+  </a>
+  <a name="components_ordered">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">components_ordered</span> =
+    
+    <a class="headerLink" href="#components_ordered" title="planner.path.Path.components_ordered">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>list of components ordered to form a path for the plasma torch</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.coords2d">
+    
+  </a>
+  <a name="coords2d">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">coords2d</span> =
+    
+    <a class="headerLink" href="#coords2d" title="planner.path.Path.coords2d">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>numpy array of 2d coordinates describing the cutting path. NOT resized</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.coords3d">
+    
+  </a>
+  <a name="coords3d">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">coords3d</span> =
+    
+    <a class="headerLink" href="#coords3d" title="planner.path.Path.coords3d">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>numpy array of 3d coordinates describing the cutting path. Resized to original point cloud scale</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.grid_density">
+    
+  </a>
+  <a name="grid_density">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">grid_density</span> =
+    
+    <a class="headerLink" href="#grid_density" title="planner.path.Path.grid_density">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>number of squares in grid per unit in the point cloud</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.grid_path">
+    
+  </a>
+  <a name="grid_path">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">grid_path</span> =
+    
+    <a class="headerLink" href="#grid_path" title="planner.path.Path.grid_path">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>2D representation of the calculated cutting path in grid scale, not cloud scale</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.max_grid">
+    
+  </a>
+  <a name="max_grid">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">max_grid</span> =
+    
+    <a class="headerLink" href="#max_grid" title="planner.path.Path.max_grid">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>dimensions of the grid</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.min_grid">
+    
+  </a>
+  <a name="min_grid">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">min_grid</span> =
+    
+    <a class="headerLink" href="#min_grid" title="planner.path.Path.min_grid">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p class="undocumented">Undocumented</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.nodes">
+    
+  </a>
+  <a name="nodes">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">nodes</span> =
+    
+    <a class="headerLink" href="#nodes" title="planner.path.Path.nodes">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>All component objects plus component objects with paths reversed</p></div>
+    
+  </div>
+</div><div class="baseinstancevariable">
+  
+  
+  <a name="planner.path.Path.z_plane">
+    
+  </a>
+  <a name="z_plane">
+    
+  </a>
+  <div class="functionHeader">
+    
+    <span class="py-defname">z_plane</span> =
+    
+    <a class="headerLink" href="#z_plane" title="planner.path.Path.z_plane">
+      
+      
+      ¶
+    </a>
+  </div>
+  <div class="functionBody">
+    
+    <div><p>location of the cutting plane alnog the z-axis</p></div>
+    
+  </div>
+</div>
+        </div>
+      
+      </div>
+    </div>
+
+    <footer class="navbar navbar-default">
+    <hr />
+    
+    
+    <div class="container-fluid">
+      <a href="index.html">API Documentation</a> for Ship Cutting Planner,
+    generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+      24.11.1 at 2025-07-30 15:34:46.
+    </div>
+    
+    <script src="ajax.js" type="text/javascript"></script>
+    <script src="searchlib.js" type="text/javascript"></script>
+    <script src="search.js" type="text/javascript"></script>
+  
+  </footer>
+  
+    <script src="pydoctor.js" type="text/javascript"></script>
+
+  </body>
+</html>

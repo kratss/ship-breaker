@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from icecream import ic
 import open3d as o3d
-import primitives as pt
+import planner as pln
 
 """
 Terminology:
@@ -14,12 +14,12 @@ all T-beams in the environment
 
 # Generated data
 DENSITY = 65
-NOISE_STD = 0.00
+NOISE_STD = 0.01
 clouds = {
-    "curved_walls": pt.gen_curved_walls(DENSITY, NOISE_STD),
-    # "planes": pt.gen_planes(DENSITY, NOISE_STD),
-    "floors": pt.gen_floor(DENSITY, NOISE_STD),
-    "tbeams": pt.gen_tbeams_many(DENSITY, NOISE_STD),
+    "curved_walls": pln.gen_curved_walls(DENSITY, NOISE_STD),
+    # "planes": pln.gen_planes(DENSITY, NOISE_STD),
+    "floors": pln.gen_floor(DENSITY, NOISE_STD),
+    "tbeams": pln.gen_tbeams_many(DENSITY, NOISE_STD),
 }
 
 # Chosen parameters
@@ -28,7 +28,7 @@ GRID_DENSITY = 10
 TOLERANCE = 1
 
 # Collect input pcd into Cloud object
-my_cloud = pt.Cloud(clouds, Z_PLANE, TOLERANCE)
+my_cloud = pln.Cloud(clouds, Z_PLANE, TOLERANCE)
 
 # Create ComponentGroup objects for each component class
 # All T-beams are in a ComponentGroup named tbeams,
@@ -36,7 +36,7 @@ my_cloud = pt.Cloud(clouds, Z_PLANE, TOLERANCE)
 component_groups = []
 for key, value in clouds.items():
     component_groups.append(
-        pt.ComponentGroup(
+        pln.ComponentGroup(
             key,
             value,
             Z_PLANE,
@@ -47,7 +47,7 @@ for key, value in clouds.items():
     )
 
 
-# Create pt.object
+# Create pln.object
 #   Creates a component object for each structure in the ship. Store all
 #   in a list as the "component" attribute
 #
@@ -59,7 +59,8 @@ for key, value in clouds.items():
 #
 #   Converts ordered list of 2D coordinates to 3D coordinates, which is
 #   the final result of the program
-my_path = pt.Path(component_groups, GRID_DENSITY, Z_PLANE)
+my_path = pln.Path(component_groups, GRID_DENSITY, Z_PLANE)
 # ic(my_pathcoords2d) # Entire cutting path in grid space
 ic(my_path.components[2].get_info())
 my_path.visualize()
+ic(my_path.components[1].cntr.shape)

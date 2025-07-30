@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """
 Extract a 2D slice from a point cloud
+
+For a given point cloud and cutting plane, a cross section can be extracted within a specified tolerance. The cross section is then converted to a binary image to facilitate analysis.
 """
 import matplotlib.pyplot as plt
 import numpy as np
@@ -94,6 +96,20 @@ def voxelize(slice, density, grid_dim):
 
 
 def cloud_to_grid(cloud, density, z_plane, tolerance, grid_dim):
+    """
+    Returns the binary image of the cross section for a given cloud
+
+    This wrapper function simplifies the point cloud extraction and image conversion process
+
+    Args:
+        cloud (numpy.ndarray): Array of x,y,z points describing point cloud of the scene
+        density (float): Number of pixels in image space per unit length in cloud space
+        z_plane (float): Location of the cutting plane along the z-axis
+        tolerance (float): Points that lie within this perpendicular distance from the cutting plane will be included in the cross-section
+
+    Returns:
+        numpy.ndarray: A (2,n) array giving a binary image of the cross-section
+    """
     slice = extract_plane(cloud, z_plane, tolerance)
     grid = voxelize(slice, density, grid_dim)
     return grid
@@ -101,7 +117,15 @@ def cloud_to_grid(cloud, density, z_plane, tolerance, grid_dim):
 
 def get_3d(coords2d, density, z_plane):
     """
-    Turn 2D image coordinates into 3D point cloud coordinates
+    Recover 3D cloud scale and dimensionality from 2D image space
+
+    Args:
+        coords2d (numpy.ndarray): Ordered list of coordinates in image space with dimensions (n,2)
+        density (float): Number of pixels in image space per unit length in cloud space
+        z_plane (float): Location of the cutting plane along the z-axis
+
+    Returns:
+        np.ndarray (float): Ordered list of coordinates in cloud space with dimensions (n,3)
     """
     coords3d = np.zeros([coords2d.shape[0], 3])
     coords3d[:, 0:2] = coords2d
