@@ -4,6 +4,9 @@ This program takes a segmented point cloud and desired cutting plane, and return
 
 ## Setup
 Ensure Python 3.12 is installed 
+```
+which python3.12
+```
 
 Download the repository, prepare the Python environment, and install the library
 
@@ -12,7 +15,7 @@ git clone https://github.com/kratss/ship-breaker.git
 cd ship-breaker
 chmod u+x *.py
 python3.12 -m venv env-thesis
-source venv/bin/activate
+source env-thesis/bin/activate
 pip install -e .
 ```
 
