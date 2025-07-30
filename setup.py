@@ -14,6 +14,7 @@ setup(
         "PyQt5",
         "icecream",
         "opencv-contrib-python",
+        "networkx",
     ],
     author="Jarrett Bolander",
     description="Autonomous ship dismantling path planning library",
