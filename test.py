@@ -1,14 +1,13 @@
 #!/usr/bin/env python
-import gen
-import model
-import extract_plane as ep
-from icecream import ic
+import primitives as pt
 
-DENSITY = 56
+
+DENSITY = 35
 NOISE_STD = 0.01
-Z_PLANE = 5
-GRID_RES = 5
-TOLERANCE = 1
-ic(DENSITY)
-my_model = model.gen_curved_walls(DENSITY, NOISE_STD)
-ic(ep.cloud_to_grid(my_model, 5, 5, 1))
+clouds = {
+    "curved_walls": pt.gen_curved_walls(DENSITY, NOISE_STD),
+    "planes": pt.gen_planes(DENSITY, NOISE_STD),
+    "tbeams": pt.gen_tbeams_many(DENSITY, NOISE_STD),
+}
+
+my_cloud = pt.Cloud(clouds, 4.8, 1.1)

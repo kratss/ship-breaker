@@ -8,15 +8,15 @@ This module provides the primary interface for the library
 #    grid refers to the 2D projection of the point cloud slice onto a grid
 #    such that it can be viewed as an image
 
-import bnb
+import primitives.bnb as bnb
 import cv2
-import contour
-import extract_plane as ep
-import gen
+import primitives.contour as contour
+import primitives.extract_plane as ep
+import primitives.gen as gen
 from icecream import ic
 import math
 import matplotlib.pyplot as plt
-import model
+import primitives.model as model
 import numpy as np
 import open3d as o3d
 from skimage.morphology import skeletonize
@@ -78,7 +78,7 @@ class Path:
                 before calling Path.get_costs()"
             )
         return clusters
-`
+
     def get_costs(self):
         """
         Traveling salesman algo

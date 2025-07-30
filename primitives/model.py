@@ -6,7 +6,7 @@ Functions are separated into gen_planes, gen_tbeams, and so on to mimcic
 how tagged groups of elements will be passed to the path finding algo, while
 gen_ship() generates a more complete model for visualization purposes
 """
-import gen
+import primitives.gen as gen
 import numpy as np
 import open3d as o3d
 from icecream import ic

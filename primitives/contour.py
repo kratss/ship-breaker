@@ -3,11 +3,11 @@
 Find the path the robot must follow
 """
 import cv2
-import extract_plane as ep
-import gen
+import primitives.extract_plane as ep
+import primitives.gen
 from icecream import ic
 import matplotlib.pyplot as plt
-import model
+import primitives.model
 import numpy as np
 import pandas as pd
 from skimage.morphology import skeletonize

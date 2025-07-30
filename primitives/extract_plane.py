@@ -2,9 +2,7 @@
 """
 Extract a 2D slice from a point cloud
 """
-import gen
 import matplotlib.pyplot as plt
-import model
 import numpy as np
 import open3d as o3d
 import open3d.t as o3dt
@@ -116,6 +114,10 @@ if __name__ == "__main__":
     """
     Demo plane extraction
     """
+
+    import primitives.gen
+    import primitives.model
+
     DENSITY = 33
     NOISE_STD = 0.05
     Z_PLANE = 3
