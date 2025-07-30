@@ -3,15 +3,19 @@ This program takes a segmented point cloud and desired cutting plane, and return
 
 ## Setup
 Download the repository and prepare the Python environment
-`
+```
 git clone https://github.com/kratss/ship-breaker.git 
 cd ship-breaker
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-`
+chmod u+x *.py
+```
+
+An X environment is required to see the 3D visualizations. A Wayland environment is required for the 2D visualizations
+
 ## Usage
-This example code is also found in demo.py
+This example code is also found in demo.py. Simply run `./demo.py`
 
 Import the required libraries
 ```
@@ -44,7 +48,7 @@ Pass the cloud of the entire scene `clouds` into a Cloud object along with the l
 ```
 my_cloud = path.Cloud(cloud, z-plane=4.9, tolerance=1.1)
 ```
-
+ 
 For each component group, create a ComponentGroup object with the n x 3 point cloud containing all components of that type and combine those into a list
 ```
 component_groups = []
@@ -66,7 +70,7 @@ Create a path object with the list of component groups
 my_path = path.Path(component_groups, GRID_DENSITY, Z_PLANE)
 ```
 
-At this point, the path object will create Component objects for each component it identifies, stitch them together, create an ordered list of points that describes the cutting path, then bring them back to point cloud space.
+At this point, the Path object will create Component objects for each identified component, stitch them together, create an ordered list of points that describes the cutting path, then bring them back to point cloud space.
 ```
 print(Complete cutting path is \n",my_path.coords3d) # Ordered list of points for the robot to follow
 ```
@@ -77,6 +81,42 @@ for component in my_path.components:
   print("Path for ",component.name," is \n",component.cntr)
 print("2D cutting path in grid space is \n" my_path.coords2d")
 ```
+## Extending the Code
+### Adding Primitives 
+To add a new primitive, navigate to contour.py -> Class ComponentGroup -> get_contours(). Add a new statement 
+```if self.name == "my_new_component":```
+Within this if statement, analyze the 2 x n numpy array `grid` and return a list of lists, where each list is an ordered list of key points that the torch will move between to cut the specific component.
+
+**Recommendation:**
+When an unknown component name is found for self.name, the program falls back to using cv2.findContours(). Visualize the performance with my_path_object.visualize(). If the output is close to acceptable, use the output as a base and modify it. If the performance is poor, consider applying Hough transforms and analyzing the intersections. 
+
+The T-beam logic, for example, applies the cv2.findContours function, removes duplicate values, and adjusts the location of the end points
+
+**Note:**
+ComponentGroup expects all members of a component group to be passed together in a single binary image, in accordance with the problem definition. Code for new primitives must be able to identify the individual components and separate them into individual lists.these
+
+**Note:**
+The value of `self.name` will be taken from the dictionary used to create the ComponentGroup objects.
+
+### Extending Synthetic Data Generation
+Point clouds representing new structure types can be added to gen.py. This section is function-oriented. Create a new function named my_structure() that takes origin (can also be conceptualized as translation), density in dots per cubic unit, roll/pitch/yaw and dimension lengths. Consider using the plane and curved_wall functions to simplify the construction. Return the point cloud as an n x 3 numpy array 
+
+## Adding Primitives 
+To add a new primitive, navigate to contour.py -> Class ComponentGroup -> get_contours(). Add a new statement 
+```if self.name = my_new_component:```
+Within this if statement, analyze the 2 x n numpy array `grid` and return a list of lists, where each list is an ordered list of key points that the torch will move between to cut the specific component.
+
+**Recommendation:**
+When an unknown component name is found for self.name, the program falls back to using cv2.findContours(). Visualize the performance with my_path_object.visualize(). If the output is close to acceptable, use the output as a base and modify it. If the performance is poor, consider applying Hough transforms and analyzing the intersections. 
+
+The T-beam logic, for example, apples the cv2.findContours function, removes duplicate values, and adjusts the location of the end points
+
+**Note:**
+ComponentGroup expects all members of a component group to be passed together in a single binary image, in accordance with the problem definition. Code for new primitives must be able to identify the individual components and separate them into individual lists.these
+
+**Note:**
+The value of `self.name` will be taken from the dictionary used to create the ComponentGroup objects.
+
 
 ## How It Works
 - Cloud object holding the tagged point cloud of the vessel interior is created. Each point cloud representing a component type is stored as a separate dictionary entry. E.g.
@@ -95,21 +135,6 @@ print("2D cutting path in grid space is \n" my_path.coords2d")
   - The cutting paths from the ordered list of components are concatenated to form a complete path in grid space as Path.coords2d 
   - The grid space coordinates are transformed into cloud space, giving the final ordered list of points for the robot
 
-## Adding Primitives 
-To add a new primitive, navigate to contour.py -> Class ComponentGroup -> get_contours(). Add a new statement 
-```if self.name = my_new_component:```
-Within this if statement, analyze the 2 x n numpy array `grid` and return a list of lists, where each list is an ordered list of key points that the torch will move between to cut the specific component.
-
-**Recommendation:**
-When an unknown component name is found for self.name, the program falls back to using cv2.findContours(). Visualize the performance with my_path_object.visualize(). If the output is close to acceptable, use the output as a base and modify it. If the performance is poor, consider applying Hough transforms and analyzing the intersections. 
-
-The T-beam logic, for example, apples the cv2.findContours function, removes duplicate values, and adjusts the location of the end points
-
-**Note:**
-ComponentGroup expects all members of a component group to be passed together in a single binary image, in accordance with the problem definition. Code for new primitives must be able to identify the individual components and separate them into individual lists.these
-
-**Note:**
-The value of `self.name` will be taken from the dictionary used to create the ComponentGroup objects.
 ## Glossary
 component:        specific I-beam, T-beam, bulb flat, or other part of ship 
 component group:  all components of the same type, i.e. all bulb flats
