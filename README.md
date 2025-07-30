@@ -3,6 +3,7 @@ This program takes a segmented point cloud and desired cutting plane, and return
 
 
 ## Setup
+Ensure Python 3.12 is installed 
 
 Download the repository, prepare the Python environment, and install the library
 
@@ -10,7 +11,7 @@ Download the repository, prepare the Python environment, and install the library
 git clone https://github.com/kratss/ship-breaker.git 
 cd ship-breaker
 chmod u+x *.py
-python -m venv env-thesis
+python3.12 -m venv env-thesis
 source venv/bin/activate
 pip install -e .
 ```
@@ -173,11 +174,17 @@ The value of `self.name` will be taken from the dictionary entry used to create 
 
 ## Glossary
 
-- component:        specific I-beam, T-beam, bulb flat, or other part of ship
+- cloud space: the three dimensional space and scale used in the point cloud representation
+
+- component: specific I-beam, T-beam, bulb flat, or other part of ship
 
 - component group:  all components of the same type, i.e. all bulb flats
 
 - contour: key points chosen by applying a primitive to a specific component
+
+- grid/image space: the two dimensional space and scale used in the binary image representation
+
+- grid: the space onto which the binary image projected
 
 ## Additional Notes
 
