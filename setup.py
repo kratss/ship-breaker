@@ -15,6 +15,7 @@ setup(
         "icecream",
         "opencv-contrib-python",
         "networkx",
+        "scikit-image",
     ],
     author="Jarrett Bolander",
     description="Autonomous ship dismantling path planning library",
