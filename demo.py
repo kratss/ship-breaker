@@ -3,15 +3,6 @@ from icecream import ic
 import open3d as o3d
 import planner as pln
 
-"""
-Terminology:
-"component" refers to a specific structure in the vessel interior, such
-as a beam at a given (X,Y,Z) coordinate.
-
-"component class" refers to all structures of the same type, such as
-all T-beams in the environment
-"""
-
 # Generated data
 DENSITY = 65
 NOISE_STD = 0.01
@@ -60,7 +51,8 @@ for key, value in clouds.items():
 #   Converts ordered list of 2D coordinates to 3D coordinates, which is
 #   the final result of the program
 my_path = pln.Path(component_groups, GRID_DENSITY, Z_PLANE)
-# ic(my_pathcoords2d) # Entire cutting path in grid space
+
+# Get information and visualizations
+ic(my_path.coords2d)  # Entire cutting path in grid space
 ic(my_path.components[2].get_info())
 my_path.visualize()
-ic(my_path.components[1].cntr.shape)

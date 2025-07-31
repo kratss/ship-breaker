@@ -61,7 +61,15 @@ class ComponentGroup:
         if self.name == "planes":
             """KNN Approach. Find end point with only one neighbor"""
             skeleton = cv2.ximgproc.thinning(img)
-            return skeleton
+            max = 0
+            extremes = (0, 1)
+            for i in range(len(skeleton)):
+                for j in range(i + 1, len(skeleton)):
+                    dist = np.linalg.norm(skeleton[i] - skeleton[j])
+                    if dist > max:
+                        max = dist
+                        extremes = (i, j)
+            return skeleton[list(extremes)]
         if self.name == "tbeams":
             """
             Find the points with the greatest y value, and move them
@@ -182,6 +190,17 @@ class Component:
         Returns:
             np.ndarray: x,y coordinate
         """
+
+        if self.name.startswith("curved_wall"):
+            max = 0
+            extremes = (0, 1)
+            for i in range(len(self.cntr)):
+                for j in range(i + 1, len(self.cntr)):
+                    dist = np.linalg.norm(self.cntr[i] - self.cntr[j])
+                    if dist > max:
+                        max = dist
+                        extremes = (i, j)
+            return self.cntr[list(extremes)][0]
         return self.cntr[0]
 
     def get_last_pt(self):
@@ -190,6 +209,16 @@ class Component:
         Returns:
             np.ndarray: x,y coordinate
         """
+        if self.name.startswith("curved_wall"):
+            max = 0
+            extremes = (0, 1)
+            for i in range(len(self.cntr)):
+                for j in range(i + 1, len(self.cntr)):
+                    dist = np.linalg.norm(self.cntr[i] - self.cntr[j])
+                    if dist > max:
+                        max = dist
+                        extremes = (i, j)
+            return self.cntr[list(extremes)][1]
         return self.cntr[-1]
 
     def fix_contour(self, cntr):
