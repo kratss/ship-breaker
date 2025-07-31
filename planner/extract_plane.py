@@ -139,9 +139,6 @@ if __name__ == "__main__":
     Demo plane extraction
     """
 
-    import primitives.gen
-    import primitives.model
-
     DENSITY = 33
     NOISE_STD = 0.05
     Z_PLANE = 3

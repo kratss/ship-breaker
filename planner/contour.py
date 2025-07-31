@@ -106,10 +106,8 @@ class ComponentGroup:
             img_cntrs, hrrchy = cv2.findContours(
                 img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
             )
-            unique_points, indices = np.unique(img_cntrs, axis=0, return_index=True)
-            img_cntrs = unique_points
-            # ic("curved_walls")
-            # ic(img_cntrs)
+            # unique_points, indices = np.unique(img_cntrs, axis=0, return_index=True)
+            # img_cntrs = unique_points
             return img_cntrs
 
         img_cntrs, hrrchy = cv2.findContours(

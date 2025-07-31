@@ -2,14 +2,15 @@
 from icecream import ic
 import open3d as o3d
 import planner as pln
+import scale_model as model2
 
 # Generated data
-DENSITY = 5
-NOISE_STD = 0.01
+DENSITY = 10
+NOISE_STD = 0.03
 clouds = {
-    "curved_walls": pln.gen_curved_walls(DENSITY, NOISE_STD),
-    "floors": pln.gen_floor(DENSITY, NOISE_STD),
-    "tbeams": pln.gen_tbeams(DENSITY, NOISE_STD),
+    "curved_walls": model2.gen_curved_walls(DENSITY, NOISE_STD),
+    "planes": model2.gen_floor(DENSITY, NOISE_STD),
+    "tbeams": model2.gen_tbeams_many(DENSITY, NOISE_STD),
 }
 
 # Chosen parameters

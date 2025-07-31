@@ -318,6 +318,7 @@ class Cloud:
         Draw the complete point cloud and print the array contents.
         NOTE: X only, not Wayland compatible
         """
+        print("Visualizing point cloud")
         axes = gen.draw_axes()
         cloud = o3d.t.geometry.PointCloud(self.overall_cloud)
         ic(cloud)
