@@ -150,6 +150,12 @@ ComponentGroup expects all members of a component group to be passed together in
 **Note:**
 The value of `self.name` will be taken from the dictionary entry used to create the ComponentGroup objects in this example. For a ComponentGroup pipes, a series of Component objects  with self.name pipe0 pipe1 pipe2... will be created
 
+### Compiling Documentation 
+
+To update the docs after modifying or adding docstrings, run `compile-docs.bash` and pydoctor will write the updated docs to the docs/ directory of the project folder. Make sure pydoctor is installed with `which pydoctor`. 
+
+Note that the privacy arguments are passed in `compile-docs.bash` rather than `pydoctor.cfg` because pydoctor cannot parse multiple privacy arguments from its configuration file
+
 ## How It Works
 
 - Dictionary holding the tagged point cloud of the vessel interior is used to create a Cloud object. Each point cloud representing a component type is stored as a separate dictionary entry. E.g.
