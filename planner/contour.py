@@ -33,6 +33,7 @@ class ComponentGroup:
 
     def __init__(self, name, cloud, plane, grid_density, tolerance, grid_dim):
         self.name = name
+        print("Initializing component group", self.name)
         self.cloud = cloud
         self.plane = plane
         self.tolerance = tolerance
@@ -40,7 +41,6 @@ class ComponentGroup:
         self.grid_dim = grid_dim
         self.grid = self.process_grid()
         self.cntrs = self.get_contours(self.grid)
-        print("Initializing component group", self.name)
 
     def get_contours(self, img):
         """
@@ -84,8 +84,14 @@ class ComponentGroup:
             img_cntrs = list(img_cntrs)  # make mutable
             for i in range(len(img_cntrs)):
                 cntr = img_cntrs[i].reshape(-1, 2)
+                ic("tbeam")
+                ic(cntr.shape)
+                if cntr.shape[0] < 6:
+                    print(
+                        "Warning: T-beams are possibly being parsed incorrectly. Adjust the density of the grid or point cloud"
+                    )
                 cntr = pd.DataFrame(cntr).drop_duplicates().values
-
+                ic(cntr.shape)
                 median_x = np.median(cntr[:, 0])
                 """
                 left_side_idx = np.where(cntr[:, 0] < median_x)[0]
@@ -97,8 +103,6 @@ class ComponentGroup:
                 cntr = np.vstack([cntr[max_y_idx], np.delete(cntr, max_y_idx, axis=0)])
                 """
                 cntr[0, 0] = cntr[0, 0] - 2 * abs(cntr[0, 0] - cntr[1, 0])
-
-                ic(cntr)
                 cntr = cntr.reshape(-1, 1, 2)
                 img_cntrs[i] = cntr
             return img_cntrs

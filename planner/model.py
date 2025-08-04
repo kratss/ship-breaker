@@ -13,16 +13,30 @@ import numpy as np
 import open3d as o3d
 from icecream import ic
 
+DEPTH = 500
+
 
 def gen_curved_walls(density, noise_std):
     origin = [55, 0, 20]
     cloud = np.concatenate(
         (
             gen.curved_wall(
-                origin=origin, roll=np.pi / 2, pitch=np.pi, yaw=np.pi, height=30
+                origin=[55, 0, DEPTH],
+                roll=np.pi / 2,
+                pitch=np.pi,
+                yaw=np.pi,
+                height=300,
+                length=DEPTH,
+                density=density,
             ),
             gen.curved_wall(
-                origin=[100, 0, 0], roll=np.pi / 2, pitch=0, yaw=np.pi, height=30
+                origin=[600, 0, 0],
+                roll=np.pi / 2,
+                pitch=0,
+                yaw=np.pi,
+                height=300,
+                length=DEPTH,
+                density=density,
             ),
         )
     )
@@ -46,202 +60,54 @@ def gen_planes(density, noise_std):
 
 
 def gen_tbeams(density, noise_std):
-    LENGTH = 10
+    ALTITUDE = 300
+    LENGTH = DEPTH
     WIDTH = 20
-    HEIGHT = 50
-    THICKNESS = 0.1
-    cloud = np.concatenate(
-        (
-            gen.tbeam(
-                origin=[30, 30, 0],
-                length=10,
-                width=20,
-                height=50,
-                thickness=0.1,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[45, 30, 0],
-                length=10,
-                width=5,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-        )
-    )
-    z_min = cloud[:, 2].min()
-    z_max = cloud[:, 2].max()
-    cloud = gen.noise(cloud, std=noise_std)
-    return cloud
+    HEIGHT = 30
+    THICKNESS = 3
+    SPACING = 80
+    ROLL = -np.pi / 2
+    PITCH = -np.pi / 2
+    YAW = 0
+    SKIP = [
+        True,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    ]
 
-
-def gen_tbeams_many(density, noise_std):
-    LENGTH = 10
-    WIDTH = 20
-    HEIGHT = 50
-    THICKNESS = 0.1cloud = np.concatenate(
-        (
-            gen.tbeam(
-                origin=[70, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[90, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[110, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[130, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
-            gen.tbeam(
-                origin=[150, 30, 0],
-                length=10,
-                width=5,
-                height=6,
-                thickness=0.7,
-                roll=-np.pi / 2,
-                pitch=-np.pi / 2,
-                skip=[
-                    True,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                    False,
-                ],
-                density=density,
-            ),
+    cloud = np.array([[0, 0, 0]])
+    for i in range(5):
+        cloudt = gen.tbeam(
+            [i * SPACING + 175, ALTITUDE, 0],
+            LENGTH,
+            WIDTH,
+            HEIGHT,
+            THICKNESS,
+            ROLL,
+            PITCH,
+            YAW,
+            SKIP,
+            density,
         )
-    )
-    z_min = cloud[:, 2].min()
-    z_max = cloud[:, 2].max()
+        cloud = np.concatenate((cloud, cloudt))
+    cloud = np.delete(cloud, 0, axis=0)
     cloud = gen.noise(cloud, std=noise_std)
     return cloud
 
 
 def gen_floor(density, noise_std):
-    cloud = gen.plane(origin=[57, 0, 0], length=60, width=30, roll=np.pi / 2)
+    cloud = gen.plane(
+        origin=[57, 0, 0], length=525, width=DEPTH, roll=np.pi / 2, density=density
+    )
     cloud = gen.noise(cloud, std=noise_std)
     return cloud
 

@@ -19,6 +19,7 @@ import numpy as np
 import open3d as o3d
 from skimage.morphology import skeletonize
 from itertools import product, permutations
+import time
 
 np.set_printoptions(precision=1, suppress=True)
 
@@ -252,6 +253,11 @@ class Path:
         Returns:
             Ordered list of primitives
         """
+        print("Stitching primitives with bound and branch")
+        time_start = time.perf_counter()
+        solution = self.algo_bnb()
+        time_end = time.perf_counter()
+        print(f"Path found in: {time_end - time_start:.1f} seconds")
         return self.algo_bnb()
 
     def visualize(self):

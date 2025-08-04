@@ -4,7 +4,7 @@ import open3d as o3d
 import planner as pln
 
 # Generated data
-DENSITY = 5
+DENSITY = 0.8
 NOISE_STD = 0.01
 clouds = {
     "curved_walls": pln.gen_curved_walls(DENSITY, NOISE_STD),
@@ -14,7 +14,7 @@ clouds = {
 
 # Chosen parameters
 Z_PLANE = 5
-GRID_DENSITY = 10
+GRID_DENSITY = 1
 TOLERANCE = 1
 
 # Collect input pcd into Cloud object
