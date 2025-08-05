@@ -5,7 +5,7 @@ import planner as pln
 
 # Generated data
 DENSITY = 4
-NOISE_STD = 0.01
+NOISE_STD = 0.51
 clouds = {
     "curved_walls": pln.gen_curved_walls(DENSITY, NOISE_STD),
     "floors": pln.gen_floor(DENSITY, NOISE_STD),
