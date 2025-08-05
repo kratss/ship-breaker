@@ -14,7 +14,7 @@ clouds = {
 
 # Chosen parameters
 Z_PLANE = 5
-GRID_DENSITY = 2
+GRID_DENSITY = 3
 TOLERANCE = 1
 
 # Collect input pcd into Cloud object
